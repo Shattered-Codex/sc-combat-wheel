@@ -1,0 +1,355 @@
+/* === Acting and turn-change effects ======================================== */
+/* Two families, chosen by attributes on the widget root (.sc-combat-wheel,
+   also the editor preview):
+     data-scw-acting-fx = none | pulse | halo | aura | flicker | rays | shine
+       loops around the acting portrait while it acts;
+     data-scw-turn-fx = none | ripple | burst | flash | pop
+       plays once while the root has .scw-turn-fx-run (added on a turn
+       change, removed 1200ms later), so each lasts at most 1100ms.
+   Two places to draw (RF-112):
+     .scw-afx                the layer just behind the acting slot
+                             (WheelActingFx), where nothing clips: glows,
+                             halo, aura, flame, rays, waves and burst;
+     the acting slot itself  light over the art, inside its own shape
+                             (shine's sweep, flash) and the art's `scale` (pop).
+   Two knobs, like the rarity colors' effects: --scw-fx-strength scales every
+   opacity and --scw-fx-speed every duration (WheelAppearance, from the effect
+   intensity and speed). The colour is the acting colour (--scw-active).
+   Only transform and opacity animate. Off in the grid view; under reduced
+   motion nothing moves, and the glows stay lit so the acting cue remains. */
+
+.sc-combat-wheel {
+  --scw-fx-strength: 0.75;
+  --scw-fx-speed: 1;
+  --scw-fx-c: var(--scw-active);
+}
+
+/* The acting art keeps its overlays to itself, under its badges. */
+.sc-combat-wheel .scw-slot.is-active .scw-portrait { isolation: isolate; }
+.sc-combat-wheel .scw-slot.is-active .scw-portrait > :is(.scw-flag, .scw-health, .scw-badge-round, .scw-badge-turn, .scw-name-tag, .scw-badge-init) {
+  z-index: 3;
+}
+
+/* ---------- the layer behind the acting slot ---------- */
+.sc-combat-wheel .scw-afx {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  --scw-afx-r: var(--scw-radius);
+}
+/* On the wheel the neighbouring slices and the hub would hide whatever sits
+   behind the acting slice: the layer opens up (no stacking of its own) so its
+   light — glow, halo, rays, waves, burst — lies over them like a spotlight,
+   while the aura and the flame, which fill the middle, stay behind. */
+.sc-combat-wheel .scw-afx[data-shape="round"] { --scw-afx-r: 50%; z-index: auto; }
+.sc-combat-wheel .scw-afx[data-shape="round"] > :is(.scw-afx-glow, .scw-afx-halo, .scw-afx-rays, .scw-afx-waves, .scw-afx-burst) { z-index: 6; }
+.sc-combat-wheel .scw-afx[data-shape="round"] > :is(.scw-afx-aura, .scw-afx-flame) { z-index: 0; }
+.sc-combat-wheel.is-grid .scw-afx { display: none; }
+.sc-combat-wheel .scw-afx > i {
+  position: absolute;
+  display: none;
+  inset: 0;
+  border-radius: var(--scw-afx-r);
+}
+.sc-combat-wheel .scw-afx b {
+  position: absolute;
+  display: block;
+}
+
+/* Glow: a tight bright ring of light and a wide soft one. Static here; it breathes below. */
+.sc-combat-wheel:is([data-scw-acting-fx="pulse"], [data-scw-acting-fx="halo"], [data-scw-acting-fx="shine"], [data-scw-acting-fx="rays"]) .scw-afx-glow {
+  display: block;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--scw-fx-c) 70%, white),
+    0 0 22px 8px color-mix(in srgb, var(--scw-fx-c) 90%, transparent),
+    0 0 60px 22px color-mix(in srgb, var(--scw-fx-c) 55%, transparent);
+  opacity: var(--scw-fx-strength);
+}
+/* Under the halo, the rays and the shine the glow only supports them. */
+.sc-combat-wheel:is([data-scw-acting-fx="halo"], [data-scw-acting-fx="shine"], [data-scw-acting-fx="rays"]) .scw-afx-glow {
+  opacity: calc(var(--scw-fx-strength) * 0.55);
+}
+
+/* Halo: a ring just outside the portrait, a band of light running round it. */
+.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo {
+  display: block;
+  inset: -8px;
+  overflow: hidden;
+  padding: 5px;
+  border-radius: calc(var(--scw-afx-r) + 8px);
+  opacity: var(--scw-fx-strength);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx[data-shape="round"] .scw-afx-halo { border-radius: 50%; }
+.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--scw-fx-c) 25%, transparent) 0 12%,
+    color-mix(in srgb, var(--scw-fx-c) 55%, white) 25%,
+    color-mix(in srgb, var(--scw-fx-c) 25%, transparent) 38% 62%,
+    color-mix(in srgb, var(--scw-fx-c) 55%, white) 75%,
+    color-mix(in srgb, var(--scw-fx-c) 25%, transparent) 88%
+  );
+}
+
+/* Aura: three blobs of energy behind the portrait, never the same outline twice. */
+.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura {
+  display: block;
+  inset: -22%;
+  border-radius: 50%;
+  opacity: var(--scw-fx-strength);
+}
+.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(1) {
+  inset: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 60%, white) 0%, var(--scw-fx-c) 34%, color-mix(in srgb, var(--scw-fx-c) 35%, transparent) 56%, transparent 70%);
+}
+.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(2) {
+  inset: 2% 4% -2%;
+  border-radius: 46% 54% 38% 62% / 62% 44% 56% 38%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 70%, transparent) 30%, transparent 70%);
+  filter: blur(3px);
+}
+.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(3) {
+  inset: -4% -2% 0;
+  border-radius: 58% 42% 55% 45% / 42% 60% 40% 58%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 45%, transparent) 35%, transparent 72%);
+  filter: blur(5px);
+}
+
+/* Flame: a hot core and two tongues rising behind the portrait, the acting colour warmed. */
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame {
+  display: block;
+  inset: -60% -22% 6%;
+  border-radius: 0;
+  opacity: var(--scw-fx-strength);
+}
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b {
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(1) {
+  background: radial-gradient(ellipse 52% 100% at 50% 100%, color-mix(in srgb, var(--scw-fx-c) 25%, #fff6d0) 0 28%, color-mix(in srgb, var(--scw-fx-c) 55%, #ffb347) 50%, color-mix(in srgb, var(--scw-fx-c) 45%, #ff7a2a) 68%, transparent 100%);
+}
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2),
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) {
+  background: radial-gradient(ellipse 34% 90% at 50% 100%, color-mix(in srgb, var(--scw-fx-c) 55%, #ff7a2a) 0 35%, color-mix(in srgb, var(--scw-fx-c) 45%, transparent) 60%, transparent 100%);
+  filter: blur(2px);
+}
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2) { --scw-lean: -12deg; left: -18%; }
+.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) { --scw-lean: 14deg; right: -18%; }
+
+/* Rays: two fans of thin rays turning against each other, shimmering where they cross. */
+.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays {
+  display: block;
+  inset: -45%;
+  border-radius: 50%;
+  opacity: var(--scw-fx-strength);
+  -webkit-mask: radial-gradient(closest-side, transparent 38%, #000 50%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent 38%, #000 50%, transparent 100%);
+}
+.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before,
+.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before {
+  background: repeating-conic-gradient(from 0deg, var(--scw-fx-c) 0 2deg, transparent 2.5deg 11deg);
+}
+.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+  background: repeating-conic-gradient(from 5deg, color-mix(in srgb, var(--scw-fx-c) 45%, white) 0 1deg, transparent 1.5deg 17deg);
+}
+
+/* Shine: a diagonal sweep of light over the art, inside its own shape. */
+.sc-combat-wheel[data-scw-acting-fx="shine"] .scw-slot.is-active .scw-portrait::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: -10% -40%;
+  background: linear-gradient(105deg, transparent 42%, color-mix(in srgb, white 65%, var(--scw-fx-c)) 50%, transparent 58%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- turn change: once, on the new acting portrait ---------- */
+/* Waves: three rings leave the portrait and fade, a beat apart. */
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves { display: block; overflow: visible; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b {
+  inset: 0;
+  border: 2px solid color-mix(in srgb, var(--scw-fx-c) 70%, white);
+  border-radius: var(--scw-afx-r);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--scw-fx-c) 65%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--scw-fx-c) 45%, transparent);
+  opacity: 0;
+}
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(2) { border-width: 1.5px; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(3) { border-width: 1px; }
+
+/* Burst: specks of light flying out from the portrait. */
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx-burst {
+  display: block;
+  inset: -30%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--scw-fx-c) 40%, white) 0 2.5px, transparent 4px),
+    radial-gradient(circle at 92% 28%, var(--scw-fx-c) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 88% 78%, color-mix(in srgb, var(--scw-fx-c) 40%, white) 0 2.5px, transparent 4px),
+    radial-gradient(circle at 50% 97%, var(--scw-fx-c) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 10% 76%, color-mix(in srgb, var(--scw-fx-c) 40%, white) 0 2.5px, transparent 4px),
+    radial-gradient(circle at 7% 26%, var(--scw-fx-c) 0 2px, transparent 3.5px),
+    radial-gradient(circle at 30% 10%, var(--scw-fx-c) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 72% 92%, var(--scw-fx-c) 0 1.5px, transparent 3px),
+    radial-gradient(closest-side, color-mix(in srgb, var(--scw-fx-c) 35%, transparent), transparent 70%);
+  opacity: 0;
+}
+
+/* Flash: the art lights up and fades back. */
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-slot.is-active .scw-initials::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: radial-gradient(circle, white 0 20%, color-mix(in srgb, var(--scw-fx-c) 70%, white) 45%, color-mix(in srgb, var(--scw-fx-c) 40%, transparent) 80%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+/* …and a burst of the glow around it. */
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-afx-glow {
+  display: block;
+  box-shadow:
+    0 0 18px 6px color-mix(in srgb, var(--scw-fx-c) 85%, white),
+    0 0 52px 18px color-mix(in srgb, var(--scw-fx-c) 45%, transparent);
+}
+
+/* ---------- motion, only when the system allows it ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .sc-combat-wheel:not(.is-grid) .scw-afx > i,
+  .sc-combat-wheel:not(.is-grid) .scw-afx b,
+  .sc-combat-wheel:not(.is-grid) .scw-afx-halo::before,
+  .sc-combat-wheel:not(.is-grid) .scw-afx-rays::before,
+  .sc-combat-wheel:not(.is-grid) .scw-afx-rays::after { will-change: transform, opacity; }
+
+  .sc-combat-wheel[data-scw-acting-fx="pulse"] .scw-afx-glow {
+    animation: scw-afx-breathe calc(2.8s * var(--scw-fx-speed)) ease-in-out infinite alternate;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo::before {
+    animation: scw-afx-spin calc(5s * var(--scw-fx-speed)) linear infinite;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(1) {
+    animation: scw-afx-core calc(2.6s * var(--scw-fx-speed)) ease-in-out infinite alternate;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(2) {
+    animation: scw-afx-blob-a calc(3.4s * var(--scw-fx-speed)) ease-in-out infinite;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(3) {
+    animation: scw-afx-blob-b calc(5.3s * var(--scw-fx-speed)) ease-in-out infinite;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(1) {
+    animation: scw-afx-fire-core calc(0.9s * var(--scw-fx-speed)) ease-in-out infinite alternate;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2) {
+    animation: scw-afx-tongue calc(1.3s * var(--scw-fx-speed)) ease-in-out infinite alternate;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) {
+    animation: scw-afx-tongue calc(1.05s * var(--scw-fx-speed)) ease-in-out -0.5s infinite alternate;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before {
+    animation: scw-afx-spin calc(26s * var(--scw-fx-speed)) linear infinite;
+  }
+  .sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+    animation: scw-afx-spin calc(34s * var(--scw-fx-speed)) linear infinite reverse;
+  }
+  .sc-combat-wheel:not(.is-grid)[data-scw-acting-fx="shine"] .scw-slot.is-active .scw-portrait::before {
+    animation: scw-afx-sheen calc(4.5s * var(--scw-fx-speed)) ease-in-out 0.4s infinite;
+  }
+
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b {
+    animation: scw-afx-wave 1000ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
+  }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(2) { animation-delay: 140ms; }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(3) { animation-delay: 280ms; }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx-burst {
+    animation: scw-afx-burst 900ms cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  }
+  .sc-combat-wheel.scw-turn-fx-run:not(.is-grid)[data-scw-turn-fx="flash"] .scw-slot.is-active .scw-initials::after {
+    animation: scw-afx-flash 700ms ease-out;
+  }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-afx-glow {
+    animation: scw-afx-flash 900ms ease-out both;
+  }
+  /* Pop: the art swells a little and settles. `scale` leaves the portrait's
+     transform (its counter-rotation on the wheel) alone. */
+  .sc-combat-wheel.scw-turn-fx-run:not(.is-grid)[data-scw-turn-fx="pop"] .scw-slot.is-active .scw-portrait {
+    animation: scw-afx-pop 650ms cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+
+  @keyframes scw-afx-breathe {
+    from { opacity: calc(var(--scw-fx-strength) * 0.5); }
+    to { opacity: var(--scw-fx-strength); }
+  }
+  @keyframes scw-afx-spin {
+    to { rotate: 1turn; }
+  }
+  @keyframes scw-afx-core {
+    from { transform: scale(0.9); opacity: 0.55; }
+    to { transform: scale(1.06); opacity: 1; }
+  }
+  @keyframes scw-afx-blob-a {
+    0% { transform: rotate(0deg) scale(1, 1); opacity: 0.65; }
+    50% { transform: rotate(180deg) scale(1.08, 0.94); opacity: 1; }
+    100% { transform: rotate(360deg) scale(1, 1); opacity: 0.65; }
+  }
+  @keyframes scw-afx-blob-b {
+    0% { transform: rotate(0deg) scale(0.95, 1.12); opacity: 0.8; }
+    50% { transform: rotate(-180deg) scale(1.06, 0.96); opacity: 0.55; }
+    100% { transform: rotate(-360deg) scale(0.95, 1.12); opacity: 0.8; }
+  }
+  @keyframes scw-afx-fire-core {
+    from { transform: scale(0.94, 0.9); }
+    to { transform: scale(1.04, 1.12); }
+  }
+  @keyframes scw-afx-tongue {
+    0% { transform: rotate(var(--scw-lean)) scale(0.8, 0.75); opacity: 0.55; }
+    55% { transform: rotate(calc(var(--scw-lean) * -0.5)) scale(1, 1.05); opacity: 1; }
+    100% { transform: rotate(var(--scw-lean)) scale(0.9, 0.9); opacity: 0.7; }
+  }
+  @keyframes scw-afx-sheen {
+    0% { opacity: var(--scw-fx-strength); transform: translateX(-70%); }
+    35%, 100% { opacity: var(--scw-fx-strength); transform: translateX(70%); }
+  }
+  @keyframes scw-afx-wave {
+    0% { transform: scale(1); opacity: 0; }
+    10% { opacity: var(--scw-fx-strength); }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+  @keyframes scw-afx-burst {
+    0% { transform: scale(0.45); opacity: 0; }
+    15% { opacity: calc(var(--scw-fx-strength) * 1.3); }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes scw-afx-flash {
+    0% { opacity: 0; }
+    12% { opacity: 0.95; }
+    100% { opacity: 0; }
+  }
+  @keyframes scw-afx-pop {
+    0% { scale: 0.9; }
+    45% { scale: 1.09; }
+    75% { scale: 0.98; }
+    100% { scale: 1; }
+  }
+}

@@ -1,0 +1,485 @@
+{{#*inline "viewArt"}}
+  {{#if (eq id "wheel")}}
+    <svg class="scw-view-art" viewBox="0 0 64 40" aria-hidden="true"><path d="M2 38A30 30 0 0 1 62 38L48 38A16 16 0 0 0 16 38Z"/><path d="M7.7 20.4 19.1 28.6M22.7 9.5 27.1 22.8M41.3 9.5 36.9 22.8M56.3 20.4 44.9 28.6"/><path class="scw-view-art__acting" d="M22.7 9.5A30 30 0 0 1 41.3 9.5L36.9 22.8A16 16 0 0 0 27.1 22.8Z"/></svg>
+  {{else if (eq id "carousel")}}
+    <svg class="scw-view-art" viewBox="0 0 64 40" aria-hidden="true"><rect x="2" y="21" width="10" height="12" rx="1"/><rect x="14" y="21" width="10" height="12" rx="1"/><rect class="scw-view-art__acting" x="26" y="11" width="13" height="18" rx="1"/><rect x="41" y="21" width="10" height="12" rx="1"/><rect x="53" y="21" width="9" height="12" rx="1"/><path d="M2 37h60"/></svg>
+  {{else}}
+    <svg class="scw-view-art" viewBox="0 0 64 40" aria-hidden="true"><path d="M2 15 9 14V28L2 27Z"/><path d="M11 12 22 10V32L11 30Z"/><rect class="scw-view-art__acting" x="24" y="6" width="16" height="27" rx="1"/><path d="M42 10 53 12V30L42 32Z"/><path d="M55 14 62 15V27L55 28Z"/><path d="M2 37h60"/></svg>
+  {{/if}}
+{{/inline}}
+{{#*inline "check"}}
+  <span class="scw-config-check">
+    <input type="checkbox" {{#if id}}id="{{id}}"{{/if}} name="{{name}}" {{#if describedBy}}aria-describedby="{{describedBy}}"{{/if}} {{#if checked}}checked{{/if}}>
+    <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+  </span>
+{{/inline}}
+{{#*inline "fieldName"}}
+  <label class="scw-field__name" id="{{id}}-name" {{#unless segmented}}for="{{id}}"{{/unless}}>
+    {{name}}<i class="fa-solid fa-circle-info scw-field__info" data-tooltip="{{hint}}" aria-hidden="true"></i>
+  </label>
+  <span class="scw-field__hint" id="{{id}}-hint">{{hint}}</span>
+{{/inline}}
+<div class="scw-config scw-appearance">
+  <header class="scw-appearance__top">
+    <div class="scw-appearance__block">
+      <span class="scw-appearance__label" id="scw-appearance-views">
+        {{localize "SC_COMBAT_WHEEL.Appearance.Views"}}<span class="scw-config__tab-dot" data-panel-dot="view" hidden></span>
+      </span>
+      <input type="hidden" name="view" value="{{view}}">
+      <div class="scw-appearance__views" role="radiogroup" aria-labelledby="scw-appearance-views">
+        {{#each views}}
+          <button type="button" class="scw-appearance__view {{#if active}}is-active{{/if}}" data-action="selectView" data-view="{{id}}"
+                  role="radio" aria-checked="{{#if active}}true{{else}}false{{/if}}" data-tooltip="{{hint}}" {{#if ../locked}}disabled{{/if}}>
+            {{> viewArt id=id}}
+            <span class="scw-appearance__view-copy">
+              <span class="scw-appearance__view-name">{{label}}</span>
+              <span class="scw-appearance__view-hint">{{hint}}</span>
+            </span>
+          </button>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="scw-appearance__block">
+      <span class="scw-appearance__label" id="scw-appearance-theme-label">
+        {{localize "SC_COMBAT_WHEEL.Appearance.Theme"}}<span class="scw-config__tab-dot" data-panel-dot="theme" hidden></span>
+      </span>
+      {{!-- RF-115: the theme is picked in a gallery of previews; this button names the current one. --}}
+      <input type="hidden" name="theme" value="{{themeId}}">
+      <button type="button" class="scw-appearance__theme-btn {{#if themesOpen}}is-active{{/if}}" data-action="toggleThemes"
+              aria-labelledby="scw-appearance-theme-label scw-appearance-theme-name" aria-expanded="{{#if themesOpen}}true{{else}}false{{/if}}"
+              aria-controls="scw-appearance-themes" {{#if locked}}disabled{{/if}}>
+        <span class="sc-combat-wheel scw-theme-swatch" data-theme-swatch data-scw-theme="{{themeSwatch}}" aria-hidden="true"></span>
+        <span class="scw-appearance__theme-name" id="scw-appearance-theme-name" data-theme-name>{{themeLabel}}</span>
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <button type="button" class="scw-config-btn scw-appearance__presets-btn {{#if galleryOpen}}is-active{{/if}}" data-action="toggleGallery"
+            aria-expanded="{{#if galleryOpen}}true{{else}}false{{/if}}" aria-controls="scw-appearance-gallery" {{#if locked}}disabled{{/if}}>
+      <i class="fa-solid fa-star" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.Panels.presets"}}
+    </button>
+
+    <span class="scw-config__spacer"></span>
+
+    <div class="scw-appearance__block scw-appearance__sharing">
+      {{#if sharing.isGM}}
+        <label class="scw-appearance__label" for="scw-table-look-mode">
+          {{localize "SC_COMBAT_WHEEL.Sharing.Mode.Name"}}<span class="scw-config__tab-dot" data-panel-dot="sharing" hidden></span>
+        </label>
+        <span class="scw-appearance__theme-pick">
+          <i class="fa-solid fa-users scw-appearance__sharing-icon" data-tooltip="{{sharing.tooltip}}" aria-hidden="true"></i>
+          <select id="scw-table-look-mode" name="tableLookMode" aria-describedby="scw-table-look-hint">
+            {{#each sharing.modes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+            {{/each}}
+          </select>
+          <span class="scw-field__hint" id="scw-table-look-hint">{{sharing.tooltip}}</span>
+        </span>
+      {{else if sharing.canChoose}}
+        <span class="scw-appearance__label">
+          {{localize "SC_COMBAT_WHEEL.Appearance.Panels.sharing"}}<span class="scw-config__tab-dot" data-panel-dot="sharing" hidden></span>
+        </span>
+        <label class="scw-appearance__follow" data-tooltip="{{localize "SC_COMBAT_WHEEL.Sharing.Follow.Hint"}}">
+          <span class="scw-config-check">
+            <input type="checkbox" name="useTableLook" data-follow-toggle {{#if sharing.follow}}checked{{/if}}>
+            <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+          </span>
+          {{localize "SC_COMBAT_WHEEL.Sharing.Follow.Name"}}
+        </label>
+      {{else}}
+        <span class="scw-appearance__label">{{localize "SC_COMBAT_WHEEL.Sharing.Mode.Name"}}</span>
+        <span class="scw-appearance__sharing-notice"><i class="fa-solid fa-users" aria-hidden="true"></i>{{sharing.notice}}</span>
+      {{/if}}
+    </div>
+  </header>
+
+  {{#if combatStyleNotice}}
+    <p class="scw-config__notice scw-appearance__notice"><i class="fa-solid fa-swatchbook" aria-hidden="true"></i>{{combatStyleNotice}}</p>
+  {{/if}}
+  <p class="scw-config__notice scw-appearance__notice" data-following-notice {{#unless following}}hidden{{/unless}}>
+    <i class="fa-solid fa-users" aria-hidden="true"></i>{{followingNotice}}
+  </p>
+
+  <div class="scw-appearance__body">
+  <section class="scw-appearance__preview" aria-labelledby="scw-appearance-preview">
+    <div class="scw-appearance__stage" data-preview-stage inert></div>
+
+    <div class="scw-appearance__preview-head">
+      <h3 class="scw-config__section-title" id="scw-appearance-preview">{{localize "SC_COMBAT_WHEEL.Appearance.Preview"}}</h3>
+      {{#if hasCombat}}
+        <div class="scw-config-segmented" role="group" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.Source"}}">
+          <button type="button" class="scw-config-segmented__option {{#if (eq source "sample")}}is-active{{/if}}" data-action="setSource" data-source="sample"
+                  aria-pressed="{{#if (eq source "sample")}}true{{else}}false{{/if}}">{{localize "SC_COMBAT_WHEEL.Appearance.Sample"}}</button>
+          <button type="button" class="scw-config-segmented__option {{#if (eq source "combat")}}is-active{{/if}}" data-action="setSource" data-source="combat"
+                  aria-pressed="{{#if (eq source "combat")}}true{{else}}false{{/if}}">{{localize "SC_COMBAT_WHEEL.Appearance.ThisCombat"}}</button>
+        </div>
+      {{/if}}
+      <span class="scw-config__spacer"></span>
+      <p class="scw-appearance__zoom" data-preview-zoom hidden></p>
+      <button type="button" class="scw-config-icon-btn {{#if expanded}}is-active{{/if}}" data-action="toggleDetails" data-details-toggle hidden
+              aria-pressed="{{#if expanded}}true{{else}}false{{/if}}"
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.Details"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.Details"}}">
+        <i class="fa-solid fa-table-list" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="scw-appearance__transport">
+      <button type="button" class="scw-config-icon-btn" data-action="stepTurn" data-step="-1" {{#if (eq source "combat")}}disabled{{/if}}
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.PreviousTurn"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.PreviousTurn"}}">
+        <i class="fa-solid fa-backward-step" aria-hidden="true"></i>
+      </button>
+      <span class="scw-appearance__turn" data-preview-turn aria-live="polite"></span>
+      <button type="button" class="scw-config-icon-btn" data-action="stepTurn" data-step="1" {{#if (eq source "combat")}}disabled{{/if}}
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.NextTurn"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.NextTurn"}}">
+        <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+      </button>
+      <span class="scw-appearance__transport-sep" aria-hidden="true"></span>
+      <button type="button" class="scw-config-btn scw-config-btn--sm scw-appearance__sound-toggle {{#if previewSound}}is-active{{/if}}" data-action="togglePreviewSound"
+              aria-pressed="{{#if previewSound}}true{{else}}false{{/if}}" data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.PreviewSoundHint"}}">
+        <i class="fa-solid {{#if previewSound}}fa-volume-high{{else}}fa-volume-xmark{{/if}}" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.PreviewSound"}}
+      </button>
+    </div>
+
+    {{#*inline "themeCard"}}
+      <button type="button" class="scw-theme-card {{#if selected}}is-active{{/if}}" data-action="pickTheme" data-theme-card="{{id}}"
+              aria-pressed="{{#if selected}}true{{else}}false{{/if}}" {{#if locked}}disabled{{/if}}>
+        <span class="sc-combat-wheel scw-theme-mini" data-scw-theme="{{swatch}}" aria-hidden="true">
+          <span class="scw-theme-mini__cards"><i class="is-friendly"></i><i class="is-hostile"></i><i class="is-active"></i><i class="is-neutral"></i></span>
+          <span class="scw-theme-mini__bar"><b></b><em></em></span>
+        </span>
+        <span class="scw-theme-card__name">{{label}}</span>
+      </button>
+    {{/inline}}
+    <div class="scw-appearance__gallery" id="scw-appearance-themes" data-theme-gallery role="dialog" aria-labelledby="scw-appearance-themes-title" {{#unless themesOpen}}hidden{{/unless}}>
+      <div class="scw-appearance__gallery-head">
+        <h3 class="scw-config__section-title" id="scw-appearance-themes-title">{{localize "SC_COMBAT_WHEEL.Appearance.Theme"}}</h3>
+        <p class="scw-appearance__panel-hint">{{localize "SC_COMBAT_WHEEL.Appearance.ThemesHint"}}</p>
+        <span class="scw-config__spacer"></span>
+        <button type="button" class="scw-config-icon-btn" data-action="toggleThemes"
+                data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.CloseThemes"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.CloseThemes"}}">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="scw-theme-grid">{{> themeCard followSystem locked=locked}}</div>
+      {{#each themeGroups}}
+        <h4 class="scw-field-group__title">{{label}}</h4>
+        <div class="scw-theme-grid">
+          {{#each themes}}{{> themeCard this locked=../../locked}}{{/each}}
+        </div>
+      {{/each}}
+    </div>
+
+    <div class="scw-appearance__gallery" id="scw-appearance-gallery" data-gallery role="dialog" aria-labelledby="scw-appearance-gallery-title" {{#unless galleryOpen}}hidden{{/unless}}>
+      <div class="scw-appearance__gallery-head">
+        <h3 class="scw-config__section-title" id="scw-appearance-gallery-title">{{localize "SC_COMBAT_WHEEL.CombatStyles.Gallery"}}</h3>
+        <span class="scw-config__spacer"></span>
+        <button type="button" class="scw-config-icon-btn" data-action="toggleGallery"
+                data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.CloseGallery"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.CloseGallery"}}">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      {{!-- RF-108: the table's saved styles, and (for the GM) which one combats use. --}}
+      <section class="scw-appearance__styles" aria-labelledby="scw-appearance-styles-title">
+        <div class="scw-appearance__styles-head">
+          <h4 class="scw-field-group__title" id="scw-appearance-styles-title">{{localize "SC_COMBAT_WHEEL.CombatStyles.Title"}}</h4>
+          <span class="scw-config__spacer"></span>
+          {{#if styles.isGM}}
+            <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="saveStyle">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.CombatStyles.Save"}}
+            </button>
+          {{/if}}
+        </div>
+        {{#if styles.isGM}}
+          <div class="scw-appearance__combat-styles">
+            <label class="scw-field__name" for="scw-combat-style-default">{{localize "SC_COMBAT_WHEEL.CombatStyles.Default"}}</label>
+            <select id="scw-combat-style-default" name="combatStyleDefault" aria-describedby="scw-combat-style-default-hint">
+              {{#each styles.defaults}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
+            <label class="scw-appearance__follow">
+              <span class="scw-config-check">
+                <input type="checkbox" name="combatStylePrompt" {{#if styles.prompt}}checked{{/if}}>
+                <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </span>
+              {{localize "SC_COMBAT_WHEEL.CombatStyles.Prompt"}}
+            </label>
+            <p class="scw-appearance__panel-hint" id="scw-combat-style-default-hint">{{localize "SC_COMBAT_WHEEL.CombatStyles.DefaultHint"}}</p>
+          </div>
+        {{/if}}
+        {{#if styles.list.length}}
+          <div class="scw-preset-grid">
+            {{#each styles.list}}
+              <div class="scw-saved-style">
+                <button type="button" class="scw-preset" data-action="applySavedStyle" data-style-id="{{id}}" {{#if ../locked}}disabled{{/if}}>
+                  <span class="scw-preset__head">
+                    <span class="sc-combat-wheel scw-theme-swatch" data-scw-theme="{{swatch}}" aria-hidden="true"></span>
+                    <i class="fa-solid fa-swatchbook" aria-hidden="true"></i>
+                    <span class="scw-preset__view">{{view}}</span>
+                  </span>
+                  <span class="scw-preset__name">{{name}}</span>
+                  {{#if isDefault}}<span class="scw-preset__hint">{{localize "SC_COMBAT_WHEEL.CombatStyles.IsDefault"}}</span>{{/if}}
+                </button>
+                {{#if ../styles.canUseInCombat}}
+                  <button type="button" class="scw-config-icon-btn scw-saved-style__use {{#if inCombat}}is-active{{/if}}" data-action="useStyleInCombat" data-style-id="{{id}}"
+                          aria-pressed="{{#if inCombat}}true{{else}}false{{/if}}"
+                          data-tooltip="{{../styles.useLabel}}" aria-label="{{../styles.useLabel}}: {{name}}">
+                    <i class="fa-solid fa-swords" aria-hidden="true"></i>
+                  </button>
+                {{/if}}
+                {{#if ../styles.isGM}}
+                  <button type="button" class="scw-config-icon-btn scw-saved-style__delete" data-action="deleteSavedStyle" data-style-id="{{id}}"
+                          data-tooltip="{{../styles.deleteLabel}}" aria-label="{{../styles.deleteLabel}}: {{name}}">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  </button>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="scw-appearance__panel-hint">{{#if styles.isGM}}{{localize "SC_COMBAT_WHEEL.CombatStyles.EmptyGM"}}{{else}}{{localize "SC_COMBAT_WHEEL.CombatStyles.Empty"}}{{/if}}</p>
+        {{/if}}
+      </section>
+
+      <h4 class="scw-field-group__title">{{localize "SC_COMBAT_WHEEL.Appearance.Panels.presets"}}</h4>
+      <p class="scw-appearance__panel-hint">{{localize "SC_COMBAT_WHEEL.Appearance.PanelHints.presets"}}</p>
+      <div class="scw-preset-grid">
+        {{#each presets}}
+          <button type="button" class="scw-preset {{#if active}}is-active{{/if}}" data-action="applyPreset" data-preset="{{id}}"
+                  aria-pressed="{{#if active}}true{{else}}false{{/if}}" {{#if ../locked}}disabled{{/if}}>
+            <span class="scw-preset__head">
+              <span class="sc-combat-wheel scw-theme-swatch" data-scw-theme="{{swatch}}" aria-hidden="true"></span>
+              <i class="{{icon}}" aria-hidden="true"></i>
+              <span class="scw-preset__view">{{view}}</span>
+            </span>
+            <span class="scw-preset__name">{{label}}</span>
+            <span class="scw-preset__hint">{{hint}}</span>
+          </button>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+
+  <div class="scw-appearance__inspector">
+  <div class="scw-appearance__tabs">
+    <nav class="scw-appearance__tablist" role="tablist" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.Sections"}}">
+      {{#each panels}}
+        <button type="button" role="tab" id="scw-appearance-tab-{{id}}" class="scw-appearance__tab {{#if isSounds}}scw-appearance__tab--client{{/if}} {{#if active}}is-active{{/if}}"
+                data-action="setPanel" data-panel="{{id}}" data-scope="{{scope}}" aria-controls="scw-appearance-panel-{{id}}"
+                aria-selected="{{#if active}}true{{else}}false{{/if}}" tabindex="{{#if active}}0{{else}}-1{{/if}}" data-tooltip="{{label}}">
+          <i class="{{icon}}" aria-hidden="true"></i>
+          <span class="scw-appearance__tab-label">{{label}}</span>
+          <span class="scw-config__tab-dot" data-panel-dot="{{id}}" hidden></span>
+        </button>
+      {{/each}}
+    </nav>
+    <div class="scw-appearance__tabs-meta">
+    {{#each scopes}}
+      <span class="scw-config-badge scw-config-badge--{{id}}" data-scope-badge="{{id}}" {{#unless active}}hidden{{/unless}}>
+        <i class="{{icon}}" aria-hidden="true"></i>{{label}}
+      </span>
+    {{/each}}
+    <div class="scw-config-segmented" role="group" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.OptionsShown"}}" data-advanced-group {{#if soundsActive}}hidden{{/if}}>
+      <button type="button" class="scw-config-segmented__option {{#unless advanced}}is-active{{/unless}}" data-action="setAdvanced" data-advanced="false"
+              aria-pressed="{{#if advanced}}false{{else}}true{{/if}}">{{localize "SC_COMBAT_WHEEL.Appearance.Essential"}}</button>
+      <button type="button" class="scw-config-segmented__option {{#if advanced}}is-active{{/if}}" data-action="setAdvanced" data-advanced="true"
+              aria-pressed="{{#if advanced}}true{{else}}false{{/if}}">{{localize "SC_COMBAT_WHEEL.Appearance.All"}}</button>
+    </div>
+    </div>
+  </div>
+
+  <section class="scw-appearance__fields">
+    {{#each panels}}
+      <div class="scw-appearance__panel" id="scw-appearance-panel-{{id}}" role="tabpanel" aria-labelledby="scw-appearance-tab-{{id}}"
+           data-field-panel="{{id}}" {{#unless active}}hidden{{/unless}}>
+        {{#if hint}}<p class="scw-appearance__panel-hint">{{hint}}</p>{{/if}}
+        {{#if isVisual}}
+          {{!-- RF-115: a whole palette from one colour, and a word when text would be hard to read. --}}
+          <div class="scw-palette-maker">
+            <span class="scw-field__name" id="scw-palette-maker-label">{{localize "SC_COMBAT_WHEEL.Appearance.PaletteMaker"}}</span>
+            <div class="scw-palette-maker__row" role="group" aria-labelledby="scw-palette-maker-label">
+              <input type="color" value="#9184d9" data-palette-seed aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.PaletteSeed"}}" {{#if ../locked}}disabled{{/if}}>
+              <span class="scw-segmented" role="radiogroup" aria-label="{{localize "SC_COMBAT_WHEEL.Appearance.PaletteMode"}}">
+                <label class="scw-segmented__option"><input type="radio" name="scwPaletteMode" value="dark" checked><span>{{localize "SC_COMBAT_WHEEL.Appearance.PaletteDark"}}</span></label>
+                <label class="scw-segmented__option"><input type="radio" name="scwPaletteMode" value="light"><span>{{localize "SC_COMBAT_WHEEL.Appearance.PaletteLight"}}</span></label>
+              </span>
+              <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="makePalette" {{#if ../locked}}disabled{{/if}}>
+                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.PaletteMake"}}
+              </button>
+            </div>
+            <span class="scw-appearance__panel-hint">{{localize "SC_COMBAT_WHEEL.Appearance.PaletteHint"}}</span>
+          </div>
+          <p class="scw-config__notice scw-config__notice--warn" data-contrast-warning role="status" hidden>
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span></span>
+          </p>
+        {{/if}}
+        {{#if isSounds}}
+          {{#unless ../sounds.allowed}}
+            <p class="scw-config__notice scw-config__notice--warn"><i class="fa-solid fa-volume-xmark" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.SoundsMuted"}}</p>
+          {{/unless}}
+          <p class="scw-config__notice scw-config__notice--warn" data-sound-overlap role="status" hidden>
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i><span></span>
+          </p>
+          <div class="scw-appearance__groups">
+            <div class="scw-field-group">
+              <h4 class="scw-field-group__title">{{localize "SC_COMBAT_WHEEL.Appearance.Groups.soundGeneral"}}</h4>
+              {{#with ../sounds.volume}}
+                <div class="scw-field scw-field--stacked" data-setting-row="{{key}}">
+                  {{> fieldName}}
+                  <span class="scw-field__control">
+                    <range-picker id="{{id}}" name="{{key}}" value="{{value}}" min="{{range.min}}" max="{{range.max}}" step="{{range.step}}"></range-picker>
+                  </span>
+                </div>
+              {{/with}}
+              <div class="scw-field">
+                <span class="scw-field__name">{{localize "SC_COMBAT_WHEEL.Appearance.TestSequence"}}</span>
+                <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="testSequence" data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.TestSequenceHint"}}">
+                  <i class="fa-solid fa-play" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.TestSequenceButton"}}
+                </button>
+              </div>
+              {{#with ../sounds.coreTheme}}
+                <div class="scw-field scw-field--stacked">
+                  <label class="scw-field__name" for="scw-core-theme">
+                    {{localize "SC_COMBAT_WHEEL.CoreCombat.Theme.Name"}}<i class="fa-solid fa-circle-info scw-field__info" data-tooltip="{{localize "SC_COMBAT_WHEEL.CoreCombat.Theme.Hint"}}" aria-hidden="true"></i>
+                  </label>
+                  <span class="scw-field__control">
+                    <select id="scw-core-theme" name="coreCombatTheme">
+                      {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                    </select>
+                    <button type="button" class="scw-config-icon-btn" data-action="previewCoreTheme"
+                            data-tooltip="{{localize "SC_COMBAT_WHEEL.CoreCombat.Preview"}}" aria-label="{{localize "SC_COMBAT_WHEEL.CoreCombat.Preview"}}">
+                      <i class="fa-solid fa-play" aria-hidden="true"></i>
+                    </button>
+                  </span>
+                </div>
+              {{/with}}
+            </div>
+            <div class="scw-field-group">
+              <h4 class="scw-field-group__title">{{localize "SC_COMBAT_WHEEL.Appearance.Groups.soundEvents"}}</h4>
+              {{#each ../sounds.events}}
+                {{#with field}}
+                  <div class="scw-field scw-field--stacked scw-sound" data-setting-row="{{key}}">
+                    <i class="{{../icon}} scw-sound__icon" aria-hidden="true"></i>
+                    <label class="scw-field__name" for="{{id}}">
+                      {{../label}}<i class="fa-solid fa-circle-info scw-field__info" data-tooltip="{{hint}}" aria-hidden="true"></i>
+                    </label>
+                    <span class="scw-field__hint" id="{{id}}-hint">{{hint}}</span>
+                    <span class="scw-field__control">
+                      <select id="{{id}}" name="{{key}}" aria-describedby="{{id}}-hint">
+                        {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                      </select>
+                      <button type="button" class="scw-config-icon-btn" data-action="testSound" data-sound="{{sound}}"
+                              data-tooltip="{{localize "SC_COMBAT_WHEEL.SettingsMenu.Test"}}" aria-label="{{localize "SC_COMBAT_WHEEL.SettingsMenu.Test"}}: {{../label}}">
+                        <i class="fa-solid fa-play" aria-hidden="true"></i>
+                      </button>
+                    </span>
+                  </div>
+                {{/with}}
+                {{#with file}}
+                  <div class="scw-field scw-field--stacked scw-field--nested" data-setting-row="{{key}}" {{#unless shown}}hidden{{/unless}}>
+                    {{> fieldName}}
+                    <span class="scw-field__control">
+                      <file-picker id="{{id}}" name="{{key}}" type="{{fileType}}" value="{{value}}"></file-picker>
+                    </span>
+                  </div>
+                {{/with}}
+              {{/each}}
+            </div>
+          </div>
+        {{else}}
+          <fieldset class="scw-appearance__fieldset" {{#if ../locked}}disabled{{/if}}>
+            <div class="scw-appearance__groups">
+            {{#each groups}}
+              <div class="scw-field-group" data-field-group>
+                <h4 class="scw-field-group__title">{{label}}</h4>
+                {{#each fields}}
+                  {{#if isMulti}}
+                    <div class="scw-field-chips" data-setting-row="{{key}}">
+                      {{#each choices}}
+                        <label class="scw-field-chip">
+                          {{> check name=(concat ../key "." value) checked=on}}
+                          <span>{{label}}</span>
+                        </label>
+                      {{/each}}
+                    </div>
+                  {{else}}
+                    <div class="scw-field {{#if nested}}scw-field--nested{{/if}} {{#if stacked}}scw-field--stacked{{/if}}" data-setting-row="{{key}}" {{#unless shown}}hidden{{/unless}}>
+                      {{#if isBoolean}}
+                        {{> check id=id name=key checked=value describedBy=(concat id "-hint")}}
+                      {{else if isColor}}
+                        <span class="scw-config-check">
+                          <input type="checkbox" data-color-toggle="{{key}}" aria-label="{{name}}" {{#if value}}checked{{/if}}>
+                          <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                        </span>
+                      {{/if}}
+                      {{> fieldName}}
+                      {{#unless isBoolean}}
+                        <span class="scw-field__control">
+                          {{#if isColor}}
+                            <input type="text" id="{{id}}" name="{{key}}" value="{{value}}" maxlength="7" spellcheck="false"
+                                   placeholder="{{localize "SC_COMBAT_WHEEL.Appearance.ThemeColor"}}" data-color-text="{{key}}" aria-describedby="{{id}}-hint">
+                            <input type="color" value="{{#if value}}{{value}}{{else}}#808080{{/if}}" data-color-picker="{{key}}" aria-label="{{name}}">
+                          {{else if isNumber}}
+                            <range-picker id="{{id}}" name="{{key}}" value="{{value}}" min="{{range.min}}" max="{{range.max}}" step="{{range.step}}"></range-picker>
+                          {{else if segmented}}
+                            <span class="scw-segmented" role="radiogroup" aria-labelledby="{{id}}-name" aria-describedby="{{id}}-hint">
+                              {{#each choices}}
+                                <label class="scw-segmented__option">
+                                  <input type="radio" name="{{../key}}" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{label}}</span>
+                                </label>
+                              {{/each}}
+                            </span>
+                          {{else if isChoice}}
+                            <select id="{{id}}" name="{{key}}" aria-describedby="{{id}}-hint">
+                              {{#each choices}}
+                                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                              {{/each}}
+                            </select>
+                          {{/if}}
+                        </span>
+                      {{/unless}}
+                    </div>
+                  {{/if}}
+                {{/each}}
+              </div>
+            {{/each}}
+            </div>
+          </fieldset>
+          <p class="scw-appearance__more" data-more-note="{{id}}" hidden>
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.MoreOptions"}}
+          </p>
+          {{#if isVisual}}
+            <div class="scw-appearance__panel-actions">
+              <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="testBanner" data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.TestBannerHint"}}">
+                <i class="fa-solid fa-message" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.TestBanner"}}
+              </button>
+            </div>
+          {{/if}}
+          {{#if isLayout}}
+            <p class="scw-config__notice scw-config__notice--warn" data-ratio-warning hidden>
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span></span>
+            </p>
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/each}}
+  </section>
+  </div>
+  </div>
+
+  <footer class="scw-config__footer">
+    <span class="scw-config-pill" data-status-pill hidden>
+      <span class="scw-config-pill__dot" aria-hidden="true"></span>
+      <span data-status-pill-label role="status"></span>
+    </span>
+    <span class="scw-config__spacer"></span>
+    <button type="button" class="scw-config-btn scw-config-btn--ghost" data-action="resetPanel">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.ResetSection"}}
+    </button>
+    <button type="button" class="scw-config-btn" data-action="closeEditor">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.Close"}}
+    </button>
+    <button type="submit" class="scw-config-btn scw-config-btn--primary" data-save-button>
+      <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.Save"}}
+    </button>
+  </footer>
+</div>

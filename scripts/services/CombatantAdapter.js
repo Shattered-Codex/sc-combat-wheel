@@ -1,0 +1,122 @@
+import { DISPOSITION, DISPOSITION_KEYS, MODULE_ID } from "../constants/module-constants.js";
+import { hpView, initialsOf, isConcealed, isDeadForViewer, visibleName } from "../helpers/visibility-rules.js";
+import { virtualFlagOf } from "../helpers/virtual-positions.js";
+import { healthTone, readHealth } from "../helpers/health-source.js";
+
+const DEFAULT_HEALTH_SOURCE = { kind: "bar", bar: "bar1" };
+
+const DEFAULT_IMAGE_POSITION = "50% 20%";
+
+/**
+ * Translates a Combatant into the view model the wheel draws (ARCHITECTURE §2).
+ * It only reads document properties, so tests can feed it plain objects.
+ */
+export default class CombatantAdapter {
+  /**
+   * @param {object} context
+   * @param {boolean} context.isGM
+   * @param {number} context.round            current combat round, for effect durations
+   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames }
+   * @param {string} context.unknownName      label for names the viewer may not read
+   * @param {(src: string) => boolean} [context.isVideo]
+   * @param {object} [context.healthSource]   from healthSourceFor(); token bar 1 by default
+   */
+  static toViewModel(combatant, context) {
+    const { isGM, settings } = context;
+    const token = combatant.token ?? null;
+    const disposition = token?.disposition ?? DISPOSITION.NEUTRAL;
+    const isOwner = Boolean(combatant.isOwner);
+    const name =
+      visibleName(combatant.name, {
+        isGM,
+        isOwner,
+        npcNames: settings.npcNames,
+        tokenDisplayName: token?.displayName,
+      }) ?? context.unknownName;
+    const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo);
+    const initiative = Number.isFinite(combatant.initiative) ? combatant.initiative : null;
+    const health = readHealth(combatant, context.healthSource ?? DEFAULT_HEALTH_SOURCE);
+    const hp = hpView(health, {
+      isGM,
+      isOwner,
+      disposition,
+      hpForPlayers: settings.hpForPlayers,
+    });
+    const defeated = Boolean(combatant.isDefeated ?? combatant.defeated);
+    const hidden = Boolean(combatant.hidden);
+    const tokenHidden = Boolean(token?.hidden);
+    const invisible = Boolean(combatant.actor?.statuses?.has?.("invisible"));
+    const dead = isDeadForViewer({ defeated }, hp);
+
+    return {
+      id: combatant.id,
+      virtual: virtualFlagOf(combatant) !== null,
+      name,
+      img: portrait.src,
+      imgPosition: portrait.position,
+      // The token's own art, as the canvas and the core tracker show it (the Venaerys strip may use it, RF-82).
+      tokenImg: CombatantAdapter.portraitFor(combatant, "token", context.isVideo).src,
+      initials: initialsOf(name),
+      initiative,
+      hasInitiative: initiative !== null,
+      disposition,
+      dispositionKey: DISPOSITION_KEYS[disposition] ?? "neutral",
+      hidden,
+      tokenHidden,
+      invisible,
+      concealed: isConcealed({ hidden, tokenHidden, invisible }, settings.concealment),
+      defeated,
+      dead,
+      alive: !dead,
+      isOwner,
+      hasPlayerOwner: Boolean(combatant.hasPlayerOwner),
+      players: Array.from(combatant.players ?? [], (user) => user.name),
+      hp,
+      hpTotal: isGM ? health : null,
+      healthTone: hp.mode === "none" || hp.mode === "hidden" ? null : healthTone(hp.pct),
+      effects: CombatantAdapter.#readEffects(combatant.actor, context.round),
+    };
+  }
+
+  /** Portrait source with fallbacks; videos fall back to the actor image. */
+  static portraitFor(combatant, source = "token", isVideo = () => false) {
+    const actor = combatant.actor ?? null;
+    const actorImg = actor?.img ?? null;
+    const tokenImg = combatant.token?.texture?.src ?? null;
+    let src = null;
+    let position = null;
+
+    if (source === "flag") {
+      const flag = actor?.flags?.[MODULE_ID]?.portrait;
+      if (typeof flag === "string") src = flag;
+      else if (flag && typeof flag === "object") {
+        src = flag.src ?? null;
+        position = flag.position ?? null;
+      }
+    }
+    if (!src) src = source === "actor" ? actorImg ?? tokenImg : tokenImg ?? actorImg;
+    src ??= combatant.img ?? null;
+    if (src && isVideo(src)) src = actorImg && !isVideo(actorImg) ? actorImg : null;
+    return { src, position: position ?? DEFAULT_IMAGE_POSITION };
+  }
+
+  /** Temporary effects (status conditions included), deduplicated by name and icon. */
+  static #readEffects(actor, round) {
+    const seen = new Set();
+    const effects = [];
+    for (const effect of actor?.temporaryEffects ?? []) {
+      const img = effect.img ?? effect.icon ?? null;
+      const key = `${effect.name}|${img}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      effects.push({ name: effect.name, img, rounds: CombatantAdapter.#remainingRounds(effect, round) });
+    }
+    return effects;
+  }
+
+  static #remainingRounds(effect, round) {
+    const { rounds, startRound } = effect.duration ?? {};
+    if (!Number.isFinite(rounds) || rounds <= 0 || !Number.isFinite(startRound)) return null;
+    return Math.max(startRound + rounds - round, 0);
+  }
+}

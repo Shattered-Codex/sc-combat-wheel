@@ -1,0 +1,1259 @@
+{
+  "SC_COMBAT_WHEEL": {
+    "Title": "Roda de Iniciativa",
+    "Controls": {
+      "Toggle": "Roda de Iniciativa"
+    },
+    "Settings": {
+      "openOnStart": {
+        "Name": "Abrir ao iniciar o combate",
+        "Hint": "Mostra a roda para todos assim que o combate começa e fecha quando ele termina."
+      },
+      "hideNativeTracker": {
+        "Name": "Esconder a aba nativa de combate",
+        "Hint": "Esconde a aba do Combat Tracker na lateral enquanto a roda estiver aberta."
+      },
+      "layoutPreset": {
+        "Name": "Layout da roda",
+        "Hint": "Tamanho da roda e quantas fatias ficam visíveis.",
+        "Choices": {
+          "mini": "Mini — 7 fatias, a menor",
+          "compact": "Compacto — 7 fatias (recomendado)",
+          "dense": "Denso — 9 fatias, combates grandes",
+          "large": "Grande — 7 fatias, transmissão",
+          "custom": "Personalizado — raios e ângulo abaixo"
+        }
+      },
+      "orientation": {
+        "Name": "Direção",
+        "Hint": "De que lado da barra de controle ficam os retratos. Nas laterais a barra fica de pé, como um trilho vertical.",
+        "Choices": {
+          "up": "Retratos em cima, barra embaixo",
+          "right": "Retratos à direita, barra à esquerda",
+          "down": "Retratos embaixo, barra em cima",
+          "left": "Retratos à esquerda, barra à direita"
+        }
+      },
+      "anchor": {
+        "Name": "Âncora da vez",
+        "Hint": "Onde fica quem está agindo: no meio, perto do início com um turno passado antes, ou perto do fim com um turno por vir depois.",
+        "Choices": {
+          "middle": "Meio",
+          "left": "Início",
+          "end": "Fim"
+        }
+      },
+      "clickAction": {
+        "Name": "Clique na fatia",
+        "Hint": "O que acontece ao clicar num retrato.",
+        "Choices": {
+          "pan": "Centralizar a câmera no token",
+          "select": "Selecionar o token",
+          "sheet": "Abrir a ficha",
+          "none": "Nada"
+        }
+      },
+      "cameraFollows": {
+        "Name": "Câmera segue a vez",
+        "Hint": "Centraliza a câmera no token que está agindo a cada turno."
+      },
+      "cameraPan": {
+        "Name": "Movimento da câmera",
+        "Hint": "Como a câmera vai até um token, quando segue a vez ou quando você clica num retrato: demora mais quanto mais longe ele está. Com movimento reduzido, ela vai direto.",
+        "Choices": {
+          "fast": "Rápido",
+          "smooth": "Suave",
+          "slow": "Lento"
+        }
+      },
+      "animationSpeed": {
+        "Name": "Velocidade da animação",
+        "Hint": "Quão rápido a roda gira. A preferência de movimento reduzido do sistema sempre vence.",
+        "Choices": {
+          "slow": "Lenta",
+          "normal": "Normal",
+          "fast": "Rápida",
+          "off": "Desligada"
+        }
+      },
+      "portraitSource": {
+        "Name": "Fonte do retrato",
+        "Hint": "Imagem mostrada em cada fatia.",
+        "Choices": {
+          "token": "Imagem do token",
+          "actor": "Retrato do ator",
+          "flag": "Retrato próprio (flag do módulo), depois o token"
+        }
+      },
+      "hpForPlayers": {
+        "Name": "PV dos inimigos para jogadores",
+        "Hint": "O que os jogadores veem de combatentes que não são amigáveis nem deles.",
+        "Choices": {
+          "number": "Número exato",
+          "bar": "Só a barra",
+          "state": "Estado descritivo",
+          "hidden": "Nada"
+        }
+      },
+      "defeatedMode": {
+        "Name": "Combatentes mortos",
+        "Hint": "Derrotados, ou com 0 PV até onde cada um pode saber. O retrato fica sempre em preto e branco.",
+        "Choices": {
+          "fade": "Manter, em preto e branco",
+          "remove": "Tirar da roda"
+        }
+      },
+      "npcNames": {
+        "Name": "Nomes para jogadores",
+        "Hint": "O tracker nativo sempre mostra os nomes; a opção do token segue o modo de exibição de nome de cada token.",
+        "Choices": {
+          "always": "Sempre mostrar (como o tracker nativo)",
+          "token": "Seguir a exibição de nome do token"
+        }
+      },
+      "nextUpNotice": {
+        "Name": "Aviso \"a seguir\"",
+        "Hint": "O jogador cujo combatente age em seguida recebe um aviso e a fatia dele pulsa."
+      },
+      "secondsPerRound": {
+        "Name": "Segundos por rodada",
+        "Hint": "Usado no tempo de jogo decorrido do painel de detalhes."
+      },
+      "portraitShape": {
+        "Name": "Formato do retrato",
+        "Hint": "Setores do anel ou quadrados de cantos suaves, que não cortam arte de token quadrada.",
+        "Choices": {
+          "sector": "Setor",
+          "square": "Quadrado de cantos suaves"
+        }
+      },
+      "sliceGap": {
+        "Name": "Espaço entre fatias",
+        "Hint": "Ângulo entre as fatias, em graus."
+      },
+      "scale": {
+        "Name": "Escala",
+        "Hint": "Tamanho geral do widget, em porcentagem."
+      },
+      "restOpacity": {
+        "Name": "Opacidade em repouso",
+        "Hint": "Opacidade enquanto o mouse não está sobre a roda, em porcentagem."
+      },
+      "theme": {
+        "Name": "Tema",
+        "Hint": "Cores e fontes da roda.",
+        "Choices": {
+          "system": "Seguir o sistema do jogo",
+          "nocturne": "Nocturne",
+          "foundry": "Foundry (cores da interface)",
+          "parchment": "Pergaminho",
+          "stone": "Pedra e ferro",
+          "contrast": "Alto contraste",
+          "transparent": "Transparente (transmissão)",
+          "dnd5e": "D&D 5e",
+          "pf2e": "Pathfinder 2e",
+          "daggerheart": "Daggerheart",
+          "coc7": "Call of Cthulhu 7e",
+          "scifi-holo": "Sci-fi: Holo",
+          "scifi-neon": "Sci-fi: Neon",
+          "scifi-terminal": "Sci-fi: Terminal",
+          "scifi-alert": "Sci-fi: Alerta",
+          "graphite": "Grafite",
+          "mist": "Névoa",
+          "verdant": "Verdejante",
+          "crimson": "Carmesim",
+          "abyss": "Abismo",
+          "ember": "Brasa",
+          "frost": "Gelo",
+          "royal": "Real",
+          "nord": "Nórdico",
+          "midnight": "Meia-noite",
+          "paper": "Papel",
+          "arcane": "Arcano",
+          "infernal": "Infernal",
+          "celestial": "Celestial",
+          "sakura": "Sakura",
+          "steampunk": "Steampunk",
+          "eldritch": "Indizível",
+          "gothic": "Gótico",
+          "noir": "Noir",
+          "bloodmoon": "Lua de sangue",
+          "scifi-synth": "Sci-fi: Synthwave",
+          "scifi-cyber": "Sci-fi: Cyberpunk",
+          "obsidian": "Obsidiana",
+          "tide": "Maré"
+        }
+      },
+      "customOuter": {
+        "Name": "Layout personalizado: raio externo",
+        "Hint": "Em pixels. Só vale com o layout Personalizado."
+      },
+      "customInner": {
+        "Name": "Layout personalizado: raio interno",
+        "Hint": "Em pixels, pelo menos 40 abaixo do raio externo. Só vale com o layout Personalizado."
+      },
+      "customStep": {
+        "Name": "Layout personalizado: ângulo da fatia",
+        "Hint": "Em graus, de 15 a 45. Fatias visíveis = 2 × floor(90 / ângulo) + 1."
+      },
+      "soundsAllowed": {
+        "Name": "Permitir sons da roda (mesa toda)",
+        "Hint": "Desligado, a roda não toca som para ninguém."
+      },
+      "soundVolume": {
+        "Name": "Volume da roda",
+        "Hint": "Em porcentagem, multiplicado pelo volume de interface do Foundry."
+      },
+      "soundTurnChange": {
+        "Name": "Som: qualquer mudança de turno",
+        "Hint": "Toca a cada mudança real de turno, quando nada mais específico se aplica."
+      },
+      "soundTurnChangeFile": {
+        "Name": "Arquivo: qualquer mudança de turno",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "soundOwnTurn": {
+        "Name": "Som: sua vez",
+        "Hint": "Um combatente seu começa o turno. Não vale para o Mestre."
+      },
+      "soundOwnTurnFile": {
+        "Name": "Arquivo: sua vez",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "soundNextUp": {
+        "Name": "Som: você é o próximo",
+        "Hint": "Um combatente seu age em seguida. Não vale para o Mestre."
+      },
+      "soundNextUpFile": {
+        "Name": "Arquivo: você é o próximo",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "soundRoundStart": {
+        "Name": "Som: nova rodada",
+        "Hint": "Começa uma nova rodada."
+      },
+      "soundRoundStartFile": {
+        "Name": "Arquivo: nova rodada",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "soundCombatStart": {
+        "Name": "Som: início do combate",
+        "Hint": "O combate começa."
+      },
+      "soundCombatStartFile": {
+        "Name": "Arquivo: início do combate",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "skipDead": {
+        "Name": "Pular o turno de mortos",
+        "Hint": "Quando o turno chega num combatente morto, o cliente do Mestre avança sozinho. Voltar o turno nunca pula.",
+        "Choices": {
+          "never": "Nunca pular",
+          "npcs": "Pular só NPCs (jogadores mantêm o turno, por exemplo para testes contra a morte)",
+          "all": "Pular todos os mortos"
+        }
+      },
+      "concealment": {
+        "Name": "Ocultos dos jogadores",
+        "Hint": "Quem fica fora da roda dos jogadores. O Mestre sempre vê todos, esmaecidos e com olho cortado.",
+        "Choices": {
+          "hidden": "Só combatentes ocultos no tracker",
+          "tokenHidden": "Também combatentes com token oculto no mapa",
+          "invisible": "Também combatentes invisíveis"
+        }
+      },
+      "hpSource": {
+        "Name": "De onde vêm os PV",
+        "Hint": "Automático usa um preset para dnd5e, pf2e, Daggerheart, CoC7, SWADE, Imperium Maledictum e Fabula Ultima, ou a barra principal de token do sistema.",
+        "Choices": {
+          "auto": "Automático (preset do sistema)",
+          "bar1": "Barra 1 do token",
+          "bar2": "Barra 2 do token",
+          "attribute": "Caminho de atributo (abaixo)"
+        }
+      },
+      "hpPath": {
+        "Name": "Caminho do atributo de PV",
+        "Hint": "Relativo aos dados do sistema do ator, apontando para o pai de value e max. Exemplo: attributes.hp"
+      },
+      "hpInverted": {
+        "Name": "O valor conta dano",
+        "Hint": "Marque quando o atributo conta dano sofrido (PV marcados, ferimentos). A roda mostra então máximo menos valor."
+      },
+      "hpOverlay": {
+        "Name": "Vida no retrato",
+        "Hint": "Como a vida restante aparece sobre cada retrato. Jogadores só veem o que o setting de PV dos inimigos permite.",
+        "Choices": {
+          "off": "Desligado",
+          "drain": "A vida perdida tinge de vermelho a partir do topo",
+          "fill": "A vida restante preenche a partir da base (verde → vermelho)",
+          "band": "Medidor fino na lateral"
+        }
+      },
+      "hpOverlayOpacity": {
+        "Name": "Intensidade da vida no retrato",
+        "Hint": "Em porcentagem."
+      },
+      "view": {
+        "Name": "Visualização",
+        "Hint": "Como a ordem de turnos é desenhada.",
+        "Choices": {
+          "wheel": "Roda",
+          "carousel": "Carrossel",
+          "slider": "Slider"
+        }
+      },
+      "trackSize": {
+        "Name": "Tamanho dos cartões",
+        "Hint": "Tamanho de cada cartão de retrato.",
+        "Choices": {
+          "small": "Pequeno",
+          "medium": "Médio (recomendado)",
+          "large": "Grande — transmissão"
+        }
+      },
+      "trackReach": {
+        "Name": "Cartões de cada lado",
+        "Hint": "Quantos combatentes aparecem de cada lado de quem está agindo; os demais esperam fora das pontas."
+      },
+      "barLayout": {
+        "Name": "Formato da barra",
+        "Hint": "Uma barra junto dos retratos, ou dividida em duas colunas em pé ao lado deles: turno e rodada de um lado, encerrar o turno e as ferramentas do outro. A barra dividida não tem painel de detalhes.",
+        "Choices": {
+          "bar": "Uma barra",
+          "split": "Duas colunas laterais"
+        }
+      },
+      "barControls": {
+        "Name": "Ferramentas da barra",
+        "Hint": "Travar, direção, aparência, configurações e, para o Mestre, rolagens e encerrar o combate: como botões na barra, ou reunidas num menu Mais.",
+        "Choices": {
+          "inline": "Na barra",
+          "menu": "Num menu Mais"
+        }
+      },
+      "phaseStripPlacement": {
+        "Name": "Posição da faixa de quem age",
+        "Hint": "Onde ficam os retratos de quem age na fase atual.",
+        "Choices": {
+          "beyond": "Além da barra, longe dos retratos",
+          "end": "Ao lado da barra, na ponta",
+          "over": "Além dos retratos, do outro lado"
+        }
+      },
+      "phaseStripImage": {
+        "Name": "Imagem da faixa de quem age",
+        "Hint": "O mesmo retrato da roda, ou a arte do próprio token.",
+        "Choices": {
+          "portrait": "Retrato",
+          "token": "Token"
+        }
+      },
+      "phaseStripFrame": {
+        "Name": "Moldura da faixa de quem age",
+        "Hint": "Como cada imagem é recortada. Ladrilhos põem as imagens coladas, como uma só figura; sem moldura aparece a imagem inteira, o que combina com arte de token.",
+        "Choices": {
+          "round": "Redonda",
+          "square": "Quadrado arredondado",
+          "tiles": "Ladrilhos (imagens lado a lado)",
+          "none": "Sem moldura (imagem inteira)"
+        }
+      },
+      "trackShape": {
+        "Name": "Formato do cartão",
+        "Hint": "Quadrado, ou um retângulo em pé como um retrato de personagem, ou deitado como uma cena.",
+        "Choices": {
+          "square": "Quadrado",
+          "tall": "Retrato (retângulo em pé)",
+          "wide": "Paisagem (retângulo deitado)"
+        }
+      },
+      "trackSpacing": {
+        "Name": "Espaço entre os cartões",
+        "Hint": "Em pixels. Abaixo de zero os cartões se sobrepõem, o mais próximo da vez por cima."
+      },
+      "trackNames": {
+        "Name": "Nomes nos cartões",
+        "Hint": "Escreve cada nome no pé do cartão, como os jogadores podem vê-lo.",
+        "Choices": {
+          "none": "Nenhum",
+          "acting": "Só no cartão da vez",
+          "all": "Em todos"
+        }
+      },
+      "phaseStripSize": {
+        "Name": "Tamanho da faixa de quem age",
+        "Hint": "Tamanho de cada imagem da faixa.",
+        "Choices": {
+          "small": "Pequeno",
+          "medium": "Médio",
+          "large": "Grande"
+        }
+      },
+      "phaseStripNames": {
+        "Name": "Nomes na faixa de quem age",
+        "Hint": "Escreve cada nome embaixo da imagem (por cima dela, nos ladrilhos)."
+      },
+      "colorAccent": {
+        "Name": "Destaque",
+        "Hint": "Botões, realces e a escala de destaque derivada dele."
+      },
+      "colorBackground": {
+        "Name": "Fundo",
+        "Hint": "Os selos sobre os retratos (iniciativa, rodada, dado) e o fundo do Ver todos."
+      },
+      "colorSurface": {
+        "Name": "Superfície",
+        "Hint": "A barra, o centro e os menus."
+      },
+      "colorText": {
+        "Name": "Texto",
+        "Hint": "O texto, com o tom apagado e as divisórias derivados dele."
+      },
+      "colorActive": {
+        "Name": "Cor de destaque",
+        "Hint": "O anel e o brilho de quem está agindo, e os efeitos da vez."
+      },
+      "colorFriendly": {
+        "Name": "Amigável",
+        "Hint": "Borda dos combatentes amigáveis."
+      },
+      "colorNeutral": {
+        "Name": "Neutro",
+        "Hint": "Borda dos combatentes neutros."
+      },
+      "colorHostile": {
+        "Name": "Hostil",
+        "Hint": "Borda dos combatentes hostis."
+      },
+      "colorSecret": {
+        "Name": "Secreto",
+        "Hint": "Borda dos combatentes secretos."
+      },
+      "particleType": {
+        "Name": "Partículas",
+        "Hint": "O tipo de partícula; Nenhuma desliga.",
+        "Choices": {
+          "none": "Nenhuma",
+          "embers": "Brasas",
+          "arcane": "Arcano",
+          "stardust": "Poeira estelar",
+          "frost": "Geada",
+          "shadow": "Sombra",
+          "fireflies": "Vaga-lumes",
+          "petals": "Pétalas",
+          "bubbles": "Bolhas",
+          "sparks": "Faíscas",
+          "snow": "Neve",
+          "rain": "Chuva",
+          "leaves": "Folhas caindo",
+          "ash": "Cinzas",
+          "motes": "Poeira dourada",
+          "confetti": "Confete",
+          "runes": "Runas",
+          "wisps": "Fogos-fátuos"
+        }
+      },
+      "particlePlacement": {
+        "Name": "Onde",
+        "Hint": "Em volta do retrato da vez, ou sobre a roda ou os cartões inteiros.",
+        "Choices": {
+          "acting": "Retrato da vez",
+          "widget": "Widget inteiro"
+        }
+      },
+      "particleSpeed": {
+        "Name": "Velocidade dos efeitos",
+        "Hint": "O quão rápido se movem todos os efeitos e partículas.",
+        "Choices": {
+          "slow": "Lenta",
+          "normal": "Normal",
+          "fast": "Rápida"
+        }
+      },
+      "particleIntensity": {
+        "Name": "Intensidade dos efeitos",
+        "Hint": "A força de todos os efeitos: o de quem age, o da troca de turno e as partículas (quantas e o quanto brilham).",
+        "Choices": {
+          "subtle": "Sutil",
+          "normal": "Normal",
+          "strong": "Forte"
+        }
+      },
+      "particleColor": {
+        "Name": "Cor das partículas",
+        "Hint": "O destaque do tema, o lado de quem está agindo, ou uma cor sua.",
+        "Choices": {
+          "theme": "Destaque do tema",
+          "side": "Lado de quem age",
+          "custom": "Personalizada"
+        }
+      },
+      "particleCustomColor": {
+        "Name": "Cor personalizada das partículas",
+        "Hint": "Usada quando a cor das partículas é Personalizada."
+      },
+      "barSize": {
+        "Name": "Tamanho da barra",
+        "Hint": "Compacta deixa a barra mais fina, com botões menores e o botão de turno só com ícone.",
+        "Choices": {
+          "normal": "Normal",
+          "compact": "Compacta"
+        }
+      },
+      "showInitiative": {
+        "Name": "Iniciativa nos retratos",
+        "Hint": "Mostra a iniciativa de cada combatente, como o tracker nativo."
+      },
+      "styleFont": {
+        "Name": "Fonte dos nomes",
+        "Hint": "A fonte dos nomes e títulos.",
+        "Choices": {
+          "theme": "Do tema",
+          "sans": "Limpa (Signika)",
+          "serif": "Serifa clássica (Amiri)",
+          "display": "Condensada (Modesto)",
+          "futuristic": "Futurista (Bruno Ace)",
+          "mono": "Monoespaçada"
+        }
+      },
+      "styleCorners": {
+        "Name": "Cantos",
+        "Hint": "Quão arredondados são a barra, o centro, os menus e os cartões.",
+        "Choices": {
+          "theme": "Do tema",
+          "sharp": "Retos",
+          "soft": "Suaves",
+          "round": "Redondos"
+        }
+      },
+      "stylePanels": {
+        "Name": "Painéis",
+        "Hint": "A barra, o centro e os menus: sólidos, translúcidos, ou vidro fosco que desfoca o mapa atrás.",
+        "Choices": {
+          "theme": "Do tema",
+          "solid": "Sólidos",
+          "translucent": "Translúcidos",
+          "glass": "Vidro"
+        }
+      },
+      "styleRim": {
+        "Name": "Borda dos retratos",
+        "Hint": "A espessura da borda colorida de cada retrato.",
+        "Choices": {
+          "theme": "Do tema",
+          "thin": "Fina",
+          "normal": "Normal",
+          "thick": "Grossa"
+        }
+      },
+      "styleNames": {
+        "Name": "Nomes em maiúsculas",
+        "Hint": "Escreve nomes e títulos em maiúsculas, ou como foram digitados.",
+        "Choices": {
+          "theme": "Do tema",
+          "normal": "Como digitado",
+          "uppercase": "Maiúsculas"
+        }
+      },
+      "styleButtons": {
+        "Name": "Botão principal",
+        "Hint": "O visual do botão de turno.",
+        "Choices": {
+          "theme": "Do tema",
+          "outline": "Contorno",
+          "filled": "Preenchido"
+        }
+      },
+      "barVisibility": {
+        "Name": "Mostrar a barra",
+        "Hint": "Sempre, só com o mouse sobre o widget, ou nunca. Sem a barra, mova o widget e troque turnos pelos atalhos de teclado.",
+        "Choices": {
+          "always": "Sempre",
+          "hover": "Ao passar o mouse",
+          "hidden": "Nunca"
+        }
+      },
+      "barHidden": {
+        "Name": "Itens da barra",
+        "Hint": "Desmarque o que você não usa; sai da barra e do menu dela.",
+        "Choices": {
+          "grab": "Alça de arrastar",
+          "previous": "Turno anterior (Mestre)",
+          "endTurn": "Botão de encerrar turno",
+          "round": "Rodada e turno",
+          "roll": "Rolar iniciativa",
+          "virtual": "Posições virtuais (Mestre)",
+          "grid": "Ver todos",
+          "details": "Painel de detalhes",
+          "lock": "Travar posição",
+          "direction": "Direção",
+          "appearance": "Aparência",
+          "settings": "Configurações",
+          "endCombat": "Encerrar combate (Mestre)"
+        }
+      },
+      "actingEffect": {
+        "Name": "Efeito em quem age",
+        "Hint": "Desenhado em volta do retrato de quem age, por fora dele, enquanto age. Com movimento reduzido fica só o brilho, parado.",
+        "Choices": {
+          "none": "Nenhum",
+          "pulse": "Brilho pulsante",
+          "halo": "Halo",
+          "aura": "Aura de energia",
+          "flicker": "Chama",
+          "rays": "Coroa de raios",
+          "shine": "Reflexo"
+        }
+      },
+      "turnEffect": {
+        "Name": "Efeito na troca de turno",
+        "Hint": "Toca uma vez em volta do novo retrato de quem age a cada troca de turno real.",
+        "Choices": {
+          "none": "Nenhum",
+          "ripple": "Ondas",
+          "burst": "Explosão de luz",
+          "flash": "Clarão",
+          "pop": "Salto"
+        }
+      },
+      "soundTurnBack": {
+        "Name": "Som: turno volta",
+        "Hint": "Quando o Mestre volta um turno. Desligado toca o mesmo que avançar."
+      },
+      "soundTurnBackFile": {
+        "Name": "Arquivo: turno volta",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "soundCombatEnd": {
+        "Name": "Som: fim do combate",
+        "Hint": "Quando um combate que já tinha começado é encerrado."
+      },
+      "soundCombatEndFile": {
+        "Name": "Arquivo: fim do combate",
+        "Hint": "Usado quando o som acima é \"Arquivo próprio\"."
+      },
+      "bannerStyle": {
+        "Name": "Formato da mensagem",
+        "Hint": "Como fica a mensagem na tela de uma posição virtual: um cartão com faixa de título, uma faixa de lado a lado da tela, ou um aviso pequeno.",
+        "Choices": {
+          "card": "Cartão",
+          "strip": "De lado a lado",
+          "toast": "Aviso pequeno"
+        }
+      },
+      "bannerPosition": {
+        "Name": "Lugar da mensagem",
+        "Hint": "Em que parte da tela a mensagem aparece.",
+        "Choices": {
+          "top": "Em cima",
+          "center": "No centro",
+          "bottom": "Embaixo"
+        }
+      },
+      "bannerSize": {
+        "Name": "Tamanho da mensagem",
+        "Hint": "Tamanho do título e do texto da mensagem.",
+        "Choices": {
+          "small": "Pequeno",
+          "normal": "Normal",
+          "large": "Grande"
+        }
+      },
+      "bannerImage": {
+        "Name": "Imagem na mensagem",
+        "Hint": "Mostra a imagem da posição virtual ao lado do título."
+      },
+      "styleFinish": {
+        "Name": "Acabamento",
+        "Hint": "Os toques dos temas sci-fi, nas cores deste tema: cantoneiras e linhas de HUD, brilho de neon, tela CRT (retratos numa cor só, fonte monoespaçada), faixas de perigo ou glitch. \"Do tema\" mantém o do próprio tema.",
+        "Choices": {
+          "theme": "Do tema",
+          "hud": "HUD",
+          "neon": "Neon",
+          "crt": "Tela CRT",
+          "hazard": "Faixas de perigo",
+          "glitch": "Glitch"
+        }
+      }
+    },
+    "Keybindings": {
+      "toggle": "Mostrar ou ocultar a roda",
+      "nextTurn": "Próximo turno",
+      "previousTurn": "Turno anterior",
+      "toggleLock": "Travar ou destravar a posição da roda",
+      "seeAll": "Ver todos",
+      "backToTurn": "Voltar à vez atual",
+      "resetPosition": "Restaurar posição da roda"
+    },
+    "Notifications": {
+      "NotAllowed": "Você não tem permissão para fazer isso neste combate.",
+      "NextUp": "{name} age em seguida — prepare-se.",
+      "PortraitRatio": "Roda personalizada: os retratos estão em {ratio}:1 (profundidade por largura). Acima de 1,4:1 a arte fica esticada ou cortada; aproxime os raios ou alargue as fatias.",
+      "SoundSilent": "Nada para tocar: o som está desligado, falta o arquivo ou o volume está em zero.",
+      "VirtualAdded": "{name} entrou no combate.",
+      "SettingsSaved": "Configurações da Roda de Iniciativa salvas.",
+      "AutoAdvanceLoop": "Avanço automático interrompido: todos os combatentes restantes seriam pulados.",
+      "ConsequenceFailed": "\"{name}\": a consequência {kind} falhou. Veja o console para detalhes.",
+      "AppearanceSaved": "Aparência da Roda de Iniciativa salva.",
+      "PhaseNextUp": "Sua fase é a próxima: {name}. Prepare-se.",
+      "PositionReset": "A roda voltou para o lugar padrão."
+    },
+    "Slice": {
+      "RollOne": "Rolar iniciativa",
+      "Unknown": "Desconhecido",
+      "Defeated": "Derrotado",
+      "Hidden": "Oculto dos jogadores",
+      "TurnBadge": "VEZ",
+      "Virtual": "Posição virtual"
+    },
+    "Tooltip": {
+      "Initiative": "Iniciativa {value}",
+      "Hp": "{value} PV"
+    },
+    "HealthState": {
+      "unhurt": "Ileso",
+      "wounded": "Ferido",
+      "bloodied": "Sangrando",
+      "critical": "Crítico",
+      "down": "Abatido"
+    },
+    "Disposition": {
+      "friendly": "Amigável",
+      "neutral": "Neutro",
+      "hostile": "Hostil",
+      "secret": "Secreto"
+    },
+    "Sides": {
+      "friendly": "{count} amigáveis",
+      "neutral": "{count} neutros",
+      "hostile": "{count} hostis",
+      "secret": "{count} secretos",
+      "friendlyLabel": "Amigáveis",
+      "neutralLabel": "Neutros",
+      "hostileLabel": "Hostis",
+      "secretLabel": "Secretos"
+    },
+    "Hub": {
+      "Empty": "Sem combatentes",
+      "RollInitiative": "Rolar iniciativa",
+      "RollInfo": "{rolled} de {total} rolaram",
+      "Waiting": "Aguardando",
+      "Acting": "Agindo",
+      "First": "Primeiro",
+      "Viewing": "Visualizando",
+      "Virtual": "Posição virtual"
+    },
+    "Phase": {
+      "Now": "Fase atual",
+      "Half": {
+        "move": "Movimento",
+        "act": "Ações"
+      },
+      "Progress": "{done} de {total} finalizados",
+      "StripLabel": "Agindo agora: {phase}",
+      "MarkDone": "Marcar {name} como finalizado",
+      "UnmarkDone": "Desfazer a finalização de {name}",
+      "MarkMoved": "Marcar o movimento de {name} como feito",
+      "UnmarkMoved": "Desfazer o movimento de {name}",
+      "Status": {
+        "acting": "Agindo",
+        "done": "Finalizado",
+        "defeated": "Derrotado",
+        "waiting": "Aguardando"
+      }
+    },
+    "Bar": {
+      "Drag": "Arrastar",
+      "Lock": "Travar posição",
+      "Unlock": "Destravar posição",
+      "Direction": "Direção",
+      "Directions": {
+        "up": "Retratos acima da barra",
+        "right": "Retratos à direita",
+        "down": "Retratos abaixo da barra",
+        "left": "Retratos à esquerda"
+      },
+      "PreviousTurn": "Voltar turno",
+      "EndOwnTurn": "Encerrar meu turno",
+      "Round": "Rodada {round}",
+      "Setup": "Preparação",
+      "Expand": "Detalhes",
+      "Collapse": "Recolher detalhes",
+      "EndCombat": "Encerrar combate",
+      "BackToTurn": "Voltar à vez",
+      "SeeAll": "Ver todos",
+      "Settings": "Configurações",
+      "EndTurn": "Encerrar turno",
+      "More": "Mais",
+      "Locked": "Posição travada",
+      "Appearance": "Aparência",
+      "NextPhase": "Próxima fase",
+      "PreviousPhase": "Fase anterior",
+      "Finish": "Finalizar",
+      "FinishMove": "Finalizar movimento",
+      "Finished": "Finalizado",
+      "LockToggle": "Travar posição",
+      "DirectionNow": "Direção: {direction}"
+    },
+    "Hp": {
+      "Value": "{value} PV"
+    },
+    "RollMenu": {
+      "Title": "Rolar iniciativa",
+      "All": "Todos",
+      "Npc": "Só NPCs",
+      "Pc": "Só personagens",
+      "Reset": "Limpar iniciativas",
+      "Kicker": "Iniciativa"
+    },
+    "Details": {
+      "Character": "Personagem",
+      "Combat": "Combate",
+      "Participants": "Participantes",
+      "Standing": "De pé",
+      "OfTotal": "{count} de {total}",
+      "SideHp": "PV — {side}",
+      "Elapsed": "Tempo de jogo",
+      "NextUp": "A seguir",
+      "Expiring": "Expira nesta rodada",
+      "EffectRounds": "{name} · {rounds}r",
+      "Position": "{index} de {total}",
+      "Previous": "Anterior na ordem do combate",
+      "Next": "Próximo na ordem do combate",
+      "Phase": "Fase"
+    },
+    "Grid": {
+      "Title": "Todos os participantes · R{round}",
+      "Hint": "Clique para visualizar na roda, sem mudar o turno",
+      "HintGM": "Clique para visualizar na roda · arraste para mudar a ordem · + adiciona uma posição virtual",
+      "Close": "Fechar",
+      "RemoveVirtual": "Remover esta posição virtual",
+      "Insert": "Adicionar uma posição virtual aqui",
+      "NewVirtual": "Nova posição virtual",
+      "NoTemplate": "Sem modelo: só uma mensagem na tela",
+      "Cancel": "Cancelar",
+      "Add": "Adicionar",
+      "TitlePlaceholder": "Título (ex.: O covil treme)",
+      "MessagePlaceholder": "Mensagem mostrada na tela quando a vez chegar"
+    },
+    "Sounds": {
+      "off": "Desligado",
+      "chime": "Sininho",
+      "bell": "Sino",
+      "gong": "Gongo",
+      "drum": "Tambor de guerra",
+      "arcane": "Brilho arcano",
+      "blip": "Sci-fi: bipe",
+      "scan": "Sci-fi: varredura",
+      "alert": "Sci-fi: alerta",
+      "harp": "Harpa",
+      "fanfare": "Fanfarra",
+      "horn": "Trompa de guerra",
+      "pluck": "Dedilhado",
+      "sparkle": "Cintilar",
+      "heartbeat": "Batimento",
+      "whoosh": "Sopro",
+      "rewind": "Rebobinar",
+      "coreNotify": "Foundry: notificação",
+      "coreDrums": "Foundry: tambores",
+      "coreLock": "Foundry: tranca",
+      "coreDice": "Foundry: dados",
+      "file": "Arquivo próprio"
+    },
+    "SettingsMenu": {
+      "Name": "Configurações da Roda de Iniciativa",
+      "Label": "Abrir configurações",
+      "Hint": "Comportamento e sons deste navegador; mesa, jogadores, regras e posições virtuais do mundo. A aparência tem um editor próprio.",
+      "Scopes": {
+        "client": {
+          "Label": "Este navegador",
+          "Badge": "Só este navegador"
+        },
+        "world": {
+          "Label": "Mundo",
+          "Badge": "Mesa toda · só o Mestre"
+        },
+        "user": {
+          "Label": "Você",
+          "Badge": "Só você, em qualquer aparelho"
+        }
+      },
+      "Sections": {
+        "appearance": {
+          "Title": "Aparência e sons",
+          "Hint": "O visual da roda (o seu, em qualquer aparelho, ou o da mesa) e os sons que este navegador toca, ajustados no próprio editor."
+        },
+        "behavior": {
+          "Title": "Comportamento",
+          "Hint": "Quando a roda abre e o que um clique no retrato faz. Vale só para este navegador."
+        },
+        "sounds": {
+          "Title": "Sons",
+          "Hint": "O que você ouve nas trocas de turno, e o volume: configurado e testado no editor de aparência. Vale só para este navegador; o Mestre ainda pode silenciar a roda para a mesa toda."
+        },
+        "table": {
+          "Title": "Mesa",
+          "Hint": "Escolhas do Mestre para todos: retratos, sons e avisos de \"a seguir\". Vale para o mundo todo. O visual da mesa fica no editor de aparência."
+        },
+        "players": {
+          "Title": "O que os jogadores veem",
+          "Hint": "Quanto dos inimigos a roda dos jogadores revela. O Mestre sempre vê tudo. Vale para o mundo inteiro."
+        },
+        "rules": {
+          "Title": "Regras de combate",
+          "Hint": "De onde vêm os pontos de vida, o que conta como morto e como passa o tempo de jogo. Vale para o mundo inteiro."
+        },
+        "virtual": {
+          "Title": "Posições virtuais",
+          "Hint": "Turnos reutilizáveis sem ator (ações de covil, cronômetros, eventos) e o que acontece na vez deles. Vale para o mundo inteiro."
+        },
+        "foundry": {
+          "Title": "Combate do Foundry",
+          "Hint": "As configurações de combate do próprio Foundry, as mesmas da janela de configurações do tracker de combate, editadas aqui para deixar todo o combate num lugar só."
+        }
+      },
+      "PlayerNotice": "As opções do mundo ficam com o Mestre. Só as opções abaixo valem para você.",
+      "Unsaved": "Alterações não salvas",
+      "Saved": "Salvo",
+      "Reset": "Restaurar padrões",
+      "Close": "Fechar",
+      "Test": "Testar este som",
+      "Save": "Salvar alterações",
+      "ResetPosition": {
+        "Name": "Posição da roda",
+        "Hint": "Leva a roda de volta para onde ela abre por padrão, caso tenha sido arrastada para um lugar que você não alcança mais. Também está nos controles de token à esquerda (o ícone de alvo abaixo do botão da roda) e, para o Mestre, no menu de opções do combate; dá para definir um atalho em Configurar Controles.",
+        "Button": "Restaurar posição",
+        "Menu": "Restaurar posição da roda"
+      }
+    },
+    "AppearanceMenu": {
+      "Name": "Aparência da Roda de Iniciativa",
+      "Label": "Editar aparência",
+      "Hint": "Tema, layout, direção, retratos e movimento da roda, com prévia ao vivo. Cada usuário tem a sua."
+    },
+    "Appearance": {
+      "Title": "Editor de aparência",
+      "Open": "Editor de aparência e sons",
+      "OpenHint": "Formato, tema, layout, barra, cores, efeitos, estilos de combate e os sons deste navegador, com uma prévia que gira e toca.",
+      "OpenButton": "Abrir editor",
+      "Theme": "Tema",
+      "ThemeGroups": {
+        "general": "Gerais",
+        "systems": "Sistemas de jogo",
+        "scifi": "Ficção científica",
+        "sober": "Sóbrios",
+        "vivid": "Vívidos",
+        "horror": "Terror",
+        "carousels": "Carrosséis"
+      },
+      "Views": "Formato",
+      "ViewHints": {
+        "wheel": "Meia roda que gira uma fatia por turno.",
+        "carousel": "Uma fileira de cartões que desliza pela barra; o cartão da vez sobe.",
+        "slider": "O cartão da vez à frente, os outros diminuindo e virando para os lados."
+      },
+      "Preview": "Prévia ao vivo",
+      "Source": "Combatentes mostrados",
+      "Sample": "Exemplo",
+      "ThisCombat": "Este combate",
+      "PreviousTurn": "Turno anterior (exemplo)",
+      "NextTurn": "Próximo turno (exemplo)",
+      "Details": "Mostrar os detalhes da barra",
+      "Zoomed": "Mostrada em {percent}% para caber na prévia; a mesa vê no tamanho real.",
+      "Panels": {
+        "presets": "Estilos prontos",
+        "layout": "Layout",
+        "portraits": "Retratos",
+        "bar": "Barra",
+        "phases": "Fases",
+        "motion": "Movimento",
+        "effects": "Efeitos",
+        "sharing": "Compartilhar",
+        "sounds": "Sons",
+        "visual": "Visual"
+      },
+      "Names": {
+        "knight": "Cavaleira",
+        "lair": "Ação de covil",
+        "wolf": "Lobo atroz",
+        "archer": "Arqueiro",
+        "dragon": "Dragão vermelho",
+        "cleric": "Clériga",
+        "bandit": "Bandido",
+        "commoner": "Aldeão",
+        "bear": "Urso das cavernas",
+        "lion": "Leão"
+      },
+      "DiscardTitle": "Descartar alterações não salvas?",
+      "DiscardText": "Há alterações de aparência não salvas. Fechar sem salvá-las?",
+      "SamplePhase": "Rápida",
+      "PanelHints": {
+        "effects": "As partículas são desenhadas pelo navegador só com animações CSS, e param quando o sistema pede movimento reduzido.",
+        "presets": "Escolha um visual completo para começar e depois mude o que quiser nas outras seções. Nada é salvo até você apertar Salvar.",
+        "sounds": "Valem só para este navegador: estilos prontos e o visual da mesa nunca mexem neles. Avance a prévia com Sons ligado para ouvir na ordem do combate.",
+        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto, os painéis e os retratos. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta."
+      },
+      "Sections": "Seções",
+      "ThemeColor": "Do tema",
+      "MoreOptions": "Mais ajustes finos aqui com \"Mostrar todas as opções\", à esquerda.",
+      "Groups": {
+        "size": "Tamanho",
+        "placement": "Posição",
+        "portrait": "Retrato",
+        "info": "Informação",
+        "panels": "Painéis",
+        "sides": "Lados",
+        "acting": "Efeitos",
+        "text": "Texto",
+        "particles": "Partículas",
+        "motion": "Movimento",
+        "items": "Itens da barra",
+        "strip": "Faixa de quem age",
+        "display": "Exibição",
+        "soundGeneral": "Geral",
+        "soundEvents": "Quando tocar",
+        "banner": "Mensagem das posições virtuais",
+        "finish": "Acabamento",
+        "palette": "Paleta"
+      },
+      "CloseGallery": "Fechar estilos prontos",
+      "TurnLabel": "Rodada {round} · {turn}",
+      "PreviewSound": "Sons",
+      "PreviewSoundHint": "Avançar a amostra toca o som que aquele turno tocaria para você.",
+      "OptionsShown": "Quantas opções mostrar",
+      "Essential": "Essencial",
+      "All": "Tudo",
+      "ResetSection": "Restaurar esta seção",
+      "SoundsMuted": "O Mestre desligou os sons da roda para a mesa toda: dá para configurar, mas nada toca durante o combate.",
+      "TestSequence": "Ouvir um combate",
+      "TestSequenceButton": "Tocar",
+      "TestSequenceHint": "Toca início do combate, você é o próximo, sua vez e nova rodada, um depois do outro.",
+      "SoundEvents": {
+        "combatStart": "Combate começa",
+        "roundStart": "Nova rodada",
+        "turnChange": "Qualquer troca de turno",
+        "nextUp": "Você é o próximo",
+        "ownTurn": "Sua vez",
+        "turnBack": "Turno volta",
+        "combatEnd": "Combate termina"
+      },
+      "TestBanner": "Testar mensagem",
+      "TestBannerHint": "Mostra a mensagem na tela como está configurada aqui, antes de salvar.",
+      "SampleBannerTitle": "Ação de covil",
+      "SampleBannerText": "A caverna treme: estalactites despencam do teto.",
+      "SoundOverlap": "Os sons de combate do Foundry ({theme}) também tocam em: {events}. Você vai ouvir dois sons juntos: escolha nenhum nos sons de combate do Foundry abaixo, ou desligue estes.",
+      "PaletteMaker": "Paleta a partir de uma cor",
+      "PaletteSeed": "Cor para gerar a paleta",
+      "PaletteMode": "Paleta escura ou clara",
+      "PaletteDark": "Escura",
+      "PaletteLight": "Clara",
+      "PaletteMake": "Gerar paleta",
+      "PaletteHint": "Preenche Destaque, Fundo, Superfície e Texto abaixo, já legíveis; depois ajuste o que quiser.",
+      "ContrastText": "O texto fica difícil de ler sobre os painéis ({ratio}:1; o mínimo é 4,5:1).",
+      "ContrastAccent": "O destaque quase não se separa dos painéis ({ratio}:1; o mínimo é 3:1).",
+      "ContrastFix": "Escolha outras cores, ou gere uma paleta a partir de uma cor acima.",
+      "ThemesHint": "Aponte para um tema para vê-lo na prévia; clique para escolher.",
+      "CloseThemes": "Fechar os temas"
+    },
+    "Virtual": {
+      "Name": "Nome",
+      "Initiative": "Iniciativa",
+      "Image": "Imagem",
+      "NoMacro": "Nenhuma macro",
+      "AutoAdvance": "Avançar sozinho",
+      "AutoAdd": "Adicionar a todo combate novo",
+      "Hidden": "Oculta dos jogadores",
+      "AddToCombat": "Adicionar ao combate atual",
+      "Remove": "Remover",
+      "Empty": "Nenhuma posição virtual ainda.",
+      "Add": "Nova posição virtual",
+      "NewName": "Ação de covil",
+      "MenuTitle": "Adicionar posição virtual"
+    },
+    "Consequence": {
+      "Title": "Consequências",
+      "Hint": "O que acontece quando o turno chega nesta posição. Mensagens, sons e hooks rodam em todo cliente que a vê; o resto roda uma vez, no Mestre ativo.",
+      "Add": "+ Adicionar consequência…",
+      "Enabled": "Ativa",
+      "Missing": "precisa de",
+      "DropHere": "Solte um documento ou cole um UUID",
+      "Kinds": {
+        "screenMessage": "Mensagem na tela",
+        "chatMessage": "Mensagem no chat",
+        "sound": "Tocar um som",
+        "hook": "Disparar um hook",
+        "macro": "Rodar uma macro",
+        "rollTable": "Sortear de uma tabela",
+        "jumpScare": "SC Jump Scare: tocar um susto",
+        "puzzle": "SC Puzzle Engine: puzzle",
+        "resource": "SC Resources: alterar um recurso"
+      },
+      "Fields": {
+        "title": "Título",
+        "text": "Texto",
+        "audience": "Quem vê",
+        "seconds": "Segundos na tela",
+        "src": "Arquivo de som",
+        "volume": "Volume (%)",
+        "name": "Nome do hook",
+        "macroUuid": "Macro",
+        "tableUuid": "Tabela",
+        "scareId": "Id do susto",
+        "puzzleUuid": "Página do puzzle",
+        "action": "Ação",
+        "target": "Atores",
+        "actorUuid": "Ator (quando \"um ator\")",
+        "resourceId": "Id do recurso",
+        "operation": "Operação",
+        "amount": "Quantidade"
+      },
+      "Choices": {
+        "audience": {
+          "all": "Todos que veem a posição",
+          "gm": "Só o Mestre"
+        },
+        "action": {
+          "open": "Abrir",
+          "arm": "Armar",
+          "trigger": "Disparar"
+        },
+        "target": {
+          "party": "Personagens dos jogadores neste combate",
+          "combatants": "Todos os combatentes deste combate",
+          "actor": "Um ator"
+        },
+        "operation": {
+          "add": "Somar",
+          "subtract": "Subtrair",
+          "set": "Definir como",
+          "restore": "Restaurar ao máximo"
+        }
+      }
+    },
+    "Sharing": {
+      "Mode": {
+        "Name": "Visual da mesa",
+        "Hint": "O seu visual salvo é o visual da mesa. Jogadores escolhem: seguem até criar o próprio. Todos usam o meu: os jogadores não podem mudar. Cada um usa o próprio: ninguém segue.",
+        "Choices": {
+          "optional": "Jogadores escolhem",
+          "forced": "Todos usam o meu",
+          "off": "Cada um usa o próprio"
+        }
+      },
+      "Publish": "Sempre que você salva, o seu visual vira o visual da mesa.",
+      "Follow": {
+        "Name": "Usar o visual do Mestre",
+        "Hint": "Mostra a roda como o Mestre configurou. Mudar qualquer coisa aqui cria o seu próprio visual."
+      },
+      "FollowingNotice": "Você está usando o visual do Mestre. Mude qualquer coisa para criar o seu.",
+      "ForcedNotice": "O Mestre escolheu o visual da mesa toda.",
+      "OffNotice": "Nesta mesa, cada jogador usa o próprio visual."
+    },
+    "CoreCombat": {
+      "NoTheme": "Nenhum",
+      "NoResource": "Nenhum",
+      "Markers": "Marcadores de turno nos tokens",
+      "Theme": {
+        "Name": "Sons de combate do Foundry",
+        "Hint": "O tema de sons do próprio Foundry para o início do combate, a sua vez e ser o próximo. Toca junto com os sons da roda acima, então talvez você queira só um deles ligado. Salvo para este navegador."
+      },
+      "Resource": {
+        "Name": "Recurso acompanhado",
+        "Hint": "O atributo que o tracker de combate do Foundry mostra para cada combatente."
+      },
+      "SkipDefeated": {
+        "Name": "Pular derrotados",
+        "Hint": "O Foundry pula os combatentes marcados como derrotados ao avançar o turno."
+      },
+      "MarkerEnabled": {
+        "Name": "Marcadores de turno",
+        "Hint": "Desenha o marcador de turno do Foundry embaixo do token que está agindo."
+      },
+      "MarkerAnimation": {
+        "Name": "Animação do marcador",
+        "Hint": "Como o marcador de turno se move."
+      },
+      "MarkerSrc": {
+        "Name": "Imagem do marcador",
+        "Hint": "Uma imagem ou vídeo para usar como marcador; vazio usa o do Foundry."
+      },
+      "MarkerDisposition": {
+        "Name": "Cor pela disposição",
+        "Hint": "Tinge o marcador com a cor da disposição do token."
+      },
+      "Preview": "Tocar um som deste tema"
+    },
+    "Presets": {
+      "classic": {
+        "Name": "Clássico",
+        "Hint": "A meia roda no Nocturne, como vem."
+      },
+      "system": {
+        "Name": "Sistema de jogo",
+        "Hint": "A roda nas cores do seu sistema, com a iniciativa nos retratos."
+      },
+      "minimal": {
+        "Name": "Minimalista",
+        "Hint": "Cartões pequenos, barra fina com as ferramentas no menu Mais. Esmaece um pouco em repouso."
+      },
+      "sidebar": {
+        "Name": "Trilho lateral",
+        "Hint": "Cartões largos descendo por um trilho junto da barra lateral, com todos os nomes."
+      },
+      "spotlight": {
+        "Name": "Destaque",
+        "Hint": "O cartão da vez grande à frente, os outros virando; um pouco de poeira estelar."
+      },
+      "streaming": {
+        "Name": "Transmissão",
+        "Hint": "Cartões grandes, nomes e iniciativa para quem assiste, em vidro suave."
+      },
+      "fantasy": {
+        "Name": "Fantasia",
+        "Hint": "Corte carmesim e brasas na cor de quem age."
+      },
+      "scifi": {
+        "Name": "Ficção científica",
+        "Hint": "Roda holográfica, barra compacta e faíscas discretas."
+      },
+      "obsidian": {
+        "Name": "Obsidiana",
+        "Hint": "Cartões em pé com moldura preta fina pendurados no topo, vida na borda esquerda, iniciativa sobre um d20 apagado e os controles em colunas laterais que aparecem ao passar o mouse."
+      },
+      "tide": {
+        "Name": "Maré",
+        "Hint": "Um painel escuro de cartões, os outros apagados até você apontar, borda turquesa em quem age, uma linha fina de vida e a barra em pílula embaixo."
+      }
+    },
+    "CombatStyles": {
+      "Gallery": "Estilos",
+      "Title": "Estilos da mesa",
+      "Save": "Salvar o visual atual como estilo",
+      "SaveTitle": "Salvar estilo de combate",
+      "Name": "Nome",
+      "Saved": "Estilo “{name}” salvo.",
+      "Default": "Estilo padrão dos combates",
+      "DefaultHint": "Todo combate usa este, a menos que outro seja escolhido para ele. O visual de sempre é o visual da mesa que você publica ao salvar.",
+      "Prompt": "Perguntar o estilo ao iniciar cada combate",
+      "Usual": "O visual de sempre",
+      "IsDefault": "Padrão dos combates",
+      "Delete": "Apagar estilo",
+      "DeleteText": "Apagar o estilo “{name}”? Os combates que o usavam voltam ao visual de sempre.",
+      "EmptyGM": "Nenhum estilo salvo ainda. Monte um visual e salve aqui para usar nos seus combates.",
+      "Empty": "O Mestre ainda não salvou nenhum estilo.",
+      "ActiveNotice": "Este combate usa o estilo “{name}”. O que você muda aqui é o visual de sempre, que aparece fora dele.",
+      "AskTitle": "Estilo do combate",
+      "AskText": "Qual visual a mesa deve ver neste combate?",
+      "Use": "Usar este estilo",
+      "Field": "Estilo",
+      "UsualMeta": "O visual da mesa, como está salvo",
+      "NoMatch": "Nenhum estilo com esse nome",
+      "Choose": "Estilo deste combate…",
+      "UseInCombat": "Usar neste combate",
+      "Applied": "Este combate agora usa “{name}”.",
+      "NoCombat": "Não há combate para receber um estilo.",
+      "NoStyles": "Nenhum estilo salvo ainda: salve um em Estilos, no editor de aparência."
+    }
+  }
+}

@@ -1,0 +1,1584 @@
+/*
+ * SC - Combat Wheel. The root is a zero-size anchor placed at the middle of the
+ * bar's arc-side edge; every part is positioned from it (ARCHITECTURE §4).
+ * Geometry arrives as custom properties set by CombatWheelApp:
+ * --scw-R, --scw-Rm, --scw-S, --scw-hub-r, --scw-bar-w, --scw-bar-h-*.
+ */
+
+/* ---------- root: undo Foundry's .application window chrome (the id outranks it) ---------- */
+#sc-combat-wheel {
+  position: fixed;
+  /* above the HUD, below every window */
+  z-index: calc(var(--z-index-app, 100) - 1);
+  display: block;
+  width: 0;
+  height: 0;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  pointer-events: none;
+  color: var(--scw-text);
+  font-family: var(--scw-font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  --scw-bar-h: var(--scw-bar-h-collapsed);
+  /* SPEC §6: global scale around the anchor, and opacity at rest */
+  scale: var(--scw-scale, 1);
+  transform-origin: 0 0;
+  opacity: var(--scw-rest-opacity, 1);
+  transition: opacity 200ms ease;
+}
+#sc-combat-wheel:hover,
+#sc-combat-wheel:focus-within,
+#sc-combat-wheel.is-grid {
+  opacity: 1;
+}
+#sc-combat-wheel.is-expanded {
+  --scw-bar-h: var(--scw-bar-h-expanded);
+}
+/* The appearance editor's live copy (RF-73): the same zero-size anchor, placed
+ * inside its stage instead of on the screen. It shows the rest opacity, since
+ * the pointer never rests on it. */
+.sc-combat-wheel.scw-preview {
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--scw-text);
+  font-family: var(--scw-font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  --scw-bar-h: var(--scw-bar-h-collapsed);
+  scale: var(--scw-scale, 1);
+  transform-origin: 0 0;
+  opacity: var(--scw-rest-opacity, 1);
+}
+.sc-combat-wheel.scw-preview.is-expanded { --scw-bar-h: var(--scw-bar-h-expanded); }
+.sc-combat-wheel.scw-preview.scw-side.is-expanded { --scw-bar-h: var(--scw-bar-h-expanded-side); }
+
+/* A theme's colors on the editor's rail: its background and its accent. */
+.sc-combat-wheel.scw-theme-swatch {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--scw-bg) 0 50%, var(--scw-accent) 50% 100%);
+  box-shadow: 0 0 0 1px var(--scw-divider), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.sc-combat-wheel *,
+.sc-combat-wheel *::before,
+.sc-combat-wheel *::after {
+  box-sizing: border-box;
+}
+.sc-combat-wheel .scw-wheel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+/* ---------- wheel ---------- */
+.sc-combat-wheel .scw-clip {
+  position: absolute;
+  left: calc(-1 * var(--scw-Rm));
+  width: var(--scw-S);
+  height: var(--scw-Rm);
+  overflow: hidden;
+  pointer-events: none;
+}
+.sc-combat-wheel.scw-up .scw-clip { top: calc(-1 * var(--scw-Rm)); }
+.sc-combat-wheel.scw-down .scw-clip { top: 0; }
+
+.sc-combat-wheel .scw-rotor {
+  position: absolute;
+  left: 0;
+  width: var(--scw-S);
+  height: var(--scw-S);
+  transition: opacity 120ms ease;
+}
+.sc-combat-wheel.scw-up .scw-rotor { top: 0; }
+.sc-combat-wheel.scw-down .scw-rotor { top: calc(-1 * var(--scw-Rm)); transform: rotate(180deg); }
+.sc-combat-wheel .scw-rotor.is-faded { opacity: 0; }
+
+.sc-combat-wheel .scw-slot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform var(--scw-step-duration, 600ms) var(--scw-ease),
+    clip-path 500ms ease,
+    opacity 450ms ease;
+}
+.sc-combat-wheel .scw-slot.is-instant { transition: none; }
+.sc-combat-wheel .scw-slot.is-visible { pointer-events: auto; }
+.sc-combat-wheel .scw-slot.is-active { z-index: 5; }
+.sc-combat-wheel .scw-slot:focus-visible .scw-rim { border-color: var(--scw-accent-300); }
+
+.sc-combat-wheel .scw-slot-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--scw-neutral-800), var(--scw-surface));
+}
+
+.sc-combat-wheel .scw-portrait {
+  position: absolute;
+  overflow: hidden;
+}
+.sc-combat-wheel.scw-down .scw-portrait { transform: rotate(180deg); }
+.sc-combat-wheel .scw-initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 500 15px var(--scw-font-name);
+  color: var(--scw-neutral-100);
+}
+.sc-combat-wheel .scw-portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  max-width: none;
+}
+.sc-combat-wheel .scw-portrait-img.is-broken { visibility: hidden; }
+.sc-combat-wheel .scw-slot.is-defeated .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
+.sc-combat-wheel .scw-slot.is-defeated .scw-rim { border-color: var(--scw-neutral-500); }
+
+.sc-combat-wheel .scw-rim {
+  position: absolute;
+  border-radius: 50%;
+  border: var(--scw-rim-width) solid var(--scw-rim-color, var(--scw-neutral-500));
+  pointer-events: none;
+}
+/* RF-114: each side keeps its colour, tinted a little toward the theme's accent so every rim belongs to the same palette. */
+.sc-combat-wheel { --scw-rim-tint: 18%; }
+.sc-combat-wheel .scw-slot.is-friendly { --scw-rim-color: color-mix(in oklab, var(--scw-friendly), var(--scw-accent) var(--scw-rim-tint)); }
+.sc-combat-wheel .scw-slot.is-neutral { --scw-rim-color: color-mix(in oklab, var(--scw-neutral), var(--scw-accent) var(--scw-rim-tint)); }
+.sc-combat-wheel .scw-slot.is-hostile { --scw-rim-color: color-mix(in oklab, var(--scw-hostile), var(--scw-accent) var(--scw-rim-tint)); }
+.sc-combat-wheel .scw-slot.is-secret { --scw-rim-color: color-mix(in oklab, var(--scw-secret), var(--scw-accent) var(--scw-rim-tint)); }
+.sc-combat-wheel .scw-slot.is-active .scw-rim {
+  border-width: calc(var(--scw-rim-width) + 1px);
+  border-color: var(--scw-active);
+  box-shadow: var(--scw-active-glow);
+}
+
+.sc-combat-wheel .scw-slot.is-next-up .scw-rim { animation: scw-pulse 1.6s ease-in-out infinite; }
+@keyframes scw-pulse {
+  50% { border-color: var(--scw-accent-300); }
+}
+
+/* flags and badges inside the portrait box */
+.sc-combat-wheel .scw-flag {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+}
+.sc-combat-wheel .scw-slot.is-hidden .scw-flag-hidden {
+  display: block;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--scw-neutral-100);
+  text-shadow: 0 0 4px #000;
+}
+.sc-combat-wheel .scw-slot.is-defeated .scw-flag-defeated {
+  display: block;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: var(--scw-neutral-100);
+  text-shadow: 0 0 6px #000;
+}
+.sc-combat-wheel .scw-slot.is-unrolled .scw-flag-unrolled {
+  display: grid;
+  place-items: center;
+  left: 50%;
+  bottom: 5px;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--scw-bg);
+  box-shadow: 0 0 0 1px var(--scw-accent-700);
+  color: var(--scw-accent-300);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.sc-combat-wheel .scw-flag-unrolled:disabled { cursor: default; }
+.sc-combat-wheel .scw-flag-unrolled:not(:disabled):hover { box-shadow: 0 0 0 1px var(--scw-accent); }
+.sc-combat-wheel .scw-badge-round {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  padding: 1px 5px;
+  border-radius: var(--scw-radius-sm);
+  background: var(--scw-accent-900);
+  box-shadow: 0 0 0 1px var(--scw-accent-700);
+  color: var(--scw-accent-200);
+  font: 600 9px var(--scw-font-mono);
+  pointer-events: none;
+}
+.sc-combat-wheel .scw-badge-round[hidden] { display: none; }
+
+/* ---------- hub (half disc on the bar line) ---------- */
+.sc-combat-wheel .scw-hub-clip {
+  position: absolute;
+  left: calc(-1 * var(--scw-hub-r));
+  width: calc(2 * var(--scw-hub-r));
+  height: var(--scw-hub-r);
+  overflow: hidden;
+  z-index: 12;
+  pointer-events: none;
+}
+.sc-combat-wheel.scw-up .scw-hub-clip { top: calc(-1 * var(--scw-hub-r)); }
+.sc-combat-wheel.scw-down .scw-hub-clip { top: 0; }
+.sc-combat-wheel .scw-hub {
+  position: absolute;
+  left: 0;
+  width: calc(2 * var(--scw-hub-r));
+  height: calc(2 * var(--scw-hub-r));
+  border-radius: 50%;
+  background: var(--scw-surface-bg);
+  border: var(--scw-border);
+  box-shadow: 0 0 0 1px var(--scw-neutral-700);
+  backdrop-filter: var(--scw-surface-blur);
+  pointer-events: auto;
+}
+.sc-combat-wheel.scw-up .scw-hub { top: 0; }
+.sc-combat-wheel.scw-down .scw-hub { top: calc(-1 * var(--scw-hub-r)); }
+.sc-combat-wheel .scw-hub-content {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0;
+  text-align: center;
+}
+.sc-combat-wheel.scw-up .scw-hub-content { top: 0; bottom: 50%; justify-content: flex-end; }
+.sc-combat-wheel.scw-down .scw-hub-content { top: 50%; bottom: 0; justify-content: flex-start; }
+.sc-combat-wheel .scw-hub-label {
+  font-family: var(--scw-font-label);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--scw-accent-300);
+}
+.sc-combat-wheel .scw-hub-label.is-muted { color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-hub-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--scw-name-weight) calc(13px * var(--scw-name-size)) / 1.1 var(--scw-font-name);
+  text-transform: var(--scw-name-transform);
+}
+.sc-combat-wheel .scw-hp {
+  display: block;
+  width: 70px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--scw-neutral-800);
+  overflow: hidden;
+}
+.sc-combat-wheel .scw-hp-fill {
+  display: block;
+  height: 100%;
+  background: var(--scw-hp-fill);
+  transition: width 300ms ease;
+}
+.sc-combat-wheel .scw-hp-fill.is-critical { background: var(--scw-critical); }
+.sc-combat-wheel .scw-hp-text { font-size: 10px; color: var(--scw-text-muted); }
+
+.sc-combat-wheel .scw-roll-request {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.sc-combat-wheel .scw-roll-request.is-passive { cursor: default; }
+.sc-combat-wheel .scw-d20 {
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: var(--scw-accent-400);
+  transition: transform 850ms cubic-bezier(0.3, 0.1, 0.2, 1);
+}
+.sc-combat-wheel .scw-roll-request:not(.is-passive):hover .scw-d20 { color: var(--scw-accent-300); }
+.sc-combat-wheel .scw-roll-request.is-rolling .scw-d20 { animation: scw-spin 850ms linear infinite; }
+@keyframes scw-spin {
+  to { transform: rotate(720deg); }
+}
+.sc-combat-wheel .scw-roll-title { font: 500 11.5px var(--scw-font-name); color: var(--scw-accent-200); }
+.sc-combat-wheel .scw-roll-info { font-size: 9.5px; color: var(--scw-text-muted); }
+
+/* ---------- bar ---------- */
+/* At least as long as the layout asks; longer when its tools need the room (RF-83). */
+.sc-combat-wheel .scw-bar-part {
+  position: absolute;
+  left: 0;
+  width: max-content;
+  min-width: var(--scw-bar-w);
+  translate: -50% 0;
+  z-index: 14;
+}
+.sc-combat-wheel.scw-up .scw-bar-part { top: 0; }
+.sc-combat-wheel.scw-down .scw-bar-part { top: auto; bottom: 0; }
+.sc-combat-wheel .scw-bar {
+  display: flex;
+  flex-direction: column;
+  height: var(--scw-bar-h);
+  overflow: hidden;
+  background: var(--scw-surface-bg);
+  border: var(--scw-border);
+  box-shadow: var(--scw-shadow);
+  backdrop-filter: var(--scw-surface-blur);
+  pointer-events: auto;
+  transition: height 300ms ease;
+}
+.sc-combat-wheel.scw-up .scw-bar { border-radius: 0 0 var(--scw-radius-lg) var(--scw-radius-lg); }
+.sc-combat-wheel.scw-down .scw-bar {
+  flex-direction: column-reverse;
+  border-radius: var(--scw-radius-lg) var(--scw-radius-lg) 0 0;
+}
+.sc-combat-wheel .scw-bar-row {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  height: var(--scw-bar-h-collapsed);
+  padding: 0 8px;
+}
+.sc-combat-wheel .scw-grab {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 28px;
+  color: var(--scw-text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+.sc-combat-wheel .scw-grab.is-disabled { opacity: 0.3; cursor: not-allowed; }
+.sc-combat-wheel .scw-round {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+.sc-combat-wheel .scw-round-main { font: var(--scw-name-weight) calc(11.5px * var(--scw-name-size)) var(--scw-font-name); text-transform: var(--scw-name-transform); }
+.sc-combat-wheel .scw-round-sub { font-size: 10px; color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-spacer { flex: 1; }
+
+/* Buttons: Nocturne outlines, never Foundry's default button chrome. */
+.sc-combat-wheel .scw-btn,
+.sc-combat-wheel .scw-menu-item {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 30px;
+  min-width: 0;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: var(--scw-radius);
+  background: transparent;
+  box-shadow: none;
+  color: var(--scw-text);
+  font: 500 12px var(--scw-font-body);
+  line-height: 1;
+  cursor: pointer;
+}
+.sc-combat-wheel .scw-btn:disabled,
+.sc-combat-wheel .scw-menu-item:disabled { opacity: 0.45; cursor: not-allowed; }
+.sc-combat-wheel .scw-btn--label { width: auto; padding: 0 10px; }
+.sc-combat-wheel .scw-btn--primary {
+  color: var(--scw-btn-primary-text);
+  background: var(--scw-btn-primary-bg);
+  border-color: var(--scw-btn-primary-border);
+}
+.sc-combat-wheel .scw-btn--primary:not(:disabled):hover { background: color-mix(in srgb, var(--scw-accent) 12%, transparent); }
+.sc-combat-wheel .scw-btn--secondary { border-color: var(--scw-divider); }
+.sc-combat-wheel .scw-btn--secondary:not(:disabled):hover { background: color-mix(in srgb, var(--scw-text) 7%, transparent); }
+.sc-combat-wheel .scw-btn--ghost { color: var(--scw-accent); }
+.sc-combat-wheel .scw-btn--ghost:not(:disabled):hover,
+.sc-combat-wheel .scw-menu-item:not(:disabled):hover { background: color-mix(in srgb, var(--scw-accent) 10%, transparent); }
+.sc-combat-wheel .scw-btn.is-on { border-color: var(--scw-divider); background: color-mix(in srgb, var(--scw-text) 7%, transparent); }
+.sc-combat-wheel .scw-btn:focus-visible,
+.sc-combat-wheel .scw-menu-item:focus-visible,
+.sc-combat-wheel .scw-roll-request:focus-visible,
+.sc-combat-wheel .scw-slot:focus-visible {
+  outline: 2px solid var(--scw-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- expanded details ---------- */
+.sc-combat-wheel .scw-details {
+  display: grid;
+  flex: 1;
+  /* Takes the bar's length; never sets it. */
+  width: 0;
+  min-width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 10px 14px;
+  align-content: start;
+  min-height: 0;
+  padding: 8px 12px 10px;
+  overflow: auto;
+  border-top: 1px solid var(--scw-divider);
+}
+.sc-combat-wheel.scw-down .scw-details { border-top: none; border-bottom: 1px solid var(--scw-divider); }
+.sc-combat-wheel .scw-details-block { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.sc-combat-wheel .scw-details-kicker {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font: 400 9.5px var(--scw-font-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--scw-accent-300);
+}
+.sc-combat-wheel .scw-details-nav { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.sc-combat-wheel .scw-details-nav .scw-details-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.sc-combat-wheel .scw-btn--tiny { width: 20px; height: 20px; font-size: 10px; }
+.sc-combat-wheel .scw-details-pos { flex: none; margin-left: 4px; font: 500 10px var(--scw-font-mono); color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-details-pos.is-viewing { color: var(--scw-accent-300); }
+.sc-combat-wheel .scw-details-name {
+  font: var(--scw-name-weight) calc(13px * var(--scw-name-size)) / 1.15 var(--scw-font-name);
+  text-transform: var(--scw-name-transform);
+}
+.sc-combat-wheel .scw-details-sub { font-size: 10.5px; color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-details-stats { display: flex; gap: 10px; font: 500 11px var(--scw-font-mono); }
+.sc-combat-wheel .scw-details-stats i { margin-right: 4px; color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.sc-combat-wheel .scw-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--scw-tag-radius);
+  background: var(--scw-accent-800);
+  box-shadow: var(--scw-tag-edge);
+  color: var(--scw-accent-100);
+  font: var(--scw-tag-weight) 10px var(--scw-font-body);
+  text-transform: var(--scw-tag-transform);
+  letter-spacing: var(--scw-tag-spacing);
+}
+.sc-combat-wheel .scw-tag img { width: 12px; height: 12px; border: none; }
+.sc-combat-wheel .scw-details-rows {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  margin: 0;
+  font-size: 10.5px;
+}
+.sc-combat-wheel .scw-details-rows dt { color: var(--scw-text-muted); white-space: nowrap; }
+.sc-combat-wheel .scw-details-rows dd { margin: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- initiative menu ---------- */
+.sc-combat-wheel .scw-roll-menu {
+  position: absolute;
+  right: 0;
+  width: 212px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--scw-radius);
+  background: var(--scw-surface-bg);
+  border: var(--scw-border);
+  box-shadow: var(--scw-shadow-lg);
+  backdrop-filter: var(--scw-surface-blur);
+  pointer-events: auto;
+}
+/* Menus open over the wheel, away from the screen edge the bar sits on. */
+.sc-combat-wheel.scw-up .scw-roll-menu { bottom: calc(100% + 6px); }
+.sc-combat-wheel.scw-down .scw-roll-menu { top: calc(100% + 6px); }
+.sc-combat-wheel .scw-roll-menu .scw-details-kicker { padding: 4px 6px; }
+.sc-combat-wheel .scw-menu-item {
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  color: var(--scw-text);
+}
+.sc-combat-wheel .scw-menu-item i { width: 14px; color: var(--scw-accent); }
+.sc-combat-wheel .scw-menu-item span:first-of-type { flex: 1; text-align: left; }
+.sc-combat-wheel .scw-count { font: 500 10px var(--scw-font-mono); color: var(--scw-text-muted); }
+
+/* ---------- tools in the bar (RF-83) ---------- */
+.sc-combat-wheel .scw-bar-rule { flex: none; width: 1px; height: 18px; margin: 0 2px; background: var(--scw-divider); }
+.sc-combat-wheel.scw-side .scw-bar-rule { width: 18px; height: 1px; margin: 2px 0; }
+.sc-combat-wheel .scw-btn.is-danger { color: var(--scw-critical); }
+.sc-combat-wheel .scw-btn.is-danger:not(:disabled):hover { background: color-mix(in srgb, var(--scw-critical) 12%, transparent); }
+
+.sc-combat-wheel .scw-tools { display: contents; }
+/* RF-99: the bar only on hover, or not at all (shortcuts still turn the turns). */
+.sc-combat-wheel[data-scw-bar="hidden"] :is(.scw-bar, .scw-tools, .scw-pod) { display: none; }
+.sc-combat-wheel[data-scw-bar="hover"] :is(.scw-bar, .scw-tools, .scw-pod) { opacity: 0; transition: opacity 200ms ease; }
+.sc-combat-wheel[data-scw-bar="hover"]:is(:hover, :focus-within, .is-expanded) :is(.scw-bar, .scw-tools, .scw-pod) { opacity: 1; }
+
+/* RF-93: the compact bar — slimmer, smaller buttons, round on one line, turn button as an icon. */
+.sc-combat-wheel.scw-bar-compact .scw-btn { width: 26px; height: 24px; font-size: 11px; }
+.sc-combat-wheel.scw-bar-compact .scw-btn--label { width: auto; padding: 0 8px; }
+.sc-combat-wheel.scw-bar-compact .scw-end-turn { width: 30px; padding: 0; }
+.sc-combat-wheel.scw-bar-compact .scw-end-turn-label { display: none; }
+.sc-combat-wheel.scw-bar-compact .scw-bar-row { gap: 3px; padding: 0 6px; }
+.sc-combat-wheel.scw-bar-compact:not(.scw-side) .scw-round { flex-direction: row; align-items: baseline; gap: 6px; }
+.sc-combat-wheel.scw-bar-compact .scw-grab { height: 22px; }
+
+/* ---------- split bar (RF-104) ----------
+ * The bar split in two columns standing on its line, one past each end of the
+ * portraits. Each column has a main zone next to the portraits — back a turn
+ * before them, end the turn after them, tall like a player's controls around
+ * the acting card — and, past a rule, the rest: the grip and the round before,
+ * the tools after, stacked as deep as the portraits (--scw-pod-cells) and then
+ * outward. Both columns take the larger one's size (WheelAppearance.fitPods).
+ * On the sides the columns lie down, past each end of the rail. */
+.sc-combat-wheel.scw-split .scw-bar-part { width: var(--scw-span); min-width: 0; height: 0; }
+.sc-combat-wheel.scw-split.scw-side .scw-bar-part { width: 0; height: var(--scw-span); min-height: 0; }
+.sc-combat-wheel .scw-pod {
+  position: absolute;
+  display: flex;
+  align-items: stretch;
+  min-height: var(--scw-pod-h, 0);
+  padding: 4px;
+  border: var(--scw-border);
+  border-radius: var(--scw-radius-lg);
+  background: var(--scw-surface-bg);
+  box-shadow: var(--scw-shadow);
+  backdrop-filter: var(--scw-surface-blur);
+  pointer-events: auto;
+}
+.sc-combat-wheel .scw-pod--start { right: calc(100% + 6px); flex-direction: row-reverse; }
+.sc-combat-wheel .scw-pod--end { left: calc(100% + 6px); }
+.sc-combat-wheel.scw-up .scw-pod { bottom: 0; }
+.sc-combat-wheel.scw-down .scw-pod { top: 0; }
+
+.sc-combat-wheel .scw-pod-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sc-combat-wheel .scw-pod-main > .scw-btn { flex: 1 1 auto; width: 32px; height: auto; min-height: 28px; }
+.sc-combat-wheel .scw-pod-main:not(:has(> *)) { display: none; }
+.sc-combat-wheel .scw-pod-more {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--scw-pod-cells, 3), auto);
+  place-items: center;
+  align-content: space-evenly;
+  gap: 2px;
+  padding: 0 2px;
+}
+.sc-combat-wheel .scw-pod-more:not(:has(> *)) { display: none; }
+/* The rule between the zones, only when there is a main zone to set apart. */
+.sc-combat-wheel .scw-pod--start .scw-pod-main:has(> *) + .scw-pod-more { margin-right: 4px; padding-right: 6px; border-right: 1px solid var(--scw-divider); }
+.sc-combat-wheel .scw-pod--end .scw-pod-main:has(> *) + .scw-pod-more { margin-left: 4px; padding-left: 6px; border-left: 1px solid var(--scw-divider); }
+
+.sc-combat-wheel.scw-side .scw-pod { right: auto; left: auto; flex-direction: column; min-height: 0; min-width: var(--scw-pod-w, 0); }
+.sc-combat-wheel.scw-side .scw-pod--start { bottom: calc(100% + 6px); flex-direction: column-reverse; }
+.sc-combat-wheel.scw-side .scw-pod--end { top: calc(100% + 6px); }
+.sc-combat-wheel.scw-right .scw-pod { left: 0; }
+.sc-combat-wheel.scw-left .scw-pod { right: 0; }
+.sc-combat-wheel.scw-side .scw-pod-main { flex-direction: row; }
+.sc-combat-wheel.scw-side .scw-pod-main > .scw-btn { width: auto; min-width: 28px; height: 32px; }
+.sc-combat-wheel.scw-side .scw-pod-more { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(var(--scw-pod-cells, 3), auto); justify-content: space-evenly; padding: 2px 0; }
+.sc-combat-wheel.scw-side .scw-pod--start .scw-pod-main:has(> *) + .scw-pod-more { margin: 0 0 4px; padding: 0 0 6px; border-right: none; border-bottom: 1px solid var(--scw-divider); }
+.sc-combat-wheel.scw-side .scw-pod--end .scw-pod-main:has(> *) + .scw-pod-more { margin: 4px 0 0; padding: 6px 0 0; border-left: none; border-top: 1px solid var(--scw-divider); }
+
+/* The zones already set the tools apart from the turn: no rule among them. */
+.sc-combat-wheel.scw-split .scw-pod .scw-bar-rule { display: none; }
+/* A column is narrow: the turn button keeps its icon (its name is the tooltip), the round reads like a book spine. */
+.sc-combat-wheel.scw-split .scw-end-turn { padding: 0; }
+.sc-combat-wheel.scw-split .scw-end-turn-label { display: none; }
+.sc-combat-wheel.scw-split .scw-round { margin: 2px 0; align-items: center; }
+.sc-combat-wheel.scw-split:not(.scw-side) .scw-round { writing-mode: vertical-rl; transform: rotate(180deg); }
+.sc-combat-wheel.scw-split.scw-side .scw-round { margin: 0 2px; writing-mode: horizontal-tb; transform: none; }
+.sc-combat-wheel.scw-split:not(.scw-side) .scw-grab { width: 28px; height: 18px; }
+.sc-combat-wheel.scw-split.scw-side .scw-grab { width: 18px; height: 28px; }
+/* Menus open beside the end column, away from the portraits. */
+.sc-combat-wheel.scw-split .scw-pod .scw-roll-menu { top: auto; right: auto; bottom: auto; left: calc(100% + 6px); }
+.sc-combat-wheel.scw-split.scw-up .scw-pod .scw-roll-menu { bottom: 0; }
+.sc-combat-wheel.scw-split.scw-down .scw-pod .scw-roll-menu { top: 0; }
+.sc-combat-wheel.scw-split.scw-side .scw-pod .scw-roll-menu { top: calc(100% + 6px); left: auto; }
+.sc-combat-wheel.scw-split.scw-right .scw-pod .scw-roll-menu { left: 0; }
+.sc-combat-wheel.scw-split.scw-left .scw-pod .scw-roll-menu { right: 0; }
+/* The Venaerys strip at the bar's end makes way for the end column. */
+.sc-combat-wheel.scw-split[data-scw-strip="end"]:is(.scw-up, .scw-down) .scw-strip { left: calc(100% + 60px); }
+.sc-combat-wheel.scw-split[data-scw-strip="end"].scw-side .scw-strip { top: calc(100% + 60px); }
+
+/* ---------- direction picker in the More menu (RF-13) ---------- */
+.sc-combat-wheel .scw-menu-segments { display: flex; gap: 4px; padding: 0 6px 4px; }
+.sc-combat-wheel .scw-menu-segments .scw-btn { flex: 1; width: auto; }
+
+/* ---------- arc to a side (RF-13) ----------
+ * The wheel is drawn "up" and turned a quarter; portraits turn back so the
+ * acting one stays upright. The bar stands as a rail on the straight side,
+ * its details open away from the arc, and its menus open over the wheel. */
+#sc-combat-wheel.scw-side.is-expanded { --scw-bar-h: var(--scw-bar-h-expanded-side); }
+
+.sc-combat-wheel.scw-side .scw-clip { top: calc(-1 * var(--scw-Rm)); width: var(--scw-Rm); height: var(--scw-S); }
+.sc-combat-wheel.scw-right .scw-clip { left: 0; }
+.sc-combat-wheel.scw-right .scw-rotor { top: 0; left: calc(-1 * var(--scw-Rm)); transform: rotate(90deg); }
+.sc-combat-wheel.scw-left .scw-rotor { top: 0; left: 0; transform: rotate(-90deg); }
+.sc-combat-wheel.scw-right .scw-portrait { transform: rotate(-90deg); }
+.sc-combat-wheel.scw-left .scw-portrait { transform: rotate(90deg); }
+
+.sc-combat-wheel.scw-side .scw-hub-clip { top: calc(-1 * var(--scw-hub-r)); width: var(--scw-hub-r); height: calc(2 * var(--scw-hub-r)); }
+.sc-combat-wheel.scw-right .scw-hub-clip { left: 0; }
+.sc-combat-wheel.scw-side .scw-hub { top: 0; }
+.sc-combat-wheel.scw-right .scw-hub { left: calc(-1 * var(--scw-hub-r)); }
+.sc-combat-wheel.scw-side .scw-hub-content { top: 12%; bottom: 12%; justify-content: center; }
+.sc-combat-wheel.scw-right .scw-hub-content { left: 50%; right: 0; padding: 0 10px 0 4px; }
+.sc-combat-wheel.scw-left .scw-hub-content { left: 0; right: 50%; padding: 0 4px 0 10px; }
+/* The half disc is narrow on its side: names get two lines instead of one. */
+.sc-combat-wheel.scw-side .scw-hub-name {
+  display: -webkit-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.sc-combat-wheel.scw-side .scw-hp { width: 100%; max-width: 70px; }
+.sc-combat-wheel.scw-side .scw-btn--small { height: auto; min-height: 22px; padding: 3px 6px; white-space: normal; }
+
+.sc-combat-wheel.scw-side .scw-bar-part { top: 0; left: auto; width: auto; min-width: 0; height: max-content; min-height: var(--scw-bar-w); translate: 0 -50%; }
+.sc-combat-wheel.scw-right .scw-bar-part { right: 0; }
+.sc-combat-wheel.scw-left .scw-bar-part { left: 0; }
+.sc-combat-wheel.scw-side .scw-bar { width: var(--scw-bar-h); height: auto; min-height: var(--scw-bar-w); transition: width 300ms ease; }
+.sc-combat-wheel.scw-right .scw-bar { flex-direction: row-reverse; border-radius: var(--scw-radius-lg) 0 0 var(--scw-radius-lg); }
+.sc-combat-wheel.scw-left .scw-bar { flex-direction: row; border-radius: 0 var(--scw-radius-lg) var(--scw-radius-lg) 0; }
+.sc-combat-wheel.scw-side .scw-bar-row {
+  flex-direction: column;
+  gap: 6px;
+  width: var(--scw-bar-h-collapsed);
+  height: auto;
+  padding: 8px 0;
+}
+.sc-combat-wheel.scw-side .scw-grab { width: 28px; height: 18px; }
+/* Read bottom to top, like a book spine. */
+.sc-combat-wheel.scw-side .scw-round { margin: 4px 0; writing-mode: vertical-rl; transform: rotate(180deg); }
+.sc-combat-wheel.scw-side .scw-end-turn { width: 30px; padding: 0; }
+.sc-combat-wheel.scw-side .scw-end-turn-label { display: none; }
+.sc-combat-wheel.scw-side .scw-details { grid-template-columns: minmax(0, 1fr); width: auto; min-width: 0; border-top: none; }
+.sc-combat-wheel.scw-right .scw-details { border-right: 1px solid var(--scw-divider); }
+.sc-combat-wheel.scw-left .scw-details { border-left: 1px solid var(--scw-divider); }
+.sc-combat-wheel.scw-side .scw-roll-menu { top: auto; bottom: 0; }
+.sc-combat-wheel.scw-right .scw-roll-menu { right: auto; left: calc(100% + 6px); }
+.sc-combat-wheel.scw-left .scw-roll-menu { right: calc(100% + 6px); }
+
+/* ---------- SC Venaerys's Initiative: phases on the wheel (RF-80) ----------
+ * A phase slice shows its icon and name on its own color, which also tints
+ * the rim; the strip lists who acts in the current phase, beyond the bar on
+ * the side away from the arc, running along the bar. */
+.sc-combat-wheel .scw-phase-face { display: none; }
+.sc-combat-wheel .scw-slot.is-phase { --scw-rim-color: var(--scw-phase-color, var(--scw-neutral-500)); }
+.sc-combat-wheel .scw-slot.is-phase .scw-slot-bg {
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--scw-phase-color, var(--scw-neutral-700)) 55%, var(--scw-surface)), var(--scw-surface) 80%);
+}
+.sc-combat-wheel .scw-slot.is-phase .scw-phase-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 10%;
+  text-align: center;
+}
+.sc-combat-wheel .scw-phase-icon { font-size: 26px; color: var(--scw-neutral-100); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+.sc-combat-wheel .scw-phase-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--scw-neutral-100);
+  font: var(--scw-name-weight) calc(11px * var(--scw-name-size)) / 1.1 var(--scw-font-name);
+  text-transform: var(--scw-name-transform);
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+.sc-combat-wheel .scw-slot.is-waiting .scw-rim { border-style: dashed; }
+.sc-combat-wheel .scw-hub-icon { margin-right: 4px; font-size: 11px; color: var(--scw-phase-color, var(--scw-accent-300)); }
+/* The name gives way last: a tight half disc drops the other lines first. */
+.sc-combat-wheel .scw-hub-name { flex-shrink: 0; }
+
+.sc-combat-wheel .scw-strip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: var(--scw-bar-w);
+  padding: 0 2px 0 8px;
+  border: var(--scw-border);
+  border-radius: var(--scw-radius-lg);
+  background: var(--scw-surface-bg);
+  box-shadow: var(--scw-shadow);
+  backdrop-filter: var(--scw-surface-blur);
+  pointer-events: auto;
+}
+.sc-combat-wheel.scw-up .scw-strip { top: calc(100% + 6px); left: 50%; transform: translateX(-50%); }
+.sc-combat-wheel.scw-down .scw-strip { bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); }
+.sc-combat-wheel.scw-side .scw-strip { top: 50%; flex-direction: column; padding: 8px 0 2px; max-width: none; max-height: var(--scw-bar-w); transform: translateY(-50%); }
+.sc-combat-wheel.scw-right .scw-strip { right: calc(100% + 6px); }
+.sc-combat-wheel.scw-left .scw-strip { left: calc(100% + 6px); }
+/* RF-82: at the far end of the bar, continuing it. */
+.sc-combat-wheel[data-scw-strip="end"]:is(.scw-up, .scw-down) .scw-strip { top: 50%; bottom: auto; left: calc(100% + 6px); transform: translateY(-50%); }
+.sc-combat-wheel[data-scw-strip="end"].scw-side .scw-strip { top: calc(100% + 6px); right: auto; left: 50%; transform: translateX(-50%); }
+/* RF-82: past the wheel or the cards, on the side away from the bar. */
+.sc-combat-wheel[data-scw-strip="over"].scw-up .scw-strip { top: auto; bottom: calc(100% + var(--scw-depth) + 6px); }
+.sc-combat-wheel[data-scw-strip="over"].scw-down .scw-strip { bottom: auto; top: calc(100% + var(--scw-depth) + 6px); }
+.sc-combat-wheel[data-scw-strip="over"].scw-right .scw-strip { right: auto; left: calc(100% + var(--scw-depth) + 6px); }
+.sc-combat-wheel[data-scw-strip="over"].scw-left .scw-strip { left: auto; right: calc(100% + var(--scw-depth) + 6px); }
+.sc-combat-wheel .scw-strip-head {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scw-phase-color, var(--scw-accent)) 35%, transparent);
+  box-shadow: 0 0 0 1px var(--scw-phase-color, var(--scw-accent));
+  color: var(--scw-neutral-100);
+  font-size: 12px;
+}
+.sc-combat-wheel .scw-strip-list {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  /* The list scrolls, so it clips: this keeps the rings and glows drawn outside each portrait in view. */
+  padding: 6px;
+  overflow: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.sc-combat-wheel.scw-side .scw-strip-list { flex-direction: column; }
+.sc-combat-wheel .scw-strip-actor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: calc(var(--scw-strip-size, 44px) + 12px);
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  color: var(--scw-text);
+  font: inherit;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.sc-combat-wheel .scw-strip-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--scw-strip-size, 44px);
+  height: var(--scw-strip-size, 44px);
+  border-radius: 50%;
+  background: var(--scw-neutral-800);
+  box-shadow: 0 0 0 2px var(--scw-rim-color, var(--scw-neutral-500));
+}
+.sc-combat-wheel .scw-strip-portrait img {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+/* RF-82: a rounded square, or the whole image with no frame (token art reads best this way). */
+.sc-combat-wheel[data-scw-strip-frame="square"] :is(.scw-strip-portrait, .scw-strip-portrait img) { border-radius: var(--scw-radius-sm); }
+.sc-combat-wheel[data-scw-strip-frame="none"] .scw-strip-portrait { background: none; box-shadow: none; }
+.sc-combat-wheel[data-scw-strip-frame="none"] .scw-strip-portrait img {
+  border-radius: 0;
+  object-fit: contain;
+  object-position: 50% 50%;
+  filter: drop-shadow(0 0 2px var(--scw-rim-color, var(--scw-neutral-500))) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+.sc-combat-wheel[data-scw-strip-frame="none"] .scw-strip-actor.is-own.is-acting .scw-strip-portrait { box-shadow: none; }
+.sc-combat-wheel[data-scw-strip-frame="none"] .scw-strip-actor.is-own.is-acting .scw-strip-portrait img { filter: drop-shadow(0 0 5px var(--scw-active)); }
+/* RF-82: tiles, the images edge to edge like one picture, each side as a band along its foot. */
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip { padding: 4px; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-list { gap: 0; padding: 0; border-radius: var(--scw-radius-sm); }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-actor { width: var(--scw-strip-size, 44px); gap: 0; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] :is(.scw-strip-portrait, .scw-strip-portrait img) { border-radius: 0; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-portrait { box-shadow: none; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-portrait::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--scw-rim-color, var(--scw-neutral-500));
+}
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-actor.is-own.is-acting .scw-strip-portrait { box-shadow: none; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-actor.is-own.is-acting .scw-strip-portrait::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  box-shadow: inset 0 0 0 2px var(--scw-active);
+}
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  padding: 10px 2px 1px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: #fff;
+  font-size: 9px;
+  text-align: center;
+  pointer-events: none;
+}
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-badge { top: 2px; right: 2px; bottom: auto; z-index: 2; }
+.sc-combat-wheel[data-scw-strip-names="off"] .scw-strip-name { display: none; }
+.sc-combat-wheel .scw-strip-initials { font: 500 13px var(--scw-font-name); color: var(--scw-neutral-100); }
+.sc-combat-wheel .scw-strip-actor.is-friendly { --scw-rim-color: var(--scw-friendly); }
+.sc-combat-wheel .scw-strip-actor.is-neutral { --scw-rim-color: var(--scw-neutral); }
+.sc-combat-wheel .scw-strip-actor.is-hostile { --scw-rim-color: var(--scw-hostile); }
+.sc-combat-wheel .scw-strip-actor.is-secret { --scw-rim-color: var(--scw-secret); }
+.sc-combat-wheel .scw-strip-actor.is-own.is-acting .scw-strip-portrait {
+  box-shadow: 0 0 0 2px var(--scw-active), 0 0 6px 1px color-mix(in srgb, var(--scw-active) 60%, transparent);
+}
+.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated) .scw-strip-portrait img { filter: grayscale(0.85) brightness(0.6); }
+.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated) .scw-strip-name { color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-strip-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--scw-bg);
+  box-shadow: 0 0 0 1px var(--scw-accent-700);
+  color: var(--scw-accent-300);
+  font-size: 10px;
+}
+.sc-combat-wheel .scw-strip-name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-combat-wheel .scw-strip-actor:focus-visible { outline: 2px solid var(--scw-accent); outline-offset: 2px; border-radius: var(--scw-radius-sm); }
+/*
+ * The done toggle sits on the portrait's lower corner, a sibling of the
+ * portrait's button, not inside it. Unset it is an empty dark disc with a
+ * light rim; set it is a filled green disc with a white check: told apart by
+ * fill and rim, not by color alone.
+ */
+.sc-combat-wheel .scw-strip-member { position: relative; }
+.sc-combat-wheel .scw-strip-done {
+  position: absolute;
+  top: calc(var(--scw-strip-size, 44px) - 16px);
+  right: 1px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--scw-neutral-100);
+  border-radius: 50%;
+  background: var(--scw-bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  color: color-mix(in srgb, var(--scw-neutral-100) 35%, transparent);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.sc-combat-wheel .scw-strip-done:hover { border-color: var(--scw-done); color: var(--scw-done); transform: scale(1.1); }
+.sc-combat-wheel .scw-strip-done.is-pressed {
+  border-color: var(--scw-neutral-100);
+  background: var(--scw-done);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 8px color-mix(in srgb, var(--scw-done) 70%, transparent);
+  color: #fff;
+  font-size: 12px;
+}
+.sc-combat-wheel .scw-strip-done.is-pressed:hover { background: color-mix(in srgb, var(--scw-done) 75%, black); color: #fff; }
+.sc-combat-wheel .scw-strip-done:focus-visible { outline: 2px solid var(--scw-accent); outline-offset: 2px; }
+.sc-combat-wheel[data-scw-strip-frame="tiles"] .scw-strip-done { top: 2px; right: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-combat-wheel .scw-strip-done { transition: none; }
+  .sc-combat-wheel .scw-strip-done:hover { transform: none; }
+}
+
+/* ---------- turn badge while viewing someone else (RF-21) ---------- */
+.sc-combat-wheel .scw-badge-turn {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  padding: 1px 5px;
+  border-radius: var(--scw-radius-sm);
+  background: var(--scw-accent-800);
+  color: var(--scw-accent-100);
+  font: 600 9px var(--scw-font-mono);
+  pointer-events: none;
+}
+.sc-combat-wheel .scw-badge-turn[hidden] { display: none; }
+.sc-combat-wheel .scw-btn--small { height: 22px; padding: 0 8px; font-size: 10.5px; gap: 4px; margin-top: 2px; }
+
+/* ---------- see everyone: full-screen overview (RF-20, RF-33, RF-69) ---------- */
+.sc-combat-wheel .scw-clip,
+.sc-combat-wheel .scw-hub-clip,
+.sc-combat-wheel .scw-bar-part { transition: opacity 300ms ease; }
+.sc-combat-wheel.is-grid .scw-clip,
+.sc-combat-wheel.is-grid .scw-hub-clip,
+.sc-combat-wheel.is-grid .scw-bar-part { opacity: 0; }
+.sc-combat-wheel.is-grid :is(.scw-hub, .scw-bar, .scw-roll-menu, .scw-slot) { pointer-events: none; }
+
+/* The layer lives on <body>, outside the scaled wheel, so it can cover the screen. */
+.scw-overview.sc-combat-wheel {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-app, 100) - 1);
+  color: var(--scw-text);
+  font-family: var(--scw-font-body);
+  font-size: 13px;
+  pointer-events: none;
+}
+.scw-overview .scw-overview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--scw-bg) 70%, transparent), color-mix(in srgb, var(--scw-bg) 92%, #000));
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 450ms ease;
+}
+.scw-overview.is-open .scw-overview-backdrop { opacity: 1; }
+.scw-overview .scw-overview-header {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -8px);
+  opacity: 0;
+  text-align: center;
+  pointer-events: auto;
+  transition: opacity 400ms ease 200ms, transform 400ms ease 200ms;
+}
+.scw-overview.is-open .scw-overview-header { opacity: 1; transform: translate(-50%, 0); }
+.scw-overview .scw-overview-title {
+  font: var(--scw-name-weight) calc(20px * var(--scw-name-size)) var(--scw-font-title);
+  text-transform: var(--scw-name-transform);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+.scw-overview .scw-overview-hint { font-size: 12px; color: var(--scw-text-muted); }
+.scw-overview .scw-overview-close { position: absolute; top: -4px; right: -44px; }
+
+.sc-combat-wheel .scw-grid-tile {
+  position: absolute;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none;
+  touch-action: none;
+}
+.scw-overview.is-open .scw-grid-tile { pointer-events: auto; }
+.sc-combat-wheel .scw-grid-tile .scw-portrait { transform-origin: center; }
+.sc-combat-wheel .scw-grid-tile.is-dragging { z-index: 5; cursor: grabbing; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6)); }
+.sc-combat-wheel .scw-grid-tile.is-hidden .scw-flag-hidden,
+.sc-combat-wheel .scw-grid-tile.is-defeated .scw-flag-defeated {
+  display: block;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--scw-neutral-100);
+  text-shadow: 0 0 4px #000;
+}
+.sc-combat-wheel .scw-grid-tile.is-defeated .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
+.sc-combat-wheel .scw-grid-rim {
+  position: absolute;
+  border: 2px solid var(--scw-rim-color, var(--scw-neutral-500));
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.sc-combat-wheel .scw-grid-tile.is-friendly { --scw-rim-color: var(--scw-friendly); }
+.sc-combat-wheel .scw-grid-tile.is-neutral { --scw-rim-color: var(--scw-neutral); }
+.sc-combat-wheel .scw-grid-tile.is-hostile { --scw-rim-color: var(--scw-hostile); }
+.sc-combat-wheel .scw-grid-tile.is-secret { --scw-rim-color: var(--scw-secret); }
+.sc-combat-wheel .scw-grid-tile.is-virtual .scw-grid-rim { border-style: dashed; border-color: var(--scw-accent); }
+.sc-combat-wheel .scw-grid-tile.is-turn .scw-grid-rim {
+  border-color: var(--scw-active);
+  box-shadow: var(--scw-active-glow);
+}
+.scw-overview.is-open .scw-grid-rim { opacity: 1; transition-delay: 500ms; }
+.sc-combat-wheel .scw-grid-tile:hover .scw-grid-rim,
+.sc-combat-wheel .scw-grid-tile:focus-visible .scw-grid-rim { border-color: var(--scw-accent-300); }
+.sc-combat-wheel .scw-grid-label {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  opacity: 0;
+  color: var(--scw-neutral-100);
+  font-size: 12px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.scw-overview.is-open .scw-grid-label { opacity: 1; }
+.scw-overview:not(.is-open) .scw-grid-label { transition-delay: 0ms !important; }
+.scw-overview.is-dragging .scw-grid-label { opacity: 0.35; }
+.sc-combat-wheel .scw-grid-label.is-turn { color: var(--scw-accent-300); }
+.sc-combat-wheel .scw-grid-name { max-width: 96px; overflow: hidden; text-overflow: ellipsis; }
+.sc-combat-wheel .scw-grid-init { font-family: var(--scw-font-mono); color: var(--scw-text-muted); }
+
+/* GM: remove a virtual position, insert one between two others */
+.scw-overview .scw-overview-remove {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scw-bg) 80%, transparent);
+  color: var(--scw-text);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+.scw-overview .scw-grid-tile:hover .scw-overview-remove,
+.scw-overview .scw-overview-remove:focus-visible { opacity: 1; }
+.scw-overview .scw-overview-insert {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border: 1px dashed var(--scw-accent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scw-bg) 85%, transparent);
+  color: var(--scw-accent-300);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.scw-overview.is-open .scw-overview-insert { opacity: 0.35; pointer-events: auto; }
+.scw-overview.is-open .scw-overview-insert:is(:hover, :focus-visible, .is-target) {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--scw-accent) 60%, transparent);
+}
+.scw-overview .scw-overview-popover {
+  position: absolute;
+  /* Over the tiles, which a refresh appends after it, and over a dragged one. */
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 300px;
+  padding: 10px;
+  transform: translateX(-50%);
+  border: var(--scw-border);
+  border-radius: var(--scw-radius);
+  background: var(--scw-surface-bg);
+  box-shadow: var(--scw-shadow-lg);
+  pointer-events: auto;
+}
+.scw-overview .scw-overview-popover :is(input, textarea, select) {
+  width: 100%;
+  padding: 5px 7px;
+  border: 1px solid var(--scw-divider);
+  border-radius: var(--scw-radius-sm);
+  background: color-mix(in srgb, var(--scw-bg) 70%, transparent);
+  color: var(--scw-text);
+  font: inherit;
+}
+.scw-overview .scw-overview-popover-actions { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* ---------- on-screen message of a virtual position (RF-68) ---------- */
+.scw-banner-host.sc-combat-wheel {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  z-index: calc(var(--z-index-app, 100) - 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.scw-banner-host {
+  --scw-banner-scale: 1;
+}
+.scw-banner-host .scw-banner {
+  min-width: calc(320px * var(--scw-banner-scale));
+  max-width: min(640px, 80vw);
+  overflow: hidden;
+  padding: 0 22px 12px;
+  border: var(--scw-border);
+  border-radius: var(--scw-radius-lg);
+  background: var(--scw-surface-bg);
+  box-shadow: var(--scw-shadow-lg);
+  color: var(--scw-text);
+  font-family: var(--scw-font-body);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+.scw-banner-host .scw-banner.is-shown { opacity: 1; transform: translateY(0); }
+.scw-banner-host .scw-banner-title {
+  display: block;
+  margin: 0 -22px;
+  padding: 8px 22px;
+  background: var(--scw-header-bg);
+  border-bottom: var(--scw-header-edge);
+  font: var(--scw-name-weight) calc(20px * var(--scw-name-size) * var(--scw-banner-scale)) var(--scw-font-title);
+  text-transform: var(--scw-name-transform);
+  color: var(--scw-header-text, var(--scw-accent-300));
+}
+.scw-banner-host .scw-banner-text { margin: 10px 0 0; font-size: calc(14px * var(--scw-banner-scale)); }
+
+/* RF-106: the message's picture, size, place and shape, from the look. */
+.scw-banner-host .scw-banner-img {
+  width: calc(1.6em);
+  height: calc(1.6em);
+  margin-right: 0.45em;
+  vertical-align: middle;
+  border: none;
+  border-radius: var(--scw-radius);
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+.scw-banner-host[data-scw-banner-size="small"] { --scw-banner-scale: 0.8; }
+.scw-banner-host[data-scw-banner-size="large"] { --scw-banner-scale: 1.35; }
+.scw-banner-host.sc-combat-wheel[data-scw-banner-position="center"] { top: 50%; transform: translate(-50%, -50%); }
+.scw-banner-host.sc-combat-wheel[data-scw-banner-position="bottom"] { top: auto; bottom: 140px; flex-direction: column-reverse; }
+.scw-banner-host[data-scw-banner-position="bottom"] .scw-banner { transform: translateY(12px); }
+.scw-banner-host[data-scw-banner-position="bottom"] .scw-banner.is-shown { transform: translateY(0); }
+/* Across the screen: a band fading out at both ends, the title spaced like a chapter heading. */
+.scw-banner-host.sc-combat-wheel[data-scw-banner-style="strip"] { left: 0; right: 0; transform: none; }
+.scw-banner-host.sc-combat-wheel[data-scw-banner-style="strip"][data-scw-banner-position="center"] { transform: translateY(-50%); }
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner {
+  width: 100%;
+  max-width: none;
+  padding: calc(14px * var(--scw-banner-scale)) 10vw;
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, var(--scw-surface-bg) 22%, var(--scw-surface-bg) 78%, transparent);
+  box-shadow: none;
+}
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner::before,
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--scw-accent), transparent);
+}
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner { position: relative; }
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner::before { top: 0; }
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner::after { bottom: 0; }
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner-title {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: calc(26px * var(--scw-name-size) * var(--scw-banner-scale));
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+.scw-banner-host[data-scw-banner-style="strip"] .scw-banner-text { margin-top: 6px; }
+/* A small notice: no title band, an accent edge, the text beside the title's line. */
+.scw-banner-host[data-scw-banner-style="toast"] .scw-banner {
+  min-width: calc(220px * var(--scw-banner-scale));
+  max-width: min(420px, 80vw);
+  padding: calc(8px * var(--scw-banner-scale)) 14px;
+  border-left: 3px solid var(--scw-accent);
+  text-align: left;
+}
+.scw-banner-host[data-scw-banner-style="toast"] .scw-banner-title {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: calc(15px * var(--scw-name-size) * var(--scw-banner-scale));
+}
+.scw-banner-host[data-scw-banner-style="toast"] .scw-banner-text { margin-top: 4px; font-size: calc(12.5px * var(--scw-banner-scale)); }
+@media (prefers-reduced-motion: reduce) {
+  .scw-banner-host .scw-banner { transition: opacity 400ms ease; transform: none !important; }
+}
+
+/* ---------- health overlay on the portrait (RF-48) ----------
+ * --scw-health is the share of health left (0–1). "drain" tints the lost part
+ * from the top, "fill" colours what is left from the bottom, "band" is a thin
+ * vertical gauge on the side. Nothing renders without a health tone. */
+.sc-combat-wheel {
+  --scw-health-good: #4ab87a;
+  --scw-health-warn: #d09b3c;
+  --scw-health-danger: #c94f4f;
+}
+.sc-combat-wheel .scw-health {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+}
+.sc-combat-wheel :is(.is-health-good, .is-health-warn, .is-health-danger) .scw-health { display: block; }
+.sc-combat-wheel .is-health-good { --scw-health-color: var(--scw-health-good); }
+.sc-combat-wheel .is-health-warn { --scw-health-color: var(--scw-health-warn); }
+.sc-combat-wheel .is-health-danger { --scw-health-color: var(--scw-health-danger); }
+.sc-combat-wheel[data-scw-health="off"] .scw-health { display: none !important; }
+.sc-combat-wheel[data-scw-health="drain"] .scw-health {
+  background: linear-gradient(to top, transparent 0 calc(var(--scw-health, 1) * 100%), var(--scw-health-danger) calc(var(--scw-health, 1) * 100%) 100%);
+  opacity: var(--scw-health-opacity, 0.45);
+  mix-blend-mode: multiply;
+}
+.sc-combat-wheel[data-scw-health="fill"] .scw-health {
+  background: linear-gradient(to top, var(--scw-health-color) 0 calc(var(--scw-health, 1) * 100%), transparent calc(var(--scw-health, 1) * 100%) 100%);
+  opacity: var(--scw-health-opacity, 0.45);
+}
+.sc-combat-wheel[data-scw-health="band"] .scw-health {
+  inset: 18% auto 18% 6px;
+  width: 5px;
+  border-radius: 3px;
+  background:
+    linear-gradient(to top, var(--scw-health-color) 0 calc(var(--scw-health, 1) * 100%), rgba(0, 0, 0, 0.55) calc(var(--scw-health, 1) * 100%) 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+  opacity: calc(0.4 + var(--scw-health-opacity, 0.45));
+}
+.sc-combat-wheel .is-defeated .scw-health { display: none !important; }
+
+/* On ring sectors the portrait's square reaches past the slice, so a gauge on
+ * its side would be cut off: the band follows the slice's outer arc instead,
+ * just inside the rim, filling clockwise with the health left. */
+.sc-combat-wheel.scw-sectors[data-scw-health="band"] .scw-slot .scw-health { display: none !important; }
+.sc-combat-wheel.scw-sectors[data-scw-health="band"] .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger):not(.is-defeated) .scw-rim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from calc(-1 * var(--scw-half)),
+    var(--scw-health-color) 0deg calc(2 * var(--scw-half) * var(--scw-health, 1)),
+    rgba(0, 0, 0, 0.6) 0deg calc(2 * var(--scw-half)),
+    transparent 0deg
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7px), #000 calc(100% - 2px), transparent calc(100% - 1px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7px), #000 calc(100% - 2px), transparent calc(100% - 1px));
+  opacity: calc(0.4 + var(--scw-health-opacity, 0.45));
+}
+
+/* ---------- virtual positions (RF-67) ---------- */
+.sc-combat-wheel .scw-slot.is-virtual .scw-rim {
+  border-style: dashed;
+  border-color: var(--scw-accent);
+}
+.sc-combat-wheel .scw-slot.is-virtual.is-active .scw-rim { border-color: var(--scw-active); }
+.sc-combat-wheel .scw-slot.is-virtual .scw-slot-bg {
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--scw-accent) 30%, var(--scw-surface)), var(--scw-surface));
+}
+.sc-combat-wheel :is(.scw-slot, .scw-grid-tile).is-virtual .scw-portrait-img { object-fit: contain; padding: 18%; }
+.sc-combat-wheel .scw-slot.is-virtual .scw-flag-virtual {
+  display: block;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--scw-accent-300);
+  text-shadow: 0 0 4px var(--scw-bg);
+}
+.sc-combat-wheel .scw-more-menu { width: 236px; max-height: min(70vh, 520px); overflow-y: auto; }
+.sc-combat-wheel .scw-menu-rule { width: 100%; height: 1px; margin: 4px 0; border: none; background: var(--scw-divider); }
+.sc-combat-wheel .scw-menu-item.is-danger, .sc-combat-wheel .scw-menu-item.is-danger i { color: var(--scw-critical); }
+.sc-combat-wheel .scw-end-turn { gap: 6px; padding: 0 10px; font-size: 11.5px; white-space: nowrap; }
+.sc-combat-wheel .scw-menu-empty { padding: 5px 8px; font-size: 11px; color: var(--scw-text-muted); }
+
+/* ---------- card views: carousel and slider (RF-90) ----------
+ * The same slots as the wheel, as cards on a zero-size track at the anchor.
+ * WheelRenderer gives each card its whole transform (where it sits, its size
+ * and, on the slider, its turn); there is no hub, the bar carries what it
+ * offered. Cards keep their art upright in every direction, so none of the
+ * wheel's counter-rotations apply. */
+.sc-combat-wheel .scw-track {
+  position: absolute;
+  /* Keeps the cards' own stacking inside the track, under the particles (z-index 8). */
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+.sc-combat-wheel .scw-track.is-faded { opacity: 0; }
+.sc-combat-wheel.scw-view-slider .scw-track { perspective: 900px; }
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot {
+  inset: auto;
+  left: 0;
+  top: 0;
+  width: var(--scw-card-w);
+  height: var(--scw-card-h);
+  overflow: hidden;
+  border-radius: var(--scw-radius);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 50%;
+}
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot.is-active { box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), var(--scw-active-glow); }
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot .scw-portrait { inset: 0; transform: none; }
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot .scw-rim { inset: 0; border-radius: inherit; }
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot.is-active .scw-rim { box-shadow: none; }
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms ease;
+}
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot.is-past::after { opacity: 1; }
+
+/* The card's name, over the bottom of its art (setting trackNames). */
+.sc-combat-wheel .scw-name-tag { display: none; }
+.sc-combat-wheel.scw-view-track[data-scw-names="all"] .scw-name-tag,
+.sc-combat-wheel.scw-view-track[data-scw-names="acting"] .scw-slot.is-active .scw-name-tag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  overflow: hidden;
+  padding: 12px 4px 3px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: #fff;
+  font: var(--scw-name-weight) calc(10px * var(--scw-name-size)) / 1.15 var(--scw-font-name);
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px #000;
+  text-transform: var(--scw-name-transform);
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* The bottom edge belongs to the name: badges move to the corners, the die to the middle. */
+.sc-combat-wheel.scw-view-track .scw-badge-round { top: 4px; right: 4px; bottom: auto; left: auto; transform: none; }
+.sc-combat-wheel.scw-view-track .scw-slot.is-virtual .scw-flag-virtual { top: 4px; left: 50%; bottom: auto; transform: translateX(-50%); }
+.sc-combat-wheel.scw-view-track .scw-slot.is-unrolled .scw-flag-unrolled { top: 50%; bottom: auto; transform: translate(-50%, -50%); }
+
+/* Card corners follow the look's corners (Style › Corners, RF-98). */
+.sc-combat-wheel.scw-view-track .scw-track .scw-slot { border-radius: var(--scw-radius); }
+
+.sc-combat-wheel.scw-view-track .scw-hub-clip { display: none; }
+
+.sc-combat-wheel .scw-bar-roll.is-rolling i { animation: scw-spin 850ms linear infinite; }
+
+/* RF-94: initiative on the portrait — top of the slice on the wheel, top-left corner of a card. */
+.sc-combat-wheel .scw-badge-init { display: none; }
+.sc-combat-wheel.scw-show-initiative .scw-badge-init:not([hidden]) {
+  position: absolute;
+  top: var(--scw-init-top, 6px);
+  left: 50%;
+  display: block;
+  min-width: 18px;
+  padding: 1px 4px;
+  transform: translateX(-50%);
+  border-radius: var(--scw-radius-sm);
+  background: color-mix(in srgb, var(--scw-bg) 82%, transparent);
+  box-shadow: 0 0 0 1px var(--scw-divider);
+  color: var(--scw-text);
+  font: 600 10px/1.3 var(--scw-font-mono);
+  text-align: center;
+  pointer-events: none;
+}
+.sc-combat-wheel.scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) { top: 4px; left: 4px; transform: none; }
+.sc-combat-wheel.scw-show-initiative:not(.scw-view-track) .scw-slot.is-hidden .scw-flag-hidden { top: calc(var(--scw-init-top, 6px) + 20px); }
+
+/* ---------- the editor points at what a color changes (RF-102) ----------
+ * Hovering a color row in the appearance editor sets data-scw-highlight on
+ * the preview; what that color paints brightens and blinks. */
+@keyframes scw-highlight {
+  50% { filter: brightness(1.8) saturate(1.4); }
+}
+.sc-combat-wheel.scw-preview[data-scw-highlight="accent"] :is(.scw-btn--primary, .scw-btn--ghost, .scw-hub-label, .scw-hp-fill),
+.sc-combat-wheel.scw-preview[data-scw-highlight="background"] :is(.scw-badge-init:not([hidden]), .scw-badge-round:not([hidden]), .scw-strip-badge, .scw-flag-unrolled),
+.sc-combat-wheel.scw-preview[data-scw-highlight="text"] :is(.scw-hub-name, .scw-round, .scw-strip-name, .scw-name-tag, .scw-hp-text),
+.sc-combat-wheel.scw-preview[data-scw-highlight="active"] .scw-slot.is-active .scw-rim,
+.sc-combat-wheel.scw-preview[data-scw-highlight="friendly"] :is(.scw-slot.is-friendly .scw-rim, .scw-strip-actor.is-friendly .scw-strip-portrait),
+.sc-combat-wheel.scw-preview[data-scw-highlight="neutral"] :is(.scw-slot.is-neutral .scw-rim, .scw-strip-actor.is-neutral .scw-strip-portrait),
+.sc-combat-wheel.scw-preview[data-scw-highlight="hostile"] :is(.scw-slot.is-hostile .scw-rim, .scw-strip-actor.is-hostile .scw-strip-portrait),
+.sc-combat-wheel.scw-preview[data-scw-highlight="secret"] :is(.scw-slot.is-secret .scw-rim, .scw-strip-actor.is-secret .scw-strip-portrait) {
+  animation: scw-highlight 0.9s ease-in-out infinite;
+}
+.sc-combat-wheel.scw-preview[data-scw-highlight="surface"] :is(.scw-bar, .scw-hub, .scw-strip, .scw-tools) {
+  outline: 2px dashed rgba(255, 255, 255, 0.75);
+  outline-offset: 3px;
+  animation: scw-highlight 0.9s ease-in-out infinite;
+}
+
+/* ---------- reduced motion (SPEC §4) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sc-combat-wheel .scw-slot,
+  .scw-banner-host .scw-banner,
+  .sc-combat-wheel .scw-grid-tile,
+  .sc-combat-wheel .scw-grid-tile .scw-portrait,
+  .sc-combat-wheel .scw-bar,
+  .sc-combat-wheel .scw-hp-fill { transition: none !important; }
+  .sc-combat-wheel .scw-slot.is-next-up .scw-rim,
+  .sc-combat-wheel .scw-slot.is-active .scw-rim,
+  .sc-combat-wheel .scw-hub-name::after,
+  .sc-combat-wheel .scw-roll-request.is-rolling .scw-d20,
+  .sc-combat-wheel .scw-bar-roll.is-rolling i { animation: none !important; }
+}
+
+/* ---------- optional: hide the native combat tab (setting hideNativeTracker) ---------- */
+body.scw-hide-native-tracker #sidebar-tabs [data-tab="combat"] { display: none; }
+
+/* ---------- RF-108: the combat style question, a Foundry dialog ---------- */
+.sc-combat-wheel-dialog .scw-dialog-text { margin: 0 0 10px; }
+.sc-combat-wheel-dialog .scw-combobox { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+.sc-combat-wheel-dialog .scw-combobox__label { font-weight: 600; }
+.sc-combat-wheel-dialog .scw-combobox__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.sc-combat-wheel-dialog .scw-combobox__field .scw-theme-swatch {
+  position: absolute;
+  left: 9px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+.sc-combat-wheel-dialog .scw-combobox__field .scw-theme-swatch[hidden] { display: none; }
+.sc-combat-wheel-dialog .scw-combobox__field input {
+  width: 100%;
+  height: 36px;
+  padding: 0 32px 0 34px;
+  font-size: 14px;
+}
+.sc-combat-wheel-dialog .scw-combobox__field:has(.scw-theme-swatch[hidden]) input { padding-left: 10px; }
+.sc-combat-wheel-dialog .scw-combobox__chevron {
+  position: absolute;
+  right: 11px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+/* In the flow, so the dialog grows with it instead of cutting it off. */
+.sc-combat-wheel-dialog .scw-combobox__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+  background: var(--color-cool-5, rgba(11, 10, 19, 0.95));
+}
+.sc-combat-wheel-dialog .scw-combobox__list[hidden] { display: none; }
+.sc-combat-wheel-dialog .scw-combobox__option {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 10px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sc-combat-wheel-dialog .scw-combobox__option .scw-theme-swatch { width: 16px; height: 16px; }
+.sc-combat-wheel-dialog .scw-combobox__option .scw-theme-swatch[data-empty] { background: none; box-shadow: inset 0 0 0 1px var(--color-border, rgba(255, 255, 255, 0.3)); }
+.sc-combat-wheel-dialog .scw-combobox__name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-combat-wheel-dialog .scw-combobox__meta { grid-column: 2; font-size: 11.5px; opacity: 0.75; }
+.sc-combat-wheel-dialog .scw-combobox__option:hover,
+.sc-combat-wheel-dialog .scw-combobox__option.is-active { background: color-mix(in srgb, var(--color-warm-2, #ee9b3a) 18%, transparent); }
+.sc-combat-wheel-dialog .scw-combobox__option[aria-selected="true"] .scw-combobox__name::after {
+  content: "\f00c";
+  margin-left: 8px;
+  font: var(--fa-font-solid, normal 900 1em/1 "Font Awesome 6 Pro");
+  font-size: 11px;
+  color: var(--color-warm-2, #ee9b3a);
+}
+.sc-combat-wheel-dialog .scw-combobox__empty { padding: 6px 8px; opacity: 0.7; }
+
+/* RF-106: the editor's test of the message, over a darkened screen and above every window. */
+.scw-banner-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-tooltip, 10000) + 1);
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 400ms ease;
+}
+.scw-banner-backdrop.is-shown { opacity: 1; }
+.scw-banner-backdrop .scw-banner-host.sc-combat-wheel { z-index: auto; }

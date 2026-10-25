@@ -1,0 +1,300 @@
+<div class="scw-config">
+  <div class="scw-config__body">
+    <nav class="scw-config__rail" role="tablist" aria-orientation="vertical" aria-label="{{localize "SC_COMBAT_WHEEL.SettingsMenu.Name"}}">
+      {{#each groups}}
+        <span class="scw-config__rail-group scw-config__rail-group--{{scope}}" aria-hidden="true">
+          <i class="{{icon}}"></i>{{label}}
+        </span>
+        {{#each sections}}
+          <button type="button" role="tab" id="scw-config-tab-{{id}}" class="scw-config__tab {{#if active}}is-active{{/if}}"
+                  data-action="section" data-section-tab="{{id}}" aria-controls="scw-config-panel-{{id}}"
+                  aria-selected="{{#if active}}true{{else}}false{{/if}}" tabindex="{{#if active}}0{{else}}-1{{/if}}">
+            <i class="{{icon}}" aria-hidden="true"></i>
+            <span class="scw-config__tab-label">{{title}}</span>
+            <span class="scw-config__tab-dot" data-section-dot="{{id}}" hidden></span>
+          </button>
+        {{/each}}
+      {{/each}}
+    </nav>
+
+    <div class="scw-config__content">
+      {{#unless isGM}}
+        <p class="scw-config__notice">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.PlayerNotice"}}
+        </p>
+      {{/unless}}
+
+      {{#each sections}}
+        <section id="scw-config-panel-{{id}}" class="scw-config__panel" role="tabpanel" aria-labelledby="scw-config-tab-{{id}}"
+                 data-section-panel="{{id}}" {{#unless active}}hidden{{/unless}}>
+          <header class="scw-config__panel-head">
+            <div class="scw-config__panel-titles">
+              <h2 class="scw-config__panel-title">{{title}}</h2>
+              <span class="scw-config-badge scw-config-badge--{{scope}}"><i class="{{scopeIcon}}" aria-hidden="true"></i>{{scopeLabel}}</span>
+            </div>
+            <p class="scw-config__panel-hint">{{hint}}</p>
+          </header>
+
+          {{#if isEditor}}
+            <div class="scw-config-row scw-config-row--action">
+              <span class="scw-config-row__copy">
+                <span class="scw-config-row__name">{{editor.name}}</span>
+                <span class="scw-config-row__hint">{{editor.hint}}</span>
+              </span>
+              <span class="scw-config-row__control">
+                <button type="button" class="scw-config-btn scw-config-btn--primary" data-action="openAppearance" data-panel="{{editor.panel}}">
+                  <i class="fa-solid fa-palette" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.OpenButton"}}
+                </button>
+              </span>
+            </div>
+          {{else if isVirtual}}
+            {{#each @root.templates}}
+              <section class="scw-config-card">
+                <header class="scw-config-card__head">
+                  <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                  <h3 class="scw-config-card__title">{{name}}</h3>
+                  <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="addToCombat" data-index="{{index}}"
+                          {{#unless @root.hasCombat}}disabled{{/unless}}>
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Virtual.AddToCombat"}}
+                  </button>
+                  <button type="button" class="scw-config-icon-btn scw-config-icon-btn--danger" data-action="removeTemplate" data-index="{{index}}"
+                          data-tooltip="{{localize "SC_COMBAT_WHEEL.Virtual.Remove"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Virtual.Remove"}}">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  </button>
+                </header>
+
+                <div class="scw-config-field">
+                  <label for="scw-tpl-{{index}}-name">{{localize "SC_COMBAT_WHEEL.Virtual.Name"}}</label>
+                  <input type="text" id="scw-tpl-{{index}}-name" name="templates.{{index}}.name" value="{{name}}">
+                </div>
+                <div class="scw-config-field">
+                  <label for="scw-tpl-{{index}}-initiative">{{localize "SC_COMBAT_WHEEL.Virtual.Initiative"}}</label>
+                  <input type="number" id="scw-tpl-{{index}}-initiative" name="templates.{{index}}.initiative" value="{{initiative}}" step="any">
+                </div>
+                <div class="scw-config-field">
+                  <label for="scw-tpl-{{index}}-img">{{localize "SC_COMBAT_WHEEL.Virtual.Image"}}</label>
+                  <file-picker id="scw-tpl-{{index}}-img" name="templates.{{index}}.img" type="image" value="{{img}}"></file-picker>
+                </div>
+
+                <div class="scw-config-checks">
+                  <label class="scw-config-check-label">
+                    <span class="scw-config-check"><input type="checkbox" name="templates.{{index}}.autoAdvance" {{#if autoAdvance}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span></span>
+                    {{localize "SC_COMBAT_WHEEL.Virtual.AutoAdvance"}}
+                  </label>
+                  <label class="scw-config-check-label">
+                    <span class="scw-config-check"><input type="checkbox" name="templates.{{index}}.autoAdd" {{#if autoAdd}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span></span>
+                    {{localize "SC_COMBAT_WHEEL.Virtual.AutoAdd"}}
+                  </label>
+                  <label class="scw-config-check-label">
+                    <span class="scw-config-check"><input type="checkbox" name="templates.{{index}}.hidden" {{#if hidden}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span></span>
+                    {{localize "SC_COMBAT_WHEEL.Virtual.Hidden"}}
+                  </label>
+                </div>
+
+                <h4 class="scw-config__section-title">{{localize "SC_COMBAT_WHEEL.Consequence.Title"}}</h4>
+                <p class="scw-config__section-hint">{{localize "SC_COMBAT_WHEEL.Consequence.Hint"}}</p>
+                {{#each consequences}}
+                  <div class="scw-config-conseq {{#unless enabled}}is-off{{/unless}}">
+                    <div class="scw-config-conseq__head">
+                      <i class="fa-solid {{icon}}" aria-hidden="true"></i>
+                      <strong>{{label}}</strong>
+                      {{#if missing}}<span class="scw-config-badge scw-config-badge--warn">{{localize "SC_COMBAT_WHEEL.Consequence.Missing"}} {{requires}}</span>{{/if}}
+                      <input type="hidden" name="{{base}}.id" value="{{id}}">
+                      <input type="hidden" name="{{base}}.kind" value="{{kind}}">
+                      <label class="scw-config-check-label">
+                        <span class="scw-config-check"><input type="checkbox" name="{{base}}.enabled" {{#if enabled}}checked{{/if}}>
+                          <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span></span>
+                        {{localize "SC_COMBAT_WHEEL.Consequence.Enabled"}}
+                      </label>
+                      <button type="button" class="scw-config-icon-btn scw-config-icon-btn--danger" data-action="removeConsequence"
+                              data-template="{{templateIndex}}" data-index="{{index}}"
+                              data-tooltip="{{localize "SC_COMBAT_WHEEL.Virtual.Remove"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Virtual.Remove"}}">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                    {{#each fields}}
+                      <div class="scw-config-field">
+                        <label>{{label}}</label>
+                        {{#if isText}}<input type="text" name="{{name}}" value="{{value}}">{{/if}}
+                        {{#if isTextarea}}<textarea name="{{name}}" rows="2">{{value}}</textarea>{{/if}}
+                        {{#if isNumber}}<input type="number" name="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
+                        {{#if isSelect}}
+                          <select name="{{name}}">
+                            {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                          </select>
+                        {{/if}}
+                        {{#if isMacro}}
+                          <select name="{{name}}">
+                            <option value="">{{localize "SC_COMBAT_WHEEL.Virtual.NoMacro"}}</option>
+                            {{#each macros}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                          </select>
+                        {{/if}}
+                        {{#if isFile}}<file-picker name="{{name}}" type="{{fileType}}" value="{{value}}"></file-picker>{{/if}}
+                        {{#if isUuid}}<input type="text" name="{{name}}" value="{{value}}" data-drop-uuid placeholder="{{localize "SC_COMBAT_WHEEL.Consequence.DropHere"}} ({{documentName}})">{{/if}}
+                      </div>
+                    {{/each}}
+                  </div>
+                {{/each}}
+                <select class="scw-config-add-conseq" data-add-consequence="{{index}}" aria-label="{{localize "SC_COMBAT_WHEEL.Consequence.Add"}}">
+                  <option value="">{{localize "SC_COMBAT_WHEEL.Consequence.Add"}}</option>
+                  {{#each @root.kinds}}
+                    <option value="{{kind}}" {{#if unavailable}}disabled{{/if}}>{{label}}</option>
+                  {{/each}}
+                </select>
+              </section>
+            {{else}}
+              <p class="scw-config__empty">{{localize "SC_COMBAT_WHEEL.Virtual.Empty"}}</p>
+            {{/each}}
+            <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="addTemplate">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Virtual.Add"}}
+            </button>
+          {{else if isCore}}
+            {{#with ../core.tracker}}
+              <div class="scw-config__rows">
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-resource">{{localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <select id="scw-core-resource" name="core.tracker.resource">
+                      <option value="" {{#unless resource}}selected{{/unless}}>{{localize "SC_COMBAT_WHEEL.CoreCombat.NoResource"}}</option>
+                      {{#each resourceGroups}}
+                        <optgroup label="{{label}}">
+                          {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                        </optgroup>
+                      {{/each}}
+                    </select>
+                  </span>
+                </div>
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-skip">{{localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <span class="scw-config-check">
+                      <input type="checkbox" id="scw-core-skip" name="core.tracker.skipDefeated" {{#if skipDefeated}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    </span>
+                  </span>
+                </div>
+                {{#if hasMarkers}}
+                  <h3 class="scw-config__section-title">{{localize "SC_COMBAT_WHEEL.CoreCombat.Markers"}}</h3>
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-marker">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <span class="scw-config-check">
+                      <input type="checkbox" id="scw-core-marker" name="core.tracker.markerEnabled" {{#if markerEnabled}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    </span>
+                  </span>
+                </div>
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-animation">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <select id="scw-core-animation" name="core.tracker.markerAnimation" data-marker-field {{#unless markerEnabled}}disabled{{/unless}}>
+                      {{#each animations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                    </select>
+                  </span>
+                </div>
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-src">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <file-picker id="scw-core-src" name="core.tracker.markerSrc" type="imagevideo" value="{{markerSrc}}" data-marker-field {{#unless markerEnabled}}disabled{{/unless}}></file-picker>
+                  </span>
+                </div>
+                <div class="scw-config-row">
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="scw-core-disposition">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Name"}}</label>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <span class="scw-config-check">
+                      <input type="checkbox" id="scw-core-disposition" name="core.tracker.markerDisposition" data-marker-field {{#unless markerEnabled}}disabled{{/unless}} {{#if markerDisposition}}checked{{/if}}>
+                      <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    </span>
+                  </span>
+                </div>
+                {{/if}}
+              </div>
+            {{/with}}
+          {{else}}
+            <div class="scw-config__rows">
+              {{#if offersResetPosition}}
+                <div class="scw-config-row scw-config-row--action">
+                  <span class="scw-config-row__copy">
+                    <span class="scw-config-row__name">{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Name"}}</span>
+                    <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Hint"}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    <button type="button" class="scw-config-btn" data-action="resetPosition">
+                      <i class="fa-solid fa-arrows-to-dot" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Button"}}
+                    </button>
+                  </span>
+                </div>
+              {{/if}}
+              {{#each fields}}
+                <div class="scw-config-row" data-setting-row="{{key}}" {{#unless shown}}hidden{{/unless}}>
+                  <span class="scw-config-row__copy">
+                    <label class="scw-config-row__name" for="{{id}}">{{name}}</label>
+                    <span class="scw-config-row__hint">{{hint}}</span>
+                  </span>
+                  <span class="scw-config-row__control">
+                    {{#if isBoolean}}
+                      <span class="scw-config-check">
+                        <input type="checkbox" id="{{id}}" name="{{key}}" {{#if value}}checked{{/if}}>
+                        <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                      </span>
+                    {{else if isNumber}}
+                      <range-picker id="{{id}}" name="{{key}}" value="{{value}}" min="{{range.min}}" max="{{range.max}}" step="{{range.step}}"></range-picker>
+                    {{else if isChoice}}
+                      <select id="{{id}}" name="{{key}}">
+                        {{#each choices}}
+                          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                      </select>
+                    {{else if isText}}
+                      <input type="text" id="{{id}}" name="{{key}}" value="{{value}}">
+                    {{else if isFile}}
+                      <file-picker id="{{id}}" name="{{key}}" type="{{fileType}}" value="{{value}}"></file-picker>
+                    {{/if}}
+                  </span>
+                </div>
+              {{/each}}
+            </div>
+          {{/if}}
+        </section>
+      {{/each}}
+    </div>
+  </div>
+
+  <footer class="scw-config__footer">
+    <span class="scw-config-pill" data-status-pill hidden>
+      <span class="scw-config-pill__dot" aria-hidden="true"></span>
+      <span data-status-pill-label role="status"></span>
+    </span>
+    <span class="scw-config__spacer"></span>
+    <button type="button" class="scw-config-btn scw-config-btn--ghost" data-action="resetSection" data-reset-button>
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.Reset"}}
+    </button>
+    <button type="button" class="scw-config-btn" data-action="closeWindow">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.Close"}}
+    </button>
+    <button type="submit" class="scw-config-btn scw-config-btn--primary" data-save-button>
+      <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.SettingsMenu.Save"}}
+    </button>
+  </footer>
+</div>

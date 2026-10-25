@@ -1,0 +1,135 @@
+/* === Finishes (RF-113) ===================================================== */
+/* The sci-fi themes' signature touches, offered to any theme and drawn in its
+   own colours: data-scw-finish on the root (WheelAppearance, setting
+   styleFinish) = theme | hud | neon | crt | hazard | glitch. "theme" adds
+   nothing (a sci-fi theme keeps its own). Panels are the bar, the split bar's
+   columns, the menus, the Venaerys strip and the on-screen message. Layers used here: the panels'
+   ::after (and the bar's ::before for the hazard stripes), the acting card's
+   .scw-rim::after, the portrait's background under its art (crt). */
+
+.sc-combat-wheel:is([data-scw-finish="hud"], [data-scw-finish="crt"], [data-scw-finish="hazard"]) :is(.scw-bar, .scw-banner) {
+  position: relative;
+}
+
+/* ---------- HUD: corner brackets on every panel, faint scanlines, the acting card locked on ---------- */
+.sc-combat-wheel[data-scw-finish="hud"] :is(.scw-bar, .scw-pod, .scw-roll-menu, .scw-banner, .scw-strip)::after,
+.sc-combat-wheel.scw-view-track[data-scw-finish="hud"] .scw-slot.is-active .scw-rim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  --scw-bracket: var(--scw-accent);
+  background:
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top left / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top left / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top right / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top right / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom left / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom left / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom right / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom right / 2px 12px no-repeat;
+}
+.sc-combat-wheel[data-scw-finish="hud"] :is(.scw-bar, .scw-pod, .scw-roll-menu, .scw-banner, .scw-strip)::after {
+  background:
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top left / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top left / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top right / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) top right / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom left / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom left / 2px 12px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom right / 12px 2px no-repeat,
+    linear-gradient(var(--scw-bracket), var(--scw-bracket)) bottom right / 2px 12px no-repeat,
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--scw-accent) 7%, transparent) 0 1px, transparent 1px 3px);
+}
+/* The acting card's brackets sit just outside it, in the acting colour. */
+.sc-combat-wheel.scw-view-track[data-scw-finish="hud"] .scw-slot.is-active .scw-rim::after {
+  --scw-bracket: var(--scw-active);
+  inset: 3px;
+}
+.sc-combat-wheel[data-scw-finish="hud"] :is(.scw-hub-name, .scw-round-main, .scw-banner-title) {
+  text-shadow: 0 0 6px color-mix(in srgb, var(--scw-accent) 80%, transparent);
+}
+
+/* ---------- Neon: glowing tubes for names, panels and the turn button ---------- */
+.sc-combat-wheel[data-scw-finish="neon"] :is(.scw-hub-name, .scw-round-main, .scw-banner-title) {
+  text-shadow:
+    0 0 4px var(--scw-accent),
+    0 0 12px color-mix(in srgb, var(--scw-accent) 70%, transparent);
+}
+.sc-combat-wheel[data-scw-finish="neon"] :is(.scw-bar, .scw-pod, .scw-roll-menu, .scw-banner, .scw-strip) {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--scw-accent) 80%, transparent),
+    0 0 14px color-mix(in srgb, var(--scw-accent) 45%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--scw-accent) 18%, transparent);
+}
+.sc-combat-wheel[data-scw-finish="neon"] .scw-btn--primary {
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--scw-accent) 60%, transparent),
+    inset 0 0 6px color-mix(in srgb, var(--scw-accent) 35%, transparent);
+}
+.sc-combat-wheel[data-scw-finish="neon"] .scw-slot.is-active .scw-rim {
+  box-shadow: 0 0 10px var(--scw-active), inset 0 0 8px color-mix(in srgb, var(--scw-active) 60%, transparent);
+}
+
+/* ---------- CRT: phosphor portraits in the accent colour, monospace, scanlines, a blinking cursor ---------- */
+.sc-combat-wheel[data-scw-finish="crt"] {
+  --scw-font-name: var(--scw-font-mono);
+  --scw-font-title: var(--scw-font-mono);
+}
+/* The art keeps its light and shade and takes the accent's hue. */
+.sc-combat-wheel[data-scw-finish="crt"] :is(.scw-slot, .scw-grid-tile) .scw-portrait {
+  background: color-mix(in srgb, var(--scw-accent) 85%, black);
+}
+.sc-combat-wheel[data-scw-finish="crt"] :is(.scw-slot, .scw-grid-tile) .scw-portrait-img {
+  mix-blend-mode: luminosity;
+  filter: contrast(1.2) brightness(1.05);
+}
+.sc-combat-wheel[data-scw-finish="crt"] :is(.scw-bar, .scw-pod, .scw-roll-menu, .scw-banner, .scw-strip)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--scw-accent) 9%, transparent) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+.sc-combat-wheel[data-scw-finish="crt"] :is(.scw-hub-name, .scw-round-main, .scw-banner-title) {
+  text-shadow: 0 0 4px color-mix(in srgb, var(--scw-accent) 55%, transparent);
+}
+.sc-combat-wheel[data-scw-finish="crt"] .scw-hub-name::after { content: "_"; }
+
+/* ---------- Hazard: warning stripes along the bar and over messages; the acting rim blinks ---------- */
+.sc-combat-wheel[data-scw-finish="hazard"] :is(.scw-bar, .scw-banner)::before {
+  content: "";
+  display: block;
+  flex: none;
+  height: 5px;
+  background: repeating-linear-gradient(-45deg, var(--scw-accent) 0 8px, var(--scw-bg) 8px 16px);
+}
+.sc-combat-wheel[data-scw-finish="hazard"] .scw-banner { padding-top: 0; overflow: hidden; }
+.sc-combat-wheel[data-scw-finish="hazard"] .scw-banner::before { margin: 0 -22px 10px; }
+.sc-combat-wheel[data-scw-finish="hazard"] .scw-pod { border-top: 4px solid transparent; border-image: repeating-linear-gradient(-45deg, var(--scw-accent) 0 6px, var(--scw-bg) 6px 12px) 4; }
+
+/* ---------- Glitch: a chromatic split on text and a hard offset shadow under panels ---------- */
+.sc-combat-wheel[data-scw-finish="glitch"] :is(.scw-hub-name, .scw-round-main, .scw-banner-title) {
+  text-shadow: -1px 0 rgba(255, 61, 90, 0.75), 1px 0 rgba(0, 240, 255, 0.75);
+}
+.sc-combat-wheel[data-scw-finish="glitch"] :is(.scw-bar, .scw-pod, .scw-roll-menu, .scw-banner, .scw-strip) {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--scw-accent) 60%, transparent),
+    4px 4px 0 color-mix(in srgb, var(--scw-accent) 40%, transparent);
+}
+.sc-combat-wheel.scw-view-track[data-scw-finish="glitch"] .scw-slot.is-active {
+  box-shadow: -2px 0 0 rgba(255, 61, 90, 0.7), 2px 0 0 rgba(0, 240, 255, 0.7), var(--scw-active-glow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sc-combat-wheel[data-scw-finish="crt"] .scw-hub-name::after { animation: scw-finish-cursor 1s steps(1) infinite; }
+  .sc-combat-wheel[data-scw-finish="hazard"] .scw-slot.is-active .scw-rim { animation: scw-finish-blink 1.2s ease-in-out infinite; }
+  @keyframes scw-finish-cursor {
+    50% { opacity: 0; }
+  }
+  @keyframes scw-finish-blink {
+    50% { box-shadow: 0 0 4px color-mix(in srgb, var(--scw-active) 40%, transparent); }
+  }
+}

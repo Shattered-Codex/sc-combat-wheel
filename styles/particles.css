@@ -1,0 +1,289 @@
+/* === Decorative particles ================================================== */
+/* WheelParticles appends one <div class="scw-fx scw-fx--<type>"> to the
+   widget anchor, sized to the emitter box, with one <i class="scw-fx-pt">
+   per particle. helpers/particle-presets.js writes each particle's random
+   values once as inline custom properties: size (--s), opacity (--o),
+   lifetime (--t), phase (--delay), end scale (--sc2), rotations (--r0..2) and
+   either three path points in px from the box centre (--p0x..--p2y) or a
+   spiral (--a, --arc, --ra, --rb); palette shapes add a slot (--k, 0..5) and
+   swaying ones a side swing (--w). Shapes are pure CSS; motion animates only
+   transform, translate and opacity. The layer carries --scw-fx-speed (lifetime
+   multiplier), --scw-fx-strength (opacity scale) and --scw-fx-color. */
+
+.sc-combat-wheel .scw-fx {
+  position: absolute;
+  z-index: 8;
+  overflow: visible;
+  pointer-events: none;
+  contain: layout style;
+  --scw-fx-speed: 1;
+  --scw-fx-strength: 0.75;
+  --scw-fx-color: var(--scw-accent);
+  --scw-fx-p: var(--scw-fx-color);
+}
+
+.sc-combat-wheel .scw-fx-pt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.sc-combat-wheel .scw-fx-pm--path {
+  animation: scw-fx-path calc(var(--t) * var(--scw-fx-speed)) cubic-bezier(0.3, 0.55, 0.45, 1) var(--delay) infinite;
+}
+
+.sc-combat-wheel .scw-fx-pm--twinkle {
+  animation: scw-fx-twinkle calc(var(--t) * var(--scw-fx-speed)) ease-in-out var(--delay) infinite;
+}
+
+.sc-combat-wheel .scw-fx-pm--spiral {
+  animation: scw-fx-spiral calc(var(--t) * var(--scw-fx-speed)) cubic-bezier(0.35, 0.5, 0.5, 1) var(--delay) infinite;
+}
+
+/* Drift and wave: a near-straight path plus a side-to-side swing on the
+   separate translate property, so the two compose into a soft wave. */
+.sc-combat-wheel .scw-fx-pm--sway {
+  animation:
+    scw-fx-path calc(var(--t) * var(--scw-fx-speed)) linear var(--delay) infinite,
+    scw-fx-sway calc(var(--t) * var(--scw-fx-speed) / 3) ease-in-out var(--delay) infinite alternate;
+}
+
+.sc-combat-wheel .scw-fx-pm--glimmer {
+  animation: scw-fx-glimmer calc(var(--t) * var(--scw-fx-speed)) ease-in-out var(--delay) infinite;
+}
+
+@keyframes scw-fx-path {
+  0% {
+    transform: translate(var(--p0x), var(--p0y)) rotate(var(--r0)) scale(1);
+    opacity: 0;
+  }
+  12% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.3); }
+  50% {
+    transform: translate(var(--p1x), var(--p1y)) rotate(var(--r1)) scale(calc((1 + var(--sc2)) / 2));
+  }
+  60% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.05); }
+  100% {
+    transform: translate(var(--p2x), var(--p2y)) rotate(var(--r2)) scale(var(--sc2));
+    opacity: 0;
+  }
+}
+
+@keyframes scw-fx-twinkle {
+  0% {
+    transform: translate(var(--p0x), var(--p0y)) rotate(var(--r0)) scale(0.2);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(var(--p1x), var(--p1y)) rotate(var(--r1)) scale(1.15);
+    opacity: calc(var(--o) * var(--scw-fx-strength) * 1.4);
+  }
+  100% {
+    transform: translate(var(--p2x), var(--p2y)) rotate(var(--r2)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes scw-fx-spiral {
+  0% {
+    transform: rotate(var(--a)) translateX(var(--ra)) rotate(var(--r0)) scale(1);
+    opacity: 0;
+  }
+  12% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.3); }
+  60% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.05); }
+  100% {
+    transform: rotate(calc(var(--a) + var(--arc))) translateX(var(--rb)) rotate(var(--r2)) scale(var(--sc2));
+    opacity: 0;
+  }
+}
+
+@keyframes scw-fx-sway {
+  from { translate: calc(var(--w) * -1) 0; }
+  to { translate: var(--w) 0; }
+}
+
+/* A slow wander that brightens and dims a few times on the way. */
+@keyframes scw-fx-glimmer {
+  0% {
+    transform: translate(var(--p0x), var(--p0y)) scale(0.6);
+    opacity: 0;
+  }
+  16% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.4); }
+  32% { opacity: calc(var(--o) * var(--scw-fx-strength) * 0.35); }
+  50% {
+    transform: translate(var(--p1x), var(--p1y)) scale(1);
+    opacity: calc(var(--o) * var(--scw-fx-strength) * 1.3);
+  }
+  68% { opacity: calc(var(--o) * var(--scw-fx-strength) * 0.4); }
+  84% { opacity: calc(var(--o) * var(--scw-fx-strength) * 1.2); }
+  100% {
+    transform: translate(var(--p2x), var(--p2y)) scale(var(--sc2));
+    opacity: 0;
+  }
+}
+
+/* Shapes */
+.sc-combat-wheel .scw-fx-ps--dot {
+  border-radius: 50%;
+  background: var(--scw-fx-p);
+  box-shadow: 0 0 calc(var(--s) * 1.8) var(--scw-fx-p);
+}
+
+.sc-combat-wheel .scw-fx-ps--spark {
+  width: calc(var(--s) * 5);
+  margin: calc(var(--s) / -2) calc(var(--s) * -2.5);
+  border-radius: 999px;
+  background: linear-gradient(to right, transparent, var(--scw-fx-p) 45%, color-mix(in srgb, var(--scw-fx-p) 40%, white));
+  box-shadow: 0 0 calc(var(--s) * 2) var(--scw-fx-p);
+}
+
+.sc-combat-wheel .scw-fx-ps--diamond {
+  background: var(--scw-fx-p);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.sc-combat-wheel .scw-fx-ps--star {
+  background: color-mix(in srgb, var(--scw-fx-p) 55%, white);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+
+.sc-combat-wheel .scw-fx-ps--flake {
+  background: color-mix(in srgb, var(--scw-fx-p) 50%, white);
+  clip-path: polygon(50% 0, 59% 34.4%, 93.3% 25%, 68% 50%, 93.3% 75%, 59% 65.6%, 50% 100%, 41% 65.6%, 6.7% 75%, 32% 50%, 6.7% 25%, 41% 34.4%);
+}
+
+/* Smoke: a soft puff, darker at the core, lit at the rim by the color.
+   The gradient already fades out, so no per-particle blur filter. */
+.sc-combat-wheel .scw-fx-ps--blob {
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-p) 55%, #000) 0 22%, color-mix(in srgb, var(--scw-fx-p) 60%, transparent) 45%, transparent 70%);
+}
+
+.sc-combat-wheel .scw-fx-ps--glow {
+  width: calc(var(--s) * 3);
+  height: calc(var(--s) * 3);
+  margin: calc(var(--s) * -1.5);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-p) 25%, white) 0 16%, var(--scw-fx-p) 28%, color-mix(in srgb, var(--scw-fx-p) 30%, transparent) 46%, transparent 70%);
+}
+
+.sc-combat-wheel .scw-fx-ps--petal {
+  width: calc(var(--s) * 0.75);
+  border-radius: 0 100% 0 100%;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--scw-fx-p) 55%, white), var(--scw-fx-p));
+}
+
+.sc-combat-wheel .scw-fx-ps--bubble {
+  border: 1px solid color-mix(in srgb, var(--scw-fx-p) 75%, white);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 30%, color-mix(in srgb, white 80%, transparent) 0 14%, transparent 34%),
+    color-mix(in srgb, var(--scw-fx-p) 18%, transparent);
+}
+
+.sc-combat-wheel .scw-fx-ps--snow {
+  border-radius: 50%;
+  background: radial-gradient(circle, white 0 30%, color-mix(in srgb, var(--scw-fx-p) 70%, transparent) 55%, transparent 72%);
+}
+
+/* Rain: a thin streak, its head at the right, turned to where it falls. */
+.sc-combat-wheel .scw-fx-ps--streak {
+  width: calc(var(--s) * 12);
+  margin: calc(var(--s) / -2) calc(var(--s) * -6);
+  border-radius: 999px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--scw-fx-p) 70%, transparent) 70%, var(--scw-fx-p));
+}
+
+/* Leaf: a pointed oval with a darker midrib; green to amber by palette slot. */
+.sc-combat-wheel .scw-fx-ps--leaf {
+  --scw-fx-leaf: color-mix(in srgb, hsl(calc(100deg - var(--k, 0) * 13deg) 62% 44%) 85%, var(--scw-fx-p));
+  width: calc(var(--s) * 0.8);
+  border-radius: 0 100%;
+  background: linear-gradient(45deg, var(--scw-fx-leaf) 0 47%, color-mix(in srgb, var(--scw-fx-leaf) 55%, #000) 47% 53%, var(--scw-fx-leaf) 53%);
+}
+
+.sc-combat-wheel .scw-fx-ps--ash {
+  background: var(--scw-fx-p);
+  clip-path: polygon(18% 12%, 68% 0, 100% 42%, 82% 92%, 34% 100%, 0 58%);
+}
+
+.sc-combat-wheel .scw-fx-ps--mote {
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scw-fx-p) 60%, white);
+  box-shadow: 0 0 calc(var(--s) * 2.4) calc(var(--s) * 0.4) var(--scw-fx-p);
+}
+
+/* Confetti keeps its own bright palette whatever the tint. */
+.sc-combat-wheel .scw-fx-ps--confetti {
+  height: calc(var(--s) * 0.45);
+  margin: calc(var(--s) * -0.225) calc(var(--s) / -2);
+  border-radius: 1px;
+  background: hsl(calc(var(--k, 0) * 60deg + 8deg) 88% 60%);
+}
+
+/* Runes: a soft halo on the particle, the angular mark on its ::before
+   (clip-path would cut a glow drawn on the same box). */
+.sc-combat-wheel :is(.scw-fx-ps--rune1, .scw-fx-ps--rune2, .scw-fx-ps--rune3, .scw-fx-ps--rune4) {
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-p) 45%, transparent) 0 30%, transparent 70%);
+}
+.sc-combat-wheel :is(.scw-fx-ps--rune1, .scw-fx-ps--rune2, .scw-fx-ps--rune3, .scw-fx-ps--rune4)::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  background: color-mix(in srgb, var(--scw-fx-p) 60%, white);
+}
+.sc-combat-wheel .scw-fx-ps--rune1::before {
+  clip-path: polygon(50% 0, 100% 40%, 86% 52%, 59% 30%, 59% 100%, 41% 100%, 41% 30%, 14% 52%, 0 40%);
+}
+.sc-combat-wheel .scw-fx-ps--rune2::before {
+  clip-path: polygon(78% 0, 96% 12%, 38% 50%, 96% 88%, 78% 100%, 10% 50%);
+}
+.sc-combat-wheel .scw-fx-ps--rune3::before {
+  clip-path: polygon(evenodd, 50% 0, 100% 50%, 50% 100%, 0 50%, 50% 0, 50% 26%, 24% 50%, 50% 74%, 76% 50%, 50% 26%);
+}
+.sc-combat-wheel .scw-fx-ps--rune4::before {
+  clip-path: polygon(30% 0, 80% 36%, 50% 52%, 84% 100%, 64% 100%, 24% 50%, 54% 34%, 12% 0);
+}
+
+/* Wisp: a tall soft glow, bright at the core. */
+.sc-combat-wheel .scw-fx-ps--wisp {
+  height: calc(var(--s) * 2.2);
+  margin: calc(var(--s) * -1.1) calc(var(--s) / -2);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--scw-fx-p) 35%, white) 0 18%, var(--scw-fx-p) 40%, color-mix(in srgb, var(--scw-fx-p) 30%, transparent) 65%, transparent);
+}
+
+/* Type tints, mixed into the chosen color. */
+.sc-combat-wheel .scw-fx--embers { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 55%, #ffb347); }
+.sc-combat-wheel .scw-fx--arcane { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 70%, white); }
+.sc-combat-wheel .scw-fx--stardust { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 45%, white); }
+.sc-combat-wheel .scw-fx--frost { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 45%, #e8f6ff); }
+.sc-combat-wheel .scw-fx--shadow { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 80%, #1a1028); }
+.sc-combat-wheel .scw-fx--fireflies { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 60%, #fff3a0); }
+.sc-combat-wheel .scw-fx--petals { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 60%, #ffd6e8); }
+.sc-combat-wheel .scw-fx--bubbles { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 55%, #e8fbff); }
+.sc-combat-wheel .scw-fx--sparks { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 45%, white); }
+.sc-combat-wheel .scw-fx--snow { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 25%, #f4f9ff); }
+.sc-combat-wheel .scw-fx--rain { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 30%, #c4dcff); }
+.sc-combat-wheel .scw-fx--leaves { --scw-fx-p: var(--scw-fx-color); }
+.sc-combat-wheel .scw-fx--ash { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 20%, #bdb8b2); }
+.sc-combat-wheel .scw-fx--motes { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 35%, #ffd36a); }
+/* Confetti paints by palette slot and ignores the tint (see its shape). */
+.sc-combat-wheel .scw-fx--confetti { --scw-fx-p: var(--scw-fx-color); }
+.sc-combat-wheel .scw-fx--runes { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 70%, white); }
+.sc-combat-wheel .scw-fx--wisps { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 35%, #5fe3c8); }
+
+/* Rain falls at a steady speed. */
+.sc-combat-wheel .scw-fx--rain .scw-fx-pt { animation-timing-function: linear; }
+
+/* Decoration only: gone in the grid view and for reduced motion. */
+.sc-combat-wheel.is-grid .scw-fx { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-combat-wheel .scw-fx { display: none; }
+}

@@ -1,0 +1,114 @@
+/*
+ * Nocturne theme (SPEC §8), from the Design project's _ds/nocturne styles.css.
+ * Scoped to the widget: nothing here reaches Foundry's own UI.
+ * Every visual value the wheel uses comes from these --scw-* variables.
+ */
+.sc-combat-wheel {
+  /* Nocturne ramps used by the widget */
+  --scw-neutral-100: #f3f5fe;
+  --scw-neutral-300: #cfd3e5;
+  --scw-neutral-500: #9397ab;
+  --scw-neutral-700: #595d6c;
+  --scw-neutral-800: #3f424d;
+  --scw-accent-100: #f5f4ff;
+  --scw-accent-200: #e7e5fe;
+  --scw-accent-300: #d2cefd;
+  --scw-accent-400: #b5abfc;
+  --scw-accent-700: #5d5294;
+  --scw-accent-800: #423a6a;
+  --scw-accent-900: #2b2741;
+
+  /* Roles (SPEC §8 variable list) */
+  --scw-bg: #161826;
+  --scw-surface: #232532;
+  --scw-text: #e9e9ed;
+  --scw-text-muted: var(--scw-neutral-300);
+  --scw-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
+  --scw-accent: #9184d9;
+  --scw-friendly: var(--scw-accent);
+  --scw-neutral: oklch(0.8 0.1 85);
+  --scw-hostile: oklch(0.72 0.1 22);
+  --scw-secret: oklch(0.7 0.09 320);
+  --scw-critical: oklch(0.7 0.14 30);
+  --scw-radius: 8px;
+  --scw-radius-sm: 4px;
+  --scw-radius-lg: 14px;
+  --scw-rim-width: 3px;
+  --scw-font-body: "Inter", var(--font-sans, "Signika"), system-ui, sans-serif;
+  --scw-font-name: var(--scw-font-body);
+  --scw-font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* RF-114: one structure for every theme, derived from its palette; a theme
+     sets colours, fonts and corners, and only a few with a signature of their
+     own (sci-fi, game systems, carousels, contrast) restyle these. */
+  --scw-shadow: 0 0 0 1px color-mix(in oklab, var(--scw-accent) 16%, transparent), 0 8px 22px rgba(0, 0, 0, 0.5);
+  --scw-shadow-lg: 0 0 0 1px color-mix(in oklab, var(--scw-accent) 26%, transparent), 0 18px 44px rgba(0, 0, 0, 0.6);
+  --scw-ease: cubic-bezier(0.4, 0.1, 0.2, 1);
+
+  /* Surfaces: a breath of the accent on top, settling into the ground below. */
+  --scw-surface-bg: linear-gradient(180deg, color-mix(in oklab, var(--scw-surface) 88%, var(--scw-accent) 12%), color-mix(in oklab, var(--scw-surface) 90%, var(--scw-bg)));
+  --scw-panel-bg: color-mix(in srgb, var(--scw-bg) 92%, transparent);
+  --scw-surface-blur: none;
+  --scw-border: 1px solid color-mix(in oklab, var(--scw-accent) 36%, transparent);
+  --scw-header-bg: linear-gradient(90deg, color-mix(in oklab, var(--scw-accent) 24%, var(--scw-surface)), var(--scw-surface));
+  --scw-header-text: var(--scw-accent-200);
+  --scw-header-edge: 1px solid color-mix(in oklab, var(--scw-accent) 45%, transparent);
+  /* The acting portrait: a hairline of light, a tight glow and a wide one. */
+  --scw-active: var(--scw-accent);
+  --scw-active-glow:
+    0 0 0 1px color-mix(in oklab, var(--scw-active) 70%, white),
+    0 0 14px color-mix(in oklab, var(--scw-active) 60%, transparent),
+    0 0 32px color-mix(in oklab, var(--scw-active) 26%, transparent);
+  /* A Venaerys done mark that is set: a filled green disc, apart from every theme's accent. */
+  --scw-done: #4ab87a;
+  --scw-hp-fill: var(--scw-accent-400);
+  --scw-btn-primary-text: var(--scw-accent);
+  --scw-btn-primary-bg: transparent;
+  --scw-btn-primary-border: var(--scw-accent);
+  --scw-font-title: var(--scw-font-name);
+  --scw-font-label: var(--scw-font-body);
+  --scw-name-weight: 500;
+  --scw-name-size: 1;
+  --scw-name-transform: none;
+  --scw-tag-radius: calc(var(--scw-radius) * 0.75);
+  --scw-tag-edge: none;
+  --scw-tag-weight: 400;
+  --scw-tag-transform: none;
+  --scw-tag-spacing: 0.02em;
+}
+
+/*
+ * Settings window (RF-70): the Shattered Codex settings look shared with the
+ * other SC modules (Verdant palette), scoped to this window so it never
+ * restyles the wheel or another module's window.
+ */
+.sc-combat-wheel-settings {
+  --scw-cfg-accent: #1fa971;
+  --scw-cfg-accent-soft: #1fa97122;
+  --scw-cfg-accent-dim: #14573e;
+  --scw-cfg-bg: #15181a;
+  --scw-cfg-bg-1: #1b1f22;
+  --scw-cfg-bg-2: #232830;
+  --scw-cfg-bg-3: #2c333b;
+  --scw-cfg-bg-hover: #2f3741;
+  --scw-cfg-border: #2e353d;
+  --scw-cfg-border-soft: #232a32;
+  --scw-cfg-border-strong: #4a5560;
+  --scw-cfg-text: #e6e8ea;
+  --scw-cfg-text-dim: #9aa3ad;
+  --scw-cfg-text-mute: #6b7480;
+  --scw-cfg-text-on-acc: #06231a;
+  --scw-cfg-danger: #c94f4f;
+  --scw-cfg-warn: #d09b3c;
+  --scw-cfg-warn-soft: #d09b3c22;
+  --scw-cfg-success: #4ab87a;
+  --scw-cfg-success-soft: #4ab87a22;
+  --scw-cfg-info: #4a8cd1;
+  --scw-cfg-info-soft: #4a8cd122;
+  --scw-cfg-radius-sm: 4px;
+  --scw-cfg-radius: 6px;
+  --scw-cfg-radius-lg: 10px;
+  --scw-cfg-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --scw-cfg-glow: 0 0 0 1px var(--scw-cfg-accent), 0 0 16px var(--scw-cfg-accent-soft);
+  --scw-cfg-font-display: "Cinzel", "IM Fell English SC", "Trajan Pro", serif;
+  --scw-cfg-font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}

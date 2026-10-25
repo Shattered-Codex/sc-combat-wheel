@@ -1,0 +1,90 @@
+/*
+ * Fonts for the game-system themes, read from files Foundry and the systems
+ * already ship on this server; nothing is fetched from outside. Browsers only
+ * download a face when a theme that uses it is on screen, and each theme's
+ * font stack names the system's own family first, so an active system wins.
+ * Systems that load their fonts from the web (Daggerheart, Call of Cthulhu)
+ * are matched by family name and fall back to a local serif when inactive.
+ */
+
+/* Foundry core: the display face dnd5e and CoC7 titles use */
+@font-face {
+  font-family: "SCW Modesto Condensed";
+  src: url("../../../fonts/modesto-condensed/modesto-condensed.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Modesto Condensed";
+  src: url("../../../fonts/modesto-condensed/modesto-condensed-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Foundry core: the classic serif the style tweaks offer (RF-98) */
+@font-face {
+  font-family: "SCW Amiri";
+  src: url("../../../fonts/amiri/amiri-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Amiri";
+  src: url("../../../fonts/amiri/amiri-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* dnd5e */
+@font-face {
+  font-family: "SCW Roboto";
+  src: url("../../../systems/dnd5e/fonts/roboto/Roboto-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Roboto";
+  src: url("../../../systems/dnd5e/fonts/roboto/Roboto-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Roboto Slab";
+  src: url("../../../systems/dnd5e/fonts/roboto-slab/RobotoSlab-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* pf2e */
+@font-face {
+  font-family: "SCW Eczar";
+  src: url("../../../systems/pf2e/fonts/eczar-v16-latin-ext_latin-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Eczar";
+  src: url("../../../systems/pf2e/fonts/eczar-v16-latin-ext_latin-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Roboto PF";
+  src: url("../../../systems/pf2e/fonts/roboto-v30-latin-ext_latin_cyrillic-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "SCW Roboto PF";
+  src: url("../../../systems/pf2e/fonts/roboto-v30-latin-ext_latin_cyrillic-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* Foundry core: the display face of the sci-fi themes */
+@font-face {
+  font-family: "SCW Bruno Ace";
+  src: url("../../../fonts/bruno-ace/bruno-ace.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}

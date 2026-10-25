@@ -1,0 +1,1849 @@
+/*
+ * Other themes (SPEC §8). Each one only reassigns the --scw-* roles; users can
+ * override any of them from their own CSS the same way.
+ */
+
+/* Foundry: follows the core interface colors where the core defines them. */
+.sc-combat-wheel[data-scw-theme="foundry"] {
+  --scw-bg: var(--color-cool-5, #1b1d24);
+  --scw-surface: var(--color-cool-4, #2a2d36);
+  --scw-text: var(--color-text-primary, #efe6d8);
+  --scw-text-muted: var(--color-text-secondary, #b5ab9c);
+  --scw-divider: var(--color-border, rgba(255, 255, 255, 0.15));
+  --scw-accent: var(--color-warm-2, #ee9b3a);
+  --scw-accent-100: #fff3e2;
+  --scw-accent-200: #ffe0b8;
+  --scw-accent-300: #f8c27f;
+  --scw-accent-400: #f0a651;
+  --scw-accent-700: #8a5520;
+  --scw-accent-800: #5e3a17;
+  --scw-accent-900: #3a2510;
+  --scw-friendly: #6fb3d2;
+  --scw-font-body: var(--font-body, var(--font-sans, "Signika")), sans-serif;
+}
+
+/* Parchment: aged light ground, ink borders, serif names. */
+.sc-combat-wheel[data-scw-theme="parchment"] {
+  --scw-neutral-100: #3b2f22;
+  --scw-neutral-300: #6d5c47;
+  --scw-neutral-500: #8c7a62;
+  --scw-neutral-700: #b9a88c;
+  --scw-neutral-800: #d9cbb0;
+  --scw-accent-100: #fff7ee;
+  --scw-accent-200: #5a2a0c;
+  --scw-accent-300: #7a3812;
+  --scw-accent-400: #9a4a1c;
+  --scw-accent-700: #b8835c;
+  --scw-accent-800: #7a3812;
+  --scw-accent-900: #f3e3cf;
+  --scw-bg: #efe4cc;
+  --scw-surface: #f6eedb;
+  --scw-text: #2e241a;
+  --scw-text-muted: #6d5c47;
+  --scw-divider: rgba(59, 47, 34, 0.22);
+  --scw-accent: #8a3b12;
+  --scw-friendly: #2f6d4a;
+  --scw-neutral: #9a7b1f;
+  --scw-hostile: #a02a1c;
+  --scw-secret: #6a3d80;
+  --scw-critical: #b3261e;
+  --scw-font-name: "Modesto Condensed", Georgia, "Times New Roman", serif;
+  --scw-shadow: 0 0 0 1px #b9a88c, 0 6px 18px rgba(46, 36, 26, 0.35);
+  --scw-shadow-lg: 0 0 0 1px #8c7a62, 0 16px 40px rgba(46, 36, 26, 0.45);
+}
+
+/* Stone and iron: cold greys, metallic edges, amber accent. */
+.sc-combat-wheel[data-scw-theme="stone"] {
+  --scw-accent-100: #fff6e0;
+  --scw-accent-200: #ffe7b0;
+  --scw-accent-300: #f5cf7a;
+  --scw-accent-400: #e8b54d;
+  --scw-accent-700: #8a6a24;
+  --scw-accent-800: #5c4718;
+  --scw-accent-900: #33291a;
+  --scw-bg: #1c1f22;
+  --scw-surface: #2b2f33;
+  --scw-text: #e6e8ea;
+  --scw-text-muted: #a9b0b6;
+  --scw-accent: #d9a441;
+  --scw-friendly: #7fa7c9;
+}
+
+/* High contrast: near-black ground, thick rims, and a side mark that is a shape, not only a color. */
+.sc-combat-wheel[data-scw-theme="contrast"] {
+  /* Pure side colours: contrast is the point here. */
+  --scw-rim-tint: 0%;
+  --scw-neutral-300: #e6e6e6;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #ffffff;
+  --scw-accent-300: #ffe14d;
+  --scw-accent-400: #ffe14d;
+  --scw-accent-700: #ffe14d;
+  --scw-accent-800: #3d3500;
+  --scw-accent-900: #000000;
+  --scw-bg: #050505;
+  --scw-surface: #111111;
+  --scw-text: #ffffff;
+  --scw-text-muted: #e6e6e6;
+  --scw-divider: #ffffff;
+  --scw-accent: #ffe14d;
+  --scw-friendly: #4dc3ff;
+  --scw-neutral: #ffffff;
+  --scw-hostile: #ff5c5c;
+  --scw-secret: #d68cff;
+  --scw-rim-width: 5px;
+  --scw-shadow: 0 0 0 2px #ffffff;
+  --scw-shadow-lg: 0 0 0 2px #ffffff;
+}
+.sc-combat-wheel[data-scw-theme="contrast"] :is(.scw-slot, .scw-grid-tile) .scw-portrait::after {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: #000000;
+  color: var(--scw-rim-color);
+  font-size: 11px;
+  line-height: 1.2;
+}
+.sc-combat-wheel[data-scw-theme="contrast"] .is-friendly .scw-portrait::after { content: "●"; }
+.sc-combat-wheel[data-scw-theme="contrast"] .is-neutral .scw-portrait::after { content: "■"; }
+.sc-combat-wheel[data-scw-theme="contrast"] .is-hostile .scw-portrait::after { content: "▲"; }
+.sc-combat-wheel[data-scw-theme="contrast"] .is-secret .scw-portrait::after { content: "◆"; }
+
+/* Transparent: only portraits over the map; good for streaming. */
+.sc-combat-wheel[data-scw-theme="transparent"] {
+  --scw-surface: transparent;
+  --scw-shadow: none;
+  --scw-shadow-lg: none;
+}
+.sc-combat-wheel[data-scw-theme="transparent"] :is(.scw-hub, .scw-bar) {
+  box-shadow: none;
+  text-shadow: 0 1px 3px #000, 0 0 2px #000;
+}
+.sc-combat-wheel[data-scw-theme="transparent"] .scw-roll-menu,
+.sc-combat-wheel[data-scw-theme="transparent"] :is(.scw-overview-popover, .scw-banner) {
+  background: color-mix(in srgb, #161826 85%, transparent);
+}
+
+/* ======================================================================
+ * Game-system themes. Palettes, fonts and textures follow each system's own
+ * stylesheet in Foundry (read from the installed systems); where the system
+ * exposes a global variable the theme reads it, with the same value as a
+ * fallback so the theme also works while another system is active.
+ * Dispositions use Foundry's own token border colors, since none of these
+ * systems define their own.
+ * ====================================================================== */
+
+.sc-combat-wheel:is(
+    [data-scw-theme="dnd5e"],
+    [data-scw-theme="pf2e"],
+    [data-scw-theme="daggerheart"],
+    [data-scw-theme="coc7"]
+  ) {
+  --scw-friendly: #43dfdf;
+  --scw-neutral: #f1d836;
+  --scw-hostile: #e72124;
+  --scw-secret: #a612d4;
+}
+
+/* ---------- D&D 5e: parchment cards, gold hairlines, crimson headers ---------- */
+.sc-combat-wheel[data-scw-theme="dnd5e"] {
+  --scw-neutral-100: #191813;
+  --scw-neutral-300: #4b4a44;
+  --scw-neutral-500: #7a7971;
+  --scw-neutral-700: #9f9275;
+  --scw-neutral-800: #c9c7b8;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #44191a;
+  --scw-accent-300: #741b2b;
+  --scw-accent-400: #9f9275;
+  --scw-accent-700: #9f9275;
+  --scw-accent-800: #741b2b;
+  --scw-accent-900: #f8f4f1;
+  --scw-bg: var(--dnd5e-color-parchment, #f1ebe8);
+  --scw-surface: var(--dnd5e-color-card, #f8f4f1);
+  --scw-text: var(--dnd5e-color-dark, #191813);
+  --scw-text-muted: var(--dnd5e-color-olive, #4b4a44);
+  --scw-divider: var(--dnd5e-color-gold, #9f9275);
+  --scw-accent: var(--dnd5e-color-gold, #9f9275);
+  --scw-active: #e3ce9e;
+  --scw-active-glow: 0 0 6px var(--dnd5e-color-gold, #9f9275), 0 0 0 1px #191813;
+  --scw-critical: var(--dnd5e-color-red, #ed1c24);
+  --scw-hp-fill: linear-gradient(to right, var(--dnd5e-color-hp-1, #1b4b29), var(--dnd5e-color-hp-2, #3ba55d));
+  --scw-surface-bg:
+    url("../../../systems/dnd5e/ui/texture-gray1.webp") top left / auto 200px no-repeat,
+    url("../../../systems/dnd5e/ui/texture-gray2.webp") bottom right / auto 200px no-repeat,
+    var(--dnd5e-color-parchment, #f1ebe8);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid var(--dnd5e-color-gold, #9f9275);
+  --scw-header-bg: linear-gradient(to right, #401f25, #741b2b);
+  --scw-header-text: #ffffff;
+  --scw-header-edge: 1px solid var(--dnd5e-color-gold, #9f9275);
+  --scw-btn-primary-text: var(--dnd5e-color-gold, #9f9275);
+  --scw-btn-primary-bg: #000000;
+  --scw-btn-primary-border: var(--dnd5e-color-gold, #9f9275);
+  --scw-radius: 4px;
+  --scw-radius-sm: 3px;
+  --scw-radius-lg: 5px;
+  --scw-font-body: "Roboto", "SCW Roboto", sans-serif;
+  --scw-font-name: "Modesto Condensed", "SCW Modesto Condensed", "Palatino Linotype", serif;
+  --scw-font-title: "Roboto Slab", "SCW Roboto Slab", serif;
+  --scw-font-label: "Roboto Slab", "SCW Roboto Slab", serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.2;
+  --scw-tag-radius: 3px;
+  --scw-tag-edge: inset 0 0 0 1px #666666;
+  --scw-tag-weight: 700;
+  --scw-tag-transform: uppercase;
+  --scw-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+  --scw-shadow-lg: 0 0 12px rgba(0, 0, 0, 0.45);
+}
+/* dnd5e's dark sheets: blue-grey cards on denim, same gold hairlines */
+body.theme-dark .sc-combat-wheel[data-scw-theme="dnd5e"] {
+  --scw-neutral-100: #cfd2da;
+  --scw-neutral-300: #b5b3a4;
+  --scw-neutral-700: #434857;
+  --scw-neutral-800: #333742;
+  --scw-accent-200: #e3ce9e;
+  --scw-accent-300: #c9b88f;
+  --scw-accent-900: #191813;
+  --scw-bg: var(--dnd5e-color-blue-gray-2, #252830);
+  --scw-surface: var(--dnd5e-color-blue-gray-2, #252830);
+  --scw-text: var(--dnd5e-color-blue-white, #cfd2da);
+  --scw-text-muted: var(--dnd5e-color-beige, #b5b3a4);
+  --scw-surface-bg: #0d0b0b url("../../../ui/denim075.png") repeat;
+  --scw-header-bg: linear-gradient(to right, #491d25, #311b1f);
+}
+/* Primary buttons are dnd5e's "gold button": black, gold text, inset gold frame */
+.sc-combat-wheel[data-scw-theme="dnd5e"] .scw-btn--primary {
+  border: none;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.45), inset 0 0 0 2px #000000, inset 0 0 0 3px var(--dnd5e-color-gold, #9f9275);
+}
+.sc-combat-wheel[data-scw-theme="dnd5e"] .scw-btn--primary:not(:disabled):hover {
+  background: #000000;
+  box-shadow: 0 0 6px var(--dnd5e-color-gold, #9f9275), inset 0 0 0 2px #000000, inset 0 0 0 3px var(--dnd5e-color-gold, #9f9275);
+}
+.sc-combat-wheel[data-scw-theme="dnd5e"] :is(.scw-hub-label, .scw-details-kicker) {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Pathfinder 2e: parchment, crimson banner, gold trim, Eczar ---------- */
+.sc-combat-wheel[data-scw-theme="pf2e"] {
+  --scw-neutral-100: #261f1b;
+  --scw-neutral-300: #605856;
+  --scw-neutral-500: #786452;
+  --scw-neutral-700: #baa991;
+  --scw-neutral-800: #e7d9cf;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #440000;
+  --scw-accent-300: #5e0000;
+  --scw-accent-400: #770000;
+  --scw-accent-700: #d8c384;
+  --scw-accent-800: var(--color-pf-primary, #5e0000);
+  --scw-accent-900: #f2e8ca;
+  --scw-bg: var(--bg, #f8f4f1);
+  --scw-surface: var(--bg, #f8f4f1);
+  --scw-text: #191813;
+  --scw-text-muted: var(--sub, #605856);
+  --scw-divider: var(--color-border-divider, #baa991);
+  --scw-accent: var(--color-pf-primary, #5e0000);
+  --scw-active: var(--color-pf-tertiary-darker, #d5b34e);
+  --scw-active-glow: 0 0 10px var(--color-pf-tertiary-dark, #dfc577), 0 0 0 1px #261f1b;
+  --scw-critical: #ff4500;
+  --scw-hp-fill: var(--color-pf-health-bg, #5e0000);
+  --scw-surface-bg: url("../../../systems/pf2e/assets/sheet/background.webp") center / cover, var(--bg, #f8f4f1);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid var(--color-border-trait, #d8c384);
+  --scw-header-bg: url("../../../systems/pf2e/assets/sheet/header.webp") center / cover, var(--color-pf-primary, #5e0000);
+  --scw-header-text: #ffffff;
+  --scw-header-edge: 2px solid var(--color-pf-tertiary, #e9d7a1);
+  --scw-btn-primary-text: #ffffff;
+  --scw-btn-primary-bg: var(--color-pf-primary, #5e0000);
+  --scw-btn-primary-border: var(--color-border-trait, #d8c384);
+  --scw-radius: 2px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 4px;
+  --scw-font-body: "Roboto", "SCW Roboto PF", sans-serif;
+  --scw-font-name: "Eczar", "SCW Eczar", Georgia, serif;
+  --scw-font-title: "Eczar", "SCW Eczar", Georgia, serif;
+  --scw-font-label: "Roboto", "SCW Roboto PF", sans-serif;
+  --scw-name-weight: 500;
+  --scw-name-size: 1.1;
+  --scw-tag-radius: 2px;
+  --scw-tag-edge: inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+  --scw-tag-weight: 500;
+  --scw-tag-transform: uppercase;
+  --scw-tag-spacing: 0.05em;
+  --scw-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  --scw-shadow-lg: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+/* pf2e buttons: square, uppercase, with its double inner edge */
+.sc-combat-wheel[data-scw-theme="pf2e"] .scw-btn--primary {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+.sc-combat-wheel[data-scw-theme="pf2e"] .scw-btn--primary:not(:disabled):hover {
+  background: var(--color-pf-primary-light, #770000);
+}
+.sc-combat-wheel[data-scw-theme="pf2e"] :is(.scw-hub-label, .scw-details-kicker, .scw-btn--label) {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+/* The roll menu and the grid wear pf2e's tooltip frame */
+.sc-combat-wheel[data-scw-theme="pf2e"] :is(.scw-roll-menu, .scw-overview-popover, .scw-banner) {
+  border: 9px solid transparent;
+  border-image: url("../../../systems/pf2e/assets/sheet/corner-box.webp") 9 repeat;
+  border-radius: 0;
+}
+
+/* ---------- Daggerheart: deep blue glass, golden hairlines, Cinzel ---------- */
+.sc-combat-wheel[data-scw-theme="daggerheart"] {
+  --scw-neutral-100: #efe6d8;
+  --scw-neutral-300: #a29086;
+  --scw-neutral-500: #927952;
+  --scw-neutral-700: #997a4f;
+  --scw-neutral-800: #0e0d15;
+  --scw-accent-100: #efe6d8;
+  --scw-accent-200: var(--golden, #f3c267);
+  --scw-accent-300: var(--golden, #f3c267);
+  --scw-accent-400: var(--golden-secondary, #eaaf42);
+  --scw-accent-700: #997a4f;
+  --scw-accent-800: #f3c26740;
+  --scw-accent-900: var(--dark-golden, #2b1d03);
+  --scw-bg: var(--dark-blue, #18162e);
+  --scw-surface: var(--dark-blue, #18162e);
+  --scw-text: var(--beige, #efe6d8);
+  --scw-text-muted: #a29086;
+  --scw-divider: #f3c26740;
+  --scw-accent: var(--golden, #f3c267);
+  --scw-active: var(--golden, #f3c267);
+  --scw-active-glow: 0 0 2px 2px var(--golden, #f3c267);
+  --scw-critical: var(--red, #e54e4e);
+  --scw-hp-fill: var(--gradient-hp, linear-gradient(15deg, #46140a 0%, #be0000 42%, #fcb045 100%));
+  --scw-surface-bg: var(--dark-blue-c0, #18162ec0);
+  --scw-panel-bg: var(--dark-blue-c0, #18162ec0);
+  --scw-surface-blur: blur(7px);
+  --scw-border: 1px solid var(--golden, #f3c267);
+  --scw-header-bg: url("../../../systems/daggerheart/assets/parchments/dh-parchment-dark.png") center / cover, var(--deep-black, #0e0d15);
+  --scw-header-text: var(--golden, #f3c267);
+  --scw-header-edge: 1px solid var(--golden, #f3c267);
+  --scw-btn-primary-text: var(--dark-blue, #18162e);
+  --scw-btn-primary-bg: var(--golden, #f3c267);
+  --scw-btn-primary-border: var(--golden, #f3c267);
+  --scw-radius: 6px;
+  --scw-radius-sm: 3px;
+  --scw-radius-lg: 10px;
+  --scw-font-body: var(--dh-font-body, "Montserrat"), "Segoe UI", sans-serif;
+  --scw-font-name: var(--dh-font-subtitle, "Cinzel"), "Trajan Pro", Georgia, serif;
+  --scw-font-title: var(--dh-font-title, "Cinzel Decorative"), var(--dh-font-subtitle, "Cinzel"), Georgia, serif;
+  --scw-font-label: var(--dh-font-subtitle, "Cinzel"), Georgia, serif;
+  --scw-name-weight: 400;
+  --scw-name-size: 1.05;
+  --scw-tag-radius: 3px;
+  --scw-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  --scw-shadow-lg: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+/* Light interface: Daggerheart's light parchment with dark-blue ink */
+body.theme-light .sc-combat-wheel[data-scw-theme="daggerheart"] {
+  --scw-neutral-100: #18162e;
+  --scw-neutral-300: #555555;
+  --scw-neutral-800: #b1afb6;
+  --scw-accent-100: #efe6d8;
+  --scw-accent-200: #18162e;
+  --scw-accent-300: #18162e;
+  --scw-accent-800: #18162e;
+  --scw-accent-900: #efe6d8;
+  --scw-text: #18162e;
+  --scw-text-muted: #555555;
+  --scw-divider: #18162e40;
+  --scw-accent: #18162e;
+  --scw-surface-bg: url("../../../systems/daggerheart/assets/parchments/dh-parchment-light.png") center / cover, var(--beige, #efe6d8);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-surface-blur: none;
+  --scw-border: 1px solid #18162e;
+  --scw-btn-primary-text: var(--golden, #f3c267);
+  --scw-btn-primary-bg: var(--dark-blue, #18162e);
+  --scw-btn-primary-border: var(--dark-blue, #18162e);
+}
+.sc-combat-wheel[data-scw-theme="daggerheart"] .scw-btn--primary:not(:disabled):hover {
+  background: var(--dark-blue, #18162e);
+  color: var(--golden, #f3c267);
+  text-shadow: 0 0 1px currentColor, 0 0 8px var(--golden, #f3c267);
+}
+.sc-combat-wheel[data-scw-theme="daggerheart"] .scw-slot.is-active .scw-rim {
+  animation: scw-dh-glow 0.75s infinite alternate;
+}
+@keyframes scw-dh-glow {
+  from { box-shadow: 0 0 1px 1px var(--golden, #f3c267); }
+  to { box-shadow: 0 0 2px 2px var(--golden, #f3c267); }
+}
+
+/* ---------- Call of Cthulhu 7e: investigator paper, ink, blood red, Modesto ---------- */
+.sc-combat-wheel[data-scw-theme="coc7"] {
+  --scw-neutral-100: #1d1a14;
+  --scw-neutral-300: #5c4b35;
+  --scw-neutral-500: #79501c;
+  --scw-neutral-700: #999999;
+  --scw-neutral-800: #d9c69a;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #670b0b;
+  --scw-accent-300: #670b0b;
+  --scw-accent-400: #922d2e;
+  --scw-accent-700: #999999;
+  --scw-accent-800: #2c471d;
+  --scw-accent-900: #ebd5a0;
+  --scw-bg: #ebd5a0;
+  --scw-surface: #efe3c2;
+  --scw-text: #1d1a14;
+  --scw-text-muted: #5c4b35;
+  --scw-divider: rgba(0, 0, 0, 0.25);
+  --scw-accent: #670b0b;
+  --scw-active: #ebd5a0;
+  --scw-active-glow: 0 0 0 1px #000000, 0 0 8px rgba(0, 0, 0, 0.6);
+  --scw-critical: #ff6400;
+  --scw-hp-fill: #922d2e;
+  --scw-surface-bg: url("../../../systems/CoC7/assets/art/page-light.webp") 0 0, #efe3c2;
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px groove #7a6a54;
+  --scw-header-bg: #2c471d;
+  --scw-header-text: #ffffff;
+  --scw-header-edge: 1px solid rgba(0, 0, 0, 0.4);
+  --scw-btn-primary-text: #670b0b;
+  --scw-btn-primary-bg: rgba(0, 0, 0, 0.1);
+  --scw-btn-primary-border: #7a6a54;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 8px;
+  --scw-font-body: "Lusitana", Georgia, serif;
+  --scw-font-name: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-font-title: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-font-label: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.25;
+  --scw-name-transform: uppercase;
+  --scw-tag-radius: 4px;
+  --scw-tag-edge: inset 0 0 0 1px #999999;
+  --scw-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  --scw-shadow-lg: 0 0 16px rgba(0, 0, 0, 0.6);
+}
+/* Dark interface: CoC7's dark page and lifted labels */
+body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
+  --scw-neutral-100: #e6dcc6;
+  --scw-neutral-300: #b8a98c;
+  --scw-neutral-800: #2a2620;
+  --scw-accent-200: #b44849;
+  --scw-accent-300: #b44849;
+  --scw-accent-800: #256950;
+  --scw-accent-900: #1d1a14;
+  --scw-bg: #1d1a14;
+  --scw-surface: #26221b;
+  --scw-text: #e6dcc6;
+  --scw-text-muted: #b8a98c;
+  --scw-divider: rgba(255, 255, 255, 0.2);
+  --scw-accent: #b44849;
+  --scw-hp-fill: color-mix(in oklab, #922d2e, #ffffff 15%);
+  --scw-surface-bg: url("../../../systems/CoC7/assets/art/page-dark.webp") 0 0, #26221b;
+  --scw-header-bg: #274914;
+  --scw-btn-primary-text: #e6dcc6;
+  --scw-btn-primary-bg: rgba(255, 255, 255, 0.1);
+}
+.sc-combat-wheel[data-scw-theme="coc7"] :is(.scw-hub-label, .scw-details-kicker) {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.sc-combat-wheel[data-scw-theme="coc7"] .scw-btn:not(:disabled):hover {
+  text-shadow: 0 0 8px #670b0b;
+}
+
+/* ======================================================================
+ * Sci-fi themes (original designs). Friend/foe colors read like an IFF
+ * display; every variation keeps the Bruno Ace display face from core.
+ * ====================================================================== */
+
+.sc-combat-wheel:is(
+    [data-scw-theme="scifi-holo"],
+    [data-scw-theme="scifi-neon"],
+    [data-scw-theme="scifi-terminal"],
+    [data-scw-theme="scifi-alert"],
+    [data-scw-theme="scifi-synth"],
+    [data-scw-theme="scifi-cyber"]
+  ) {
+  --scw-friendly: #3dff9a;
+  --scw-neutral: #ffd23d;
+  --scw-hostile: #ff3d5a;
+  --scw-secret: #b36bff;
+  --scw-font-name: "SCW Bruno Ace", "Bruno Ace", "Segoe UI", sans-serif;
+  --scw-font-title: "SCW Bruno Ace", "Bruno Ace", "Segoe UI", sans-serif;
+  --scw-name-weight: 400;
+  --scw-name-size: 0.92;
+  --scw-name-transform: uppercase;
+  --scw-tag-transform: uppercase;
+  --scw-tag-spacing: 0.08em;
+}
+.sc-combat-wheel:is(
+    [data-scw-theme="scifi-holo"],
+    [data-scw-theme="scifi-neon"],
+    [data-scw-theme="scifi-terminal"],
+    [data-scw-theme="scifi-alert"],
+    [data-scw-theme="scifi-synth"],
+    [data-scw-theme="scifi-cyber"]
+  )
+  :is(.scw-hub-label, .scw-details-kicker) {
+  letter-spacing: 0.14em;
+}
+
+/* ---------- Holo: cyan projection over night-blue glass, HUD corner brackets ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-holo"] {
+  --holo: #00e5ff;
+  --scw-neutral-100: #d6f6ff;
+  --scw-neutral-300: #7fb8c9;
+  --scw-neutral-500: #3f7f91;
+  --scw-neutral-700: #1b4a5a;
+  --scw-neutral-800: #0a2533;
+  --scw-accent-100: #e6fdff;
+  --scw-accent-200: #9ff4ff;
+  --scw-accent-300: #5eeaff;
+  --scw-accent-400: var(--holo);
+  --scw-accent-700: #007f91;
+  --scw-accent-800: rgba(0, 229, 255, 0.2);
+  --scw-accent-900: #03222e;
+  --scw-bg: #04121f;
+  --scw-surface: rgba(6, 30, 48, 0.78);
+  --scw-text: #d6f6ff;
+  --scw-text-muted: #7fb8c9;
+  --scw-divider: rgba(0, 229, 255, 0.25);
+  --scw-accent: var(--holo);
+  --scw-active: #aaf6ff;
+  --scw-active-glow: 0 0 14px var(--holo), 0 0 2px #ffffff;
+  --scw-critical: #ff3d5a;
+  --scw-hp-fill: linear-gradient(90deg, #008cff, #00ffd5);
+  --scw-surface-bg:
+    linear-gradient(var(--holo), var(--holo)) top left / 12px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) top left / 2px 12px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) top right / 12px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) top right / 2px 12px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) bottom left / 12px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) bottom left / 2px 12px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) bottom right / 12px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) bottom right / 2px 12px no-repeat,
+    repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.06) 0 1px, transparent 1px 3px),
+    rgba(6, 30, 48, 0.78);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-surface-blur: blur(6px);
+  --scw-border: 1px solid rgba(0, 229, 255, 0.45);
+  --scw-header-bg: linear-gradient(90deg, rgba(0, 229, 255, 0.28), rgba(0, 229, 255, 0.04));
+  --scw-header-text: #e6fdff;
+  --scw-header-edge: 1px solid rgba(0, 229, 255, 0.55);
+  --scw-btn-primary-text: #04121f;
+  --scw-btn-primary-bg: var(--holo);
+  --scw-btn-primary-border: var(--holo);
+  --scw-radius: 2px;
+  --scw-radius-sm: 1px;
+  --scw-radius-lg: 3px;
+  --scw-font-body: "Segoe UI", "Signika", system-ui, sans-serif;
+  --scw-tag-radius: 1px;
+  --scw-shadow: 0 0 18px rgba(0, 229, 255, 0.25);
+  --scw-shadow-lg: 0 0 28px rgba(0, 229, 255, 0.3);
+  --scw-rim-width: 2px;
+}
+.sc-combat-wheel[data-scw-theme="scifi-holo"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 6px rgba(0, 229, 255, 0.8);
+}
+
+/* ---------- Neon: magenta and cyan tubes over near-black violet ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-neon"] {
+  --scw-neutral-100: #f6e9ff;
+  --scw-neutral-300: #b69ccf;
+  --scw-neutral-500: #7a5f93;
+  --scw-neutral-700: #4a2a5c;
+  --scw-neutral-800: #1c0a22;
+  --scw-accent-100: #fff0fd;
+  --scw-accent-200: #ffb3f2;
+  --scw-accent-300: #ff7ae6;
+  --scw-accent-400: #ff2bd6;
+  --scw-accent-700: #8a1776;
+  --scw-accent-800: rgba(255, 43, 214, 0.24);
+  --scw-accent-900: #1c0a22;
+  --scw-bg: #0b0614;
+  --scw-surface: rgba(20, 8, 32, 0.9);
+  --scw-text: #f6e9ff;
+  --scw-text-muted: #b69ccf;
+  --scw-divider: rgba(255, 43, 214, 0.3);
+  --scw-accent: #ff2bd6;
+  --scw-active: #00f0ff;
+  --scw-active-glow: 0 0 12px #00f0ff, 0 0 26px rgba(0, 240, 255, 0.5);
+  --scw-critical: #ff3d5a;
+  --scw-hp-fill: linear-gradient(90deg, #ff2bd6, #00f0ff);
+  --scw-surface-bg:
+    radial-gradient(ellipse at 50% 120%, rgba(255, 43, 214, 0.18), transparent 60%),
+    rgba(20, 8, 32, 0.9);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid #ff2bd6;
+  --scw-header-bg: linear-gradient(90deg, #ff2bd6, #7a2bff);
+  --scw-header-text: #ffffff;
+  --scw-header-edge: 1px solid #00f0ff;
+  --scw-btn-primary-text: #00f0ff;
+  --scw-btn-primary-bg: transparent;
+  --scw-btn-primary-border: #00f0ff;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 8px;
+  --scw-font-body: "Segoe UI", "Signika", system-ui, sans-serif;
+  --scw-shadow: 0 0 14px rgba(255, 43, 214, 0.45), 0 0 2px #ff2bd6;
+  --scw-shadow-lg: 0 0 24px rgba(255, 43, 214, 0.5);
+}
+.sc-combat-wheel[data-scw-theme="scifi-neon"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 4px #ff2bd6, 0 0 10px rgba(255, 43, 214, 0.7);
+}
+.sc-combat-wheel[data-scw-theme="scifi-neon"] .scw-btn--primary {
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.6), inset 0 0 6px rgba(0, 240, 255, 0.35);
+}
+
+/* ---------- Terminal: green phosphor CRT, monospace, monochrome portraits ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-terminal"] {
+  --scw-neutral-100: #7dff9a;
+  --scw-neutral-300: #3fbf5a;
+  --scw-neutral-500: #1f8f3a;
+  --scw-neutral-700: #145c26;
+  --scw-neutral-800: #06200b;
+  --scw-accent-100: #031205;
+  --scw-accent-200: #b6ffc6;
+  --scw-accent-300: #7dff9a;
+  --scw-accent-400: #39ff6a;
+  --scw-accent-700: #1f8f3a;
+  --scw-accent-800: #39ff6a;
+  --scw-accent-900: #062a10;
+  --scw-bg: #020a03;
+  --scw-surface: #031205;
+  --scw-text: #7dff9a;
+  --scw-text-muted: #3fbf5a;
+  --scw-divider: rgba(125, 255, 154, 0.25);
+  --scw-accent: #39ff6a;
+  --scw-active: #b6ffc6;
+  --scw-active-glow: 0 0 10px #39ff6a;
+  --scw-critical: #ffb000;
+  --scw-hp-fill: #39ff6a;
+  --scw-surface-bg:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, #06200b, #020a03);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid #1f8f3a;
+  --scw-header-bg: #0a3a16;
+  --scw-header-text: #b6ffc6;
+  --scw-header-edge: 1px dashed #39ff6a;
+  --scw-btn-primary-text: #031205;
+  --scw-btn-primary-bg: #39ff6a;
+  --scw-btn-primary-border: #39ff6a;
+  --scw-radius: 0;
+  --scw-radius-sm: 0;
+  --scw-radius-lg: 0;
+  --scw-font-body: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --scw-font-name: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --scw-font-title: "SCW Bruno Ace", "Bruno Ace", ui-monospace, monospace;
+  --scw-font-label: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --scw-name-weight: 700;
+  --scw-name-size: 1;
+  --scw-tag-radius: 0;
+  --scw-shadow: 0 0 12px rgba(57, 255, 106, 0.25);
+  --scw-shadow-lg: 0 0 20px rgba(57, 255, 106, 0.3);
+  text-shadow: 0 0 4px rgba(57, 255, 106, 0.55);
+}
+.sc-combat-wheel[data-scw-theme="scifi-terminal"] :is(.scw-slot, .scw-grid-tile) .scw-portrait-img {
+  filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(3.5) brightness(0.85) contrast(1.15);
+}
+.sc-combat-wheel[data-scw-theme="scifi-terminal"] .scw-hub-name::after {
+  content: "_";
+  animation: scw-cursor 1s steps(1) infinite;
+}
+@keyframes scw-cursor {
+  50% { opacity: 0; }
+}
+
+/* ---------- Alert: amber and red industrial panels, hazard stripes ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-alert"] {
+  --scw-neutral-100: #f2e6d0;
+  --scw-neutral-300: #b3a58a;
+  --scw-neutral-500: #7a6d55;
+  --scw-neutral-700: #4a4234;
+  --scw-neutral-800: #26221c;
+  --scw-accent-100: #151310;
+  --scw-accent-200: #ffd27a;
+  --scw-accent-300: #ffc247;
+  --scw-accent-400: #ffb000;
+  --scw-accent-700: #8a6000;
+  --scw-accent-800: #ffb000;
+  --scw-accent-900: #2a2112;
+  --scw-bg: #121212;
+  --scw-surface: #1c1a17;
+  --scw-text: #f2e6d0;
+  --scw-text-muted: #b3a58a;
+  --scw-divider: rgba(255, 176, 0, 0.3);
+  --scw-accent: #ffb000;
+  --scw-active: #ff3b30;
+  --scw-active-glow: 0 0 12px rgba(255, 59, 48, 0.85);
+  --scw-critical: #ff3b30;
+  --scw-hp-fill: linear-gradient(90deg, #ffb000, #ffd27a);
+  --scw-surface-bg:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 8px),
+    #1c1a17;
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid #4a4234;
+  --scw-header-bg: #ffb000;
+  --scw-header-text: #151310;
+  --scw-header-edge: 0 solid transparent;
+  --scw-btn-primary-text: #151310;
+  --scw-btn-primary-bg: #ffb000;
+  --scw-btn-primary-border: #ffb000;
+  --scw-radius: 0;
+  --scw-radius-sm: 0;
+  --scw-radius-lg: 2px;
+  --scw-font-body: "Arial Narrow", "Roboto Condensed", "Signika", sans-serif;
+  --scw-font-label: "Arial Narrow", "Roboto Condensed", sans-serif;
+  --scw-tag-radius: 0;
+  --scw-tag-weight: 700;
+  --scw-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  --scw-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+/* Hazard stripes along the bar's arc-side edge and on top of on-screen messages */
+.sc-combat-wheel[data-scw-theme="scifi-alert"] .scw-bar::before,
+.sc-combat-wheel[data-scw-theme="scifi-alert"] .scw-banner::before {
+  content: "";
+  display: block;
+  flex: none;
+  height: 5px;
+  background: repeating-linear-gradient(-45deg, #ffb000 0 8px, #151310 8px 16px);
+}
+.sc-combat-wheel[data-scw-theme="scifi-alert"] .scw-banner { padding-top: 0; overflow: hidden; }
+.sc-combat-wheel[data-scw-theme="scifi-alert"] .scw-banner::before { margin: 0 -22px 10px; }
+.sc-combat-wheel[data-scw-theme="scifi-alert"] .scw-slot.is-active .scw-rim {
+  animation: scw-alert-blink 1.2s ease-in-out infinite;
+}
+@keyframes scw-alert-blink {
+  50% { box-shadow: 0 0 4px rgba(255, 59, 48, 0.4); }
+}
+
+/* ======================================================================
+ * Sober themes: quiet chrome that stays out of the way of the map.
+ * ====================================================================== */
+
+/* ---------- Graphite: neutral dark grey, steel accent, hairline edges ---------- */
+.sc-combat-wheel[data-scw-theme="graphite"] {
+  --scw-neutral-100: #eeeff1;
+  --scw-neutral-300: #c6c8cc;
+  --scw-neutral-500: #8b8e94;
+  --scw-neutral-700: #55585e;
+  --scw-neutral-800: #393b40;
+  --scw-accent-100: #eef2f6;
+  --scw-accent-200: #dbe2ea;
+  --scw-accent-300: #bfcad6;
+  --scw-accent-400: #a1b0c1;
+  --scw-accent-700: #55647a;
+  --scw-accent-800: #3a4554;
+  --scw-accent-900: #23292f;
+  --scw-bg: #17181a;
+  --scw-surface: #222326;
+  --scw-text: #e4e5e7;
+  --scw-text-muted: #a3a6ab;
+  --scw-divider: rgba(228, 229, 231, 0.14);
+  --scw-accent: #8a9bb0;
+  --scw-friendly: #78a6d1;
+  --scw-neutral: #d4b86a;
+  --scw-hostile: #d97a6c;
+  --scw-secret: #b48ad1;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 6px;
+  --scw-tag-radius: 2px;
+}
+
+/* ---------- Mist: translucent dark glass, faint chrome; for streaming ---------- */
+.sc-combat-wheel[data-scw-theme="mist"] {
+  --scw-neutral-100: #eef1f4;
+  --scw-neutral-300: #c3c9d0;
+  --scw-neutral-500: #8a929c;
+  --scw-neutral-700: #4f5761;
+  --scw-neutral-800: rgba(40, 46, 54, 0.7);
+  --scw-accent-100: #f2f5f8;
+  --scw-accent-200: #e1e7ee;
+  --scw-accent-300: #cbd5e0;
+  --scw-accent-400: #b6c3d1;
+  --scw-accent-700: rgba(169, 184, 200, 0.45);
+  --scw-accent-800: rgba(169, 184, 200, 0.22);
+  --scw-accent-900: rgba(18, 22, 28, 0.7);
+  --scw-bg: #0e1116;
+  --scw-surface: rgba(18, 22, 28, 0.68);
+  --scw-text: #eef1f4;
+  --scw-text-muted: #b6bcc4;
+  --scw-divider: rgba(238, 241, 244, 0.1);
+  --scw-accent: #a9b8c8;
+  --scw-active: #e1e7ee;
+  --scw-friendly: #8cc4e8;
+  --scw-neutral: #e6cf8a;
+  --scw-hostile: #ee9a92;
+  --scw-secret: #c9a6e6;
+  --scw-hp-fill: rgba(225, 231, 238, 0.75);
+  --scw-surface-blur: blur(8px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* ======================================================================
+ * Vivid fantasy themes: saturated palettes, serif names from core's fonts.
+ * ====================================================================== */
+
+.sc-combat-wheel:is(
+    [data-scw-theme="verdant"],
+    [data-scw-theme="crimson"],
+    [data-scw-theme="royal"]
+  ) {
+  --scw-font-name: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-font-title: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.12;
+}
+
+/* ---------- Verdant: forest greens and gold ---------- */
+.sc-combat-wheel[data-scw-theme="verdant"] {
+  --scw-neutral-100: #eef4ec;
+  --scw-neutral-300: #c4d2c3;
+  --scw-neutral-500: #869a88;
+  --scw-neutral-700: #4c6352;
+  --scw-neutral-800: #2f4436;
+  --scw-accent-100: #fdf7e6;
+  --scw-accent-200: #f6e6b6;
+  --scw-accent-300: #ebcf7f;
+  --scw-accent-400: #dfb95a;
+  --scw-accent-700: #8a6d24;
+  --scw-accent-800: #5a4718;
+  --scw-accent-900: #2e2612;
+  --scw-bg: #0f1a14;
+  --scw-surface: #182820;
+  --scw-text: #e8efe6;
+  --scw-text-muted: #a9bba9;
+  --scw-divider: rgba(212, 173, 74, 0.22);
+  --scw-accent: #d4ad4a;
+  --scw-friendly: #6fcf97;
+  --scw-neutral: #e0cf86;
+  --scw-hostile: #e07a63;
+  --scw-secret: #b98ad6;
+  --scw-hp-fill: linear-gradient(90deg, #2f8a4f, #8fd16a);
+}
+
+/* ---------- Crimson: blood-red court, dark velvet, gold for the active turn ---------- */
+.sc-combat-wheel[data-scw-theme="crimson"] {
+  --scw-neutral-100: #f7ecea;
+  --scw-neutral-300: #d6bfbc;
+  --scw-neutral-500: #9c7f7c;
+  --scw-neutral-700: #5e4245;
+  --scw-neutral-800: #3d2629;
+  --scw-accent-100: #fdecee;
+  --scw-accent-200: #f8ccd1;
+  --scw-accent-300: #ee9aa3;
+  --scw-accent-400: #e06470;
+  --scw-accent-700: #8a1f2a;
+  --scw-accent-800: #5c141c;
+  --scw-accent-900: #2e0c10;
+  --scw-bg: #170a0c;
+  --scw-surface: #241215;
+  --scw-text: #f1e4e2;
+  --scw-text-muted: #c2a6a3;
+  --scw-divider: rgba(208, 65, 79, 0.25);
+  --scw-accent: #d0414f;
+  --scw-active: #e6c068;
+  --scw-friendly: #7fb6e0;
+  --scw-neutral: #e3cb72;
+  --scw-hostile: #ff7a59;
+  --scw-secret: #c58ce0;
+  --scw-critical: #ff7a59;
+  --scw-hp-fill: linear-gradient(90deg, #6e0f1a, #d0414f);
+}
+
+/* ---------- Abyss: deep-sea teal and blue, bioluminescent glow ---------- */
+.sc-combat-wheel[data-scw-theme="abyss"] {
+  --scw-neutral-100: #e6f5f6;
+  --scw-neutral-300: #a9cdd1;
+  --scw-neutral-500: #5f8d93;
+  --scw-neutral-700: #2d525a;
+  --scw-neutral-800: #173640;
+  --scw-accent-100: #e6fbfa;
+  --scw-accent-200: #bff1ee;
+  --scw-accent-300: #86e2dd;
+  --scw-accent-400: #4fd2cd;
+  --scw-accent-700: #12706d;
+  --scw-accent-800: #0b4846;
+  --scw-accent-900: #072a2c;
+  --scw-bg: #04141c;
+  --scw-surface: #0a222d;
+  --scw-text: #dcf1f2;
+  --scw-text-muted: #8fb5ba;
+  --scw-divider: rgba(47, 196, 192, 0.2);
+  --scw-accent: #2fc4c0;
+  --scw-friendly: #5fb7ff;
+  --scw-neutral: #e8d27a;
+  --scw-hostile: #ff7f73;
+  --scw-secret: #c08cff;
+  --scw-hp-fill: linear-gradient(90deg, #0f6f8f, #2fc4c0);
+  --scw-radius: 10px;
+  --scw-radius-lg: 16px;
+}
+
+/* ---------- Ember: forge orange on charcoal ---------- */
+.sc-combat-wheel[data-scw-theme="ember"] {
+  --scw-neutral-100: #f6efe7;
+  --scw-neutral-300: #d0c3b5;
+  --scw-neutral-500: #94877a;
+  --scw-neutral-700: #564d45;
+  --scw-neutral-800: #3a332d;
+  --scw-accent-100: #fff1e6;
+  --scw-accent-200: #ffd9bd;
+  --scw-accent-300: #ffb27f;
+  --scw-accent-400: #f8934f;
+  --scw-accent-700: #93441a;
+  --scw-accent-800: #5e2c12;
+  --scw-accent-900: #2e1a0e;
+  --scw-bg: #141210;
+  --scw-surface: #1f1c19;
+  --scw-text: #f0e7dc;
+  --scw-text-muted: #b8a999;
+  --scw-divider: rgba(240, 122, 42, 0.22);
+  --scw-accent: #f07a2a;
+  --scw-friendly: #6fb0e0;
+  --scw-neutral: #e8d06a;
+  --scw-hostile: #ff4f5e;
+  --scw-secret: #c38ae6;
+  --scw-critical: #ff4f5e;
+  --scw-hp-fill: linear-gradient(90deg, #c2410c, #fbbf24);
+  --scw-radius: 4px;
+  --scw-radius-lg: 8px;
+}
+
+/* ---------- Frost: icy blue and white on navy ---------- */
+.sc-combat-wheel[data-scw-theme="frost"] {
+  --scw-neutral-100: #f2f8fd;
+  --scw-neutral-300: #c3d4e6;
+  --scw-neutral-500: #7f97b2;
+  --scw-neutral-700: #3e5677;
+  --scw-neutral-800: #24385a;
+  --scw-accent-100: #f0faff;
+  --scw-accent-200: #d6f0ff;
+  --scw-accent-300: #b8e4ff;
+  --scw-accent-400: #9fd8ff;
+  --scw-accent-700: #3c7aa8;
+  --scw-accent-800: #234a6c;
+  --scw-accent-900: #142a42;
+  --scw-bg: #0b1526;
+  --scw-surface: #13223a;
+  --scw-text: #eaf3fb;
+  --scw-text-muted: #a9bfd6;
+  --scw-divider: rgba(159, 216, 255, 0.2);
+  --scw-accent: #9fd8ff;
+  --scw-active: #d6f0ff;
+  --scw-friendly: #6fe0c8;
+  --scw-neutral: #f0d98a;
+  --scw-hostile: #ff8a8a;
+  --scw-secret: #c7a2ff;
+  --scw-hp-fill: linear-gradient(90deg, #5aa9e6, #d6f0ff);
+}
+
+/* ---------- Royal: purple velvet and gold ---------- */
+.sc-combat-wheel[data-scw-theme="royal"] {
+  --scw-neutral-100: #f5f0fb;
+  --scw-neutral-300: #cfc2e0;
+  --scw-neutral-500: #8f80a8;
+  --scw-neutral-700: #54466b;
+  --scw-neutral-800: #3a2d50;
+  --scw-accent-100: #fdf6e3;
+  --scw-accent-200: #f7e5b0;
+  --scw-accent-300: #efcf78;
+  --scw-accent-400: #e6c060;
+  --scw-accent-700: #8c6c1e;
+  --scw-accent-800: #5c4714;
+  --scw-accent-900: #2a2010;
+  --scw-bg: #160f24;
+  --scw-surface: #221735;
+  --scw-text: #efe8f7;
+  --scw-text-muted: #b9a9cf;
+  --scw-divider: rgba(224, 184, 79, 0.25);
+  --scw-accent: #e0b84f;
+  --scw-friendly: #6fb8ff;
+  --scw-neutral: #f0e08a;
+  --scw-hostile: #ff7a7a;
+  --scw-secret: #e58ce0;
+  --scw-hp-fill: linear-gradient(90deg, #8c6c1e, #efcf78);
+}
+
+/* ======================================================================
+ * More sober themes.
+ * ====================================================================== */
+
+/* ---------- Nord: arctic blue-grey, frost accent, aurora dispositions ---------- */
+.sc-combat-wheel[data-scw-theme="nord"] {
+  --scw-neutral-100: #eceff4;
+  --scw-neutral-300: #d8dee9;
+  --scw-neutral-500: #8f9bb3;
+  --scw-neutral-700: #4c566a;
+  --scw-neutral-800: #3b4252;
+  --scw-accent-100: #f2f8fa;
+  --scw-accent-200: #d5eaf0;
+  --scw-accent-300: #b4dbe5;
+  --scw-accent-400: #88c0d0;
+  --scw-accent-700: #5e81ac;
+  --scw-accent-800: #3f5f80;
+  --scw-accent-900: #2a3444;
+  --scw-bg: #2e3440;
+  --scw-surface: #3b4252;
+  --scw-text: #eceff4;
+  --scw-text-muted: #c0c8d6;
+  --scw-divider: rgba(216, 222, 233, 0.16);
+  --scw-accent: #88c0d0;
+  --scw-active: #8fd3e8;
+  --scw-friendly: #a3be8c;
+  --scw-neutral: #ebcb8b;
+  --scw-hostile: #e0787f;
+  --scw-secret: #c9a0c4;
+  --scw-critical: #d08770;
+  --scw-hp-fill: linear-gradient(90deg, #5e81ac, #88c0d0);
+  --scw-radius: 6px;
+  --scw-radius-lg: 10px;
+}
+
+/* ---------- Midnight: true black for OLED and dark rooms, hairlines, no glow chrome ---------- */
+.sc-combat-wheel[data-scw-theme="midnight"] {
+  --scw-neutral-100: #e2e2e2;
+  --scw-neutral-300: #b0b0b0;
+  --scw-neutral-500: #707070;
+  --scw-neutral-700: #383838;
+  --scw-neutral-800: #1c1c1c;
+  --scw-accent-100: #eef1f5;
+  --scw-accent-200: #d3dae3;
+  --scw-accent-300: #b3bfcd;
+  --scw-accent-400: #94a3b6;
+  --scw-accent-700: #3e4855;
+  --scw-accent-800: #262c34;
+  --scw-accent-900: #0d0f12;
+  --scw-bg: #000000;
+  --scw-surface: #000000;
+  --scw-text: #d9d9d9;
+  --scw-text-muted: #9a9a9a;
+  --scw-divider: rgba(255, 255, 255, 0.1);
+  --scw-accent: #94a3b6;
+  --scw-active: #f2f2f2;
+  --scw-friendly: #6aa6d9;
+  --scw-neutral: #c9b25e;
+  --scw-hostile: #d4655b;
+  --scw-secret: #a582c9;
+  --scw-critical: #e0704f;
+  --scw-hp-fill: #7d8b9c;
+  --scw-radius: 3px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 4px;
+  --scw-tag-radius: 2px;
+  --scw-rim-width: 2px;
+}
+
+/* ---------- Paper: cool flat paper, ink-black text, one muted blue; solid over any map ---------- */
+.sc-combat-wheel[data-scw-theme="paper"] {
+  --scw-neutral-100: #16181b;
+  --scw-neutral-300: #4a5058;
+  --scw-neutral-500: #7d848d;
+  --scw-neutral-700: #b8bfc7;
+  --scw-neutral-800: #dadfe4;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #1f3550;
+  --scw-accent-300: #2c4868;
+  --scw-accent-400: #3d5f86;
+  --scw-accent-700: #9fb2c8;
+  --scw-accent-800: #3d5f86;
+  --scw-accent-900: #e2e9f1;
+  --scw-bg: #e9ecef;
+  --scw-surface: #f8f9fa;
+  --scw-text: #16181b;
+  --scw-text-muted: #4a5058;
+  --scw-divider: rgba(22, 24, 27, 0.14);
+  --scw-accent: #3d5f86;
+  --scw-active: #1d4f8c;
+  --scw-friendly: #1f8a6e;
+  --scw-neutral: #a07a00;
+  --scw-hostile: #b8322a;
+  --scw-secret: #7b3fa0;
+  --scw-critical: #b8322a;
+  --scw-hp-fill: #3d5f86;
+  --scw-panel-bg: #e9ecef;
+  --scw-name-weight: 600;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 6px;
+  --scw-tag-radius: 2px;
+  --scw-shadow: 0 0 0 1px #c9cfd6, 0 4px 12px rgba(22, 24, 27, 0.18);
+  --scw-shadow-lg: 0 0 0 1px #9aa2ab, 0 12px 32px rgba(22, 24, 27, 0.28);
+}
+
+/* ======================================================================
+ * More vivid fantasy themes.
+ * ====================================================================== */
+
+/* ---------- Arcane: deep violet, cyan spell-glow ---------- */
+.sc-combat-wheel[data-scw-theme="arcane"] {
+  --scw-neutral-100: #f1ecfd;
+  --scw-neutral-300: #c9bde8;
+  --scw-neutral-500: #8a7cb0;
+  --scw-neutral-700: #4d3f78;
+  --scw-neutral-800: #33285a;
+  --scw-accent-100: #e8fdff;
+  --scw-accent-200: #bff6fb;
+  --scw-accent-300: #8aedf6;
+  --scw-accent-400: #4fe0ee;
+  --scw-accent-700: #138a96;
+  --scw-accent-800: #145a6e;
+  --scw-accent-900: #142443;
+  --scw-bg: #100a22;
+  --scw-surface: #1c1338;
+  --scw-text: #ede7fb;
+  --scw-text-muted: #b6a9d8;
+  --scw-divider: rgba(79, 224, 238, 0.22);
+  --scw-accent: #4fe0ee;
+  --scw-active: #9ff7ff;
+  --scw-friendly: #7fe39a;
+  --scw-neutral: #f0d67a;
+  --scw-hostile: #ff6b7d;
+  --scw-secret: #d58cff;
+  --scw-critical: #ff6b7d;
+  --scw-hp-fill: linear-gradient(90deg, #7a3cff, #4fe0ee);
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-title: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.08;
+  --scw-radius: 8px;
+  --scw-radius-lg: 14px;
+}
+.sc-combat-wheel[data-scw-theme="arcane"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 8px rgba(79, 224, 238, 0.65);
+}
+
+/* ---------- Infernal: black and hellfire, white-hot active turn ---------- */
+.sc-combat-wheel[data-scw-theme="infernal"] {
+  --scw-neutral-100: #f7ebe4;
+  --scw-neutral-300: #d2b9ab;
+  --scw-neutral-500: #95776a;
+  --scw-neutral-700: #573a30;
+  --scw-neutral-800: #3a221b;
+  --scw-accent-100: #fff1e8;
+  --scw-accent-200: #ffd4b8;
+  --scw-accent-300: #ffa978;
+  --scw-accent-400: #ff7a3d;
+  --scw-accent-700: #a8300c;
+  --scw-accent-800: #6e1d08;
+  --scw-accent-900: #2a0d07;
+  --scw-bg: #0c0706;
+  --scw-surface: #19100d;
+  --scw-text: #f5e8e0;
+  --scw-text-muted: #c4a698;
+  --scw-divider: rgba(255, 90, 31, 0.25);
+  --scw-accent: #ff5a1f;
+  --scw-active: #ffe7a3;
+  --scw-friendly: #62b3ff;
+  --scw-neutral: #d9c25a;
+  --scw-hostile: #ff2e63;
+  --scw-secret: #c58aff;
+  --scw-critical: #ff2e63;
+  --scw-hp-fill: linear-gradient(90deg, #7a1205, #ff5a1f, #ffc24a);
+  --scw-font-name: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-font-title: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.12;
+  --scw-radius: 3px;
+  --scw-radius-lg: 6px;
+}
+.sc-combat-wheel[data-scw-theme="infernal"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 6px rgba(255, 90, 31, 0.7), 0 0 14px rgba(255, 40, 0, 0.35);
+}
+
+/* ---------- Celestial: night-sky navy, gold, pale starlight for the active turn ---------- */
+.sc-combat-wheel[data-scw-theme="celestial"] {
+  --scw-neutral-100: #eef2ff;
+  --scw-neutral-300: #c3cbe6;
+  --scw-neutral-500: #8590b8;
+  --scw-neutral-700: #3f4a7a;
+  --scw-neutral-800: #26305a;
+  --scw-accent-100: #fff9e8;
+  --scw-accent-200: #f8e8bc;
+  --scw-accent-300: #f0d488;
+  --scw-accent-400: #e6c36a;
+  --scw-accent-700: #8c7023;
+  --scw-accent-800: #5a4818;
+  --scw-accent-900: #171b38;
+  --scw-bg: #060b20;
+  --scw-surface: #0e1836;
+  --scw-text: #eef2ff;
+  --scw-text-muted: #aab4d8;
+  --scw-divider: rgba(230, 195, 106, 0.22);
+  --scw-accent: #e6c36a;
+  --scw-active: #e8eeff;
+  --scw-friendly: #6cc6ff;
+  --scw-neutral: #f2e38c;
+  --scw-hostile: #ff7a85;
+  --scw-secret: #c49cff;
+  --scw-hp-fill: linear-gradient(90deg, #8c7023, #f0d488);
+  /* A few fixed stars over the surface */
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-title: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.08;
+  --scw-radius: 10px;
+  --scw-radius-lg: 16px;
+}
+
+/* ---------- Sakura: dark plum and cherry-blossom pink ---------- */
+.sc-combat-wheel[data-scw-theme="sakura"] {
+  --scw-neutral-100: #fbeef4;
+  --scw-neutral-300: #dcc0cf;
+  --scw-neutral-500: #a07f91;
+  --scw-neutral-700: #5e3e52;
+  --scw-neutral-800: #42283a;
+  --scw-accent-100: #fff0f6;
+  --scw-accent-200: #ffd6e7;
+  --scw-accent-300: #fbb5d2;
+  --scw-accent-400: #f49ac1;
+  --scw-accent-700: #a3497a;
+  --scw-accent-800: #6e2d52;
+  --scw-accent-900: #2e1428;
+  --scw-bg: #1a0e18;
+  --scw-surface: #281626;
+  --scw-text: #f9eaf2;
+  --scw-text-muted: #cdafc0;
+  --scw-divider: rgba(244, 154, 193, 0.22);
+  --scw-accent: #f49ac1;
+  --scw-active: #ffd6e7;
+  --scw-friendly: #7fd0e6;
+  --scw-neutral: #e8d48a;
+  --scw-hostile: #ff6a4d;
+  --scw-secret: #b4a0ff;
+  --scw-critical: #ff6a4d;
+  --scw-hp-fill: linear-gradient(90deg, #a3497a, #fbb5d2);
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-title: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.06;
+  --scw-radius: 12px;
+  --scw-radius-lg: 18px;
+  --scw-tag-radius: 10px;
+}
+
+/* ---------- Steampunk: brass and copper on dark leather, verdigris allies ---------- */
+.sc-combat-wheel[data-scw-theme="steampunk"] {
+  --scw-neutral-100: #f3e7d3;
+  --scw-neutral-300: #d1bc9c;
+  --scw-neutral-500: #957e5f;
+  --scw-neutral-700: #5a4530;
+  --scw-neutral-800: #3c2d1f;
+  --scw-accent-100: #fdf5e0;
+  --scw-accent-200: #f3e0a8;
+  --scw-accent-300: #e3c574;
+  --scw-accent-400: #d4ab52;
+  --scw-accent-700: #8a6a2a;
+  --scw-accent-800: #5a431a;
+  --scw-accent-900: #2a1d12;
+  --scw-bg: #18100a;
+  --scw-surface: #261a11;
+  --scw-text: #f2e5cf;
+  --scw-text-muted: #c4ad8c;
+  --scw-divider: rgba(201, 162, 74, 0.25);
+  --scw-accent: #c9a24a;
+  --scw-active: #f7d46a;
+  --scw-friendly: #5fc4a8;
+  --scw-neutral: #b9c56e;
+  --scw-hostile: #ff6150;
+  --scw-secret: #c493e0;
+  --scw-critical: #ff6150;
+  --scw-hp-fill: linear-gradient(90deg, #a0582c, #d4ab52, #f3e0a8);
+  --scw-font-name: Georgia, "Times New Roman", serif;
+  --scw-font-title: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 6px;
+  --scw-tag-radius: 2px;
+  --scw-rim-width: 3px;
+}
+
+/* ======================================================================
+ * Horror themes: dark, heavy chrome; dispositions stay readable.
+ * ====================================================================== */
+
+/* ---------- Eldritch: black void, sickly green ---------- */
+.sc-combat-wheel[data-scw-theme="eldritch"] {
+  --scw-neutral-100: #e6eedc;
+  --scw-neutral-300: #b7c4a8;
+  --scw-neutral-500: #77856a;
+  --scw-neutral-700: #3a4534;
+  --scw-neutral-800: #222a1f;
+  --scw-accent-100: #f6ffe4;
+  --scw-accent-200: #ddf5a8;
+  --scw-accent-300: #c4e978;
+  --scw-accent-400: #a8d84a;
+  --scw-accent-700: #5a7a1c;
+  --scw-accent-800: #364a12;
+  --scw-accent-900: #141c0d;
+  --scw-bg: #050806;
+  --scw-surface: #0c120d;
+  --scw-text: #e0e9d6;
+  --scw-text-muted: #a3b295;
+  --scw-divider: rgba(168, 216, 74, 0.2);
+  --scw-accent: #a8d84a;
+  --scw-active: #d4ff6a;
+  --scw-friendly: #6fb3e0;
+  --scw-neutral: #dcc56e;
+  --scw-hostile: #ff5f57;
+  --scw-secret: #b38ae6;
+  --scw-critical: #ff5f57;
+  --scw-hp-fill: linear-gradient(90deg, #2f4a12, #a8d84a);
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-title: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.06;
+  --scw-radius: 3px;
+  --scw-radius-lg: 6px;
+}
+.sc-combat-wheel[data-scw-theme="eldritch"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 8px rgba(168, 216, 74, 0.55);
+}
+
+/* ---------- Gothic: black, silver and deep wine red ---------- */
+.sc-combat-wheel[data-scw-theme="gothic"] {
+  --scw-neutral-100: #eceaee;
+  --scw-neutral-300: #c3c0c8;
+  --scw-neutral-500: #85818c;
+  --scw-neutral-700: #47434d;
+  --scw-neutral-800: #2c2930;
+  --scw-accent-100: #f4f5f8;
+  --scw-accent-200: #e1e3e9;
+  --scw-accent-300: #c9ccd4;
+  --scw-accent-400: #b2b6c0;
+  --scw-accent-700: #6e1f2e;
+  --scw-accent-800: #4a1420;
+  --scw-accent-900: #1c0e12;
+  --scw-bg: #0b0a0c;
+  --scw-surface: #17151a;
+  --scw-text: #ebe8ee;
+  --scw-text-muted: #b0abb6;
+  --scw-divider: rgba(201, 204, 212, 0.16);
+  --scw-accent: #b9bcc6;
+  --scw-active: #f2f4fa;
+  --scw-friendly: #7aa8e0;
+  --scw-neutral: #d9c37a;
+  --scw-hostile: #ff5c6c;
+  --scw-secret: #b98ad8;
+  --scw-critical: #ff5c6c;
+  --scw-hp-fill: linear-gradient(90deg, #4a1420, #a3324a);
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-title: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.06;
+  --scw-radius: 2px;
+  --scw-radius-sm: 1px;
+  --scw-radius-lg: 4px;
+  --scw-tag-radius: 1px;
+}
+
+/* ---------- Noir: black and white, one red accent; dispositions by lightness and tint ---------- */
+.sc-combat-wheel[data-scw-theme="noir"] {
+  --scw-neutral-100: #f2f2f2;
+  --scw-neutral-300: #c4c4c4;
+  --scw-neutral-500: #858585;
+  --scw-neutral-700: #474747;
+  --scw-neutral-800: #2a2a2a;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #ffd0cc;
+  --scw-accent-300: #ff8a80;
+  --scw-accent-400: #e8463c;
+  --scw-accent-700: #8a1a14;
+  --scw-accent-800: #b3221a;
+  --scw-accent-900: #1a1a1a;
+  --scw-bg: #0a0a0a;
+  --scw-surface: #141414;
+  --scw-text: #f0f0f0;
+  --scw-text-muted: #ababab;
+  --scw-divider: rgba(240, 240, 240, 0.16);
+  --scw-accent: #f0463c;
+  --scw-active: #ffffff;
+  /* Near-monochrome: light-cool, mid-warm, dark-red tint, dim-violet */
+  --scw-friendly: #c9dae6;
+  --scw-neutral: #a8a089;
+  --scw-hostile: #c4524a;
+  --scw-secret: #857a9c;
+  --scw-critical: #e0342b;
+  --scw-hp-fill: #d9d9d9;
+  --scw-font-name: Georgia, "Times New Roman", serif;
+  --scw-font-title: Georgia, "Times New Roman", serif;
+  --scw-name-transform: uppercase;
+  --scw-tag-transform: uppercase;
+  --scw-tag-spacing: 0.1em;
+  --scw-radius: 0;
+  --scw-radius-sm: 0;
+  --scw-radius-lg: 2px;
+  --scw-tag-radius: 0;
+}
+.sc-combat-wheel[data-scw-theme="noir"] :is(.scw-slot, .scw-grid-tile) .scw-portrait-img {
+  filter: grayscale(1) contrast(1.12);
+}
+
+/* ---------- Blood moon: crimson night, pale orange moonlight ---------- */
+.sc-combat-wheel[data-scw-theme="bloodmoon"] {
+  --scw-neutral-100: #f8eae4;
+  --scw-neutral-300: #d6b8b0;
+  --scw-neutral-500: #9a7570;
+  --scw-neutral-700: #5c3236;
+  --scw-neutral-800: #3e1c20;
+  --scw-accent-100: #fff6ec;
+  --scw-accent-200: #ffe2c4;
+  --scw-accent-300: #f9cb9c;
+  --scw-accent-400: #f2b880;
+  --scw-accent-700: #9a5a2c;
+  --scw-accent-800: #5a2a1a;
+  --scw-accent-900: #2a0d10;
+  --scw-bg: #130507;
+  --scw-surface: #210b0e;
+  --scw-text: #f6e6de;
+  --scw-text-muted: #cfa9a0;
+  --scw-divider: rgba(242, 184, 128, 0.2);
+  --scw-accent: #f2b880;
+  --scw-active: #ffe2c4;
+  --scw-friendly: #78bfff;
+  --scw-neutral: #d6e46a;
+  --scw-hostile: #ff3b4e;
+  --scw-secret: #c79aff;
+  --scw-critical: #ff3b4e;
+  --scw-hp-fill: linear-gradient(90deg, #6e0f18, #c4202e);
+  --scw-font-name: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-font-title: "Modesto Condensed", "SCW Modesto Condensed", Georgia, serif;
+  --scw-name-weight: 700;
+  --scw-name-size: 1.12;
+  --scw-radius: 4px;
+  --scw-radius-lg: 8px;
+}
+
+/* ======================================================================
+ * More sci-fi themes (share the sci-fi rules above).
+ * ====================================================================== */
+
+/* ---------- Synthwave: dark purple, hot pink and orange sunset, neon grid ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-synth"] {
+  --scw-neutral-100: #fbeaff;
+  --scw-neutral-300: #c9a6dc;
+  --scw-neutral-500: #8a64a3;
+  --scw-neutral-700: #4c2a66;
+  --scw-neutral-800: #24103a;
+  --scw-accent-100: #fff0f8;
+  --scw-accent-200: #ffb8dd;
+  --scw-accent-300: #ff7ac0;
+  --scw-accent-400: #ff2e97;
+  --scw-accent-700: #9a1a5e;
+  --scw-accent-800: rgba(255, 46, 151, 0.28);
+  --scw-accent-900: #1e0a2e;
+  --scw-bg: #12061f;
+  --scw-surface: rgba(30, 10, 48, 0.9);
+  --scw-text: #fbeaff;
+  --scw-text-muted: #c9a6dc;
+  --scw-divider: rgba(255, 46, 151, 0.3);
+  --scw-accent: #ff2e97;
+  --scw-active: #46f0ff;
+  --scw-active-glow: 0 0 12px #46f0ff, 0 0 26px rgba(70, 240, 255, 0.5);
+  --scw-critical: #ff3d5a;
+  --scw-hp-fill: linear-gradient(90deg, #ff2e97, #ff8a3d, #ffd23d);
+  --scw-surface-bg:
+    repeating-linear-gradient(90deg, rgba(255, 46, 151, 0.07) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(0deg, rgba(255, 46, 151, 0.07) 0 1px, transparent 1px 24px),
+    linear-gradient(180deg, transparent 55%, rgba(255, 138, 61, 0.16)),
+    rgba(30, 10, 48, 0.9);
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid #ff2e97;
+  --scw-header-bg: linear-gradient(90deg, #ff2e97, #ff8a3d);
+  --scw-header-text: #1a0626;
+  --scw-header-edge: 1px solid #46f0ff;
+  --scw-btn-primary-text: #ff7ac0;
+  --scw-btn-primary-bg: transparent;
+  --scw-btn-primary-border: #ff2e97;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 8px;
+  --scw-font-body: "Segoe UI", "Signika", system-ui, sans-serif;
+  --scw-shadow: 0 0 14px rgba(255, 46, 151, 0.45), 0 0 2px #ff2e97;
+  --scw-shadow-lg: 0 0 24px rgba(255, 46, 151, 0.5), 0 0 40px rgba(255, 138, 61, 0.2);
+}
+.sc-combat-wheel[data-scw-theme="scifi-synth"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: 0 0 4px #ff2e97, 0 0 12px rgba(255, 138, 61, 0.6);
+}
+.sc-combat-wheel[data-scw-theme="scifi-synth"] .scw-btn--primary {
+  box-shadow: 0 0 8px rgba(255, 46, 151, 0.6), inset 0 0 6px rgba(255, 46, 151, 0.35);
+}
+
+/* ---------- Cyberpunk: acid yellow and cyan on black, sharp corners ---------- */
+.sc-combat-wheel[data-scw-theme="scifi-cyber"] {
+  --scw-neutral-100: #f2f2e6;
+  --scw-neutral-300: #b8b8a6;
+  --scw-neutral-500: #7a7a68;
+  --scw-neutral-700: #3c3c30;
+  --scw-neutral-800: #1c1c16;
+  --scw-accent-100: #0a0a08;
+  --scw-accent-200: #fff98a;
+  --scw-accent-300: #fff45a;
+  --scw-accent-400: #fcee0a;
+  --scw-accent-700: #8a8200;
+  --scw-accent-800: #fcee0a;
+  --scw-accent-900: #1c1a04;
+  --scw-bg: #050505;
+  --scw-surface: #0e0e0b;
+  --scw-text: #f2f2e6;
+  --scw-text-muted: #b8b8a6;
+  --scw-divider: rgba(252, 238, 10, 0.25);
+  --scw-accent: #fcee0a;
+  --scw-active: #00f0ff;
+  --scw-active-glow: 0 0 10px #00f0ff, 0 0 22px rgba(0, 240, 255, 0.45);
+  --scw-critical: #ff3d5a;
+  --scw-hp-fill: linear-gradient(90deg, #00f0ff, #fcee0a);
+  --scw-surface-bg:
+    linear-gradient(135deg, #fcee0a 0 10px, transparent 10px) top left / 14px 14px no-repeat,
+    repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.04) 0 1px, transparent 1px 4px),
+    #0e0e0b;
+  --scw-panel-bg: var(--scw-surface-bg);
+  --scw-border: 1px solid #fcee0a;
+  --scw-header-bg: #fcee0a;
+  --scw-header-text: #0a0a08;
+  --scw-header-edge: 1px solid #00f0ff;
+  --scw-btn-primary-text: #0a0a08;
+  --scw-btn-primary-bg: #fcee0a;
+  --scw-btn-primary-border: #fcee0a;
+  --scw-radius: 0;
+  --scw-radius-sm: 0;
+  --scw-radius-lg: 0;
+  --scw-font-body: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --scw-font-label: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --scw-tag-radius: 0;
+  --scw-tag-weight: 700;
+  --scw-shadow: 0 0 0 1px #3c3c30, 4px 4px 0 rgba(0, 240, 255, 0.35);
+  --scw-shadow-lg: 0 0 0 1px #fcee0a, 6px 6px 0 rgba(0, 240, 255, 0.4);
+}
+.sc-combat-wheel[data-scw-theme="scifi-cyber"] :is(.scw-hub-name, .scw-round-main) {
+  text-shadow: -1px 0 rgba(255, 61, 90, 0.75), 1px 0 rgba(0, 240, 255, 0.75);
+}
+
+/* Filled primary buttons keep their fill on hover (the default hover is a faint tint, which would leave dark-on-dark or light-on-light text) */
+.sc-combat-wheel:is(
+    [data-scw-theme="paper"],
+    [data-scw-theme="celestial"],
+    [data-scw-theme="steampunk"],
+    [data-scw-theme="scifi-cyber"],
+    [data-scw-theme="royal"],
+    [data-scw-theme="scifi-holo"],
+    [data-scw-theme="scifi-alert"],
+    .scw-btn-filled
+  )
+  .scw-btn--primary:not(:disabled):hover {
+  background: var(--scw-btn-primary-bg);
+  filter: brightness(1.12);
+}
+
+/* ======================================================================
+ * Carousel themes: besides colors, they restyle the cards themselves
+ * (frames, health bar, initiative, panel). Their ready-made looks pair them
+ * with the card shape and bar they were drawn for: Obsidian with tall cards
+ * hanging from the top and side columns, Tide with a panel of cards over a
+ * pill bar.
+ * ====================================================================== */
+
+/* ---------- Obsidian: black hairline frames, a health bar down the left edge,
+ * the initiative over a faint d20, a pulsing white edge on the acting card,
+ * square dark buttons. Dispositions in Foundry's own token colors. ---------- */
+.sc-combat-wheel[data-scw-theme="obsidian"] {
+  --scw-neutral-100: #ffffff;
+  --scw-neutral-300: #cfcfcf;
+  --scw-neutral-500: #8a8a8a;
+  --scw-neutral-700: #4a4a4a;
+  --scw-neutral-800: #2b2b2b;
+  --scw-accent-100: #ffffff;
+  --scw-accent-200: #f7f3e8;
+  --scw-accent-300: #efe6d8;
+  --scw-accent-400: #d9cfbf;
+  --scw-accent-700: #584a75;
+  --scw-accent-800: #302831;
+  --scw-accent-900: #0b0a13;
+  --scw-bg: #1d1d1d;
+  --scw-surface: #0b0a13;
+  --scw-surface-bg: rgba(11, 10, 19, 0.75);
+  --scw-text: #efe6d8;
+  --scw-text-muted: #aaaaaa;
+  --scw-divider: #302831;
+  --scw-accent: #efe6d8;
+  --scw-active: rgba(255, 255, 255, 0.62);
+  --scw-active-glow: none;
+  --scw-friendly: #43dfdf;
+  --scw-neutral: #f1d836;
+  --scw-hostile: #e72124;
+  --scw-secret: #a612d4;
+  --scw-critical: #e62121;
+  --scw-health-good: #41aa7d;
+  --scw-health-warn: #ffcd00;
+  --scw-health-danger: #e62121;
+  --scw-hp-fill: linear-gradient(180deg, #41aa7d, #21553f);
+  --scw-border: 1px solid #302831;
+  --scw-header-bg: rgba(11, 10, 19, 0.9);
+  --scw-header-text: #f0f0e0;
+  --scw-header-edge: 1px solid #302831;
+  --scw-btn-primary-text: #f7f3e8;
+  --scw-btn-primary-bg: rgba(11, 10, 19, 0.75);
+  --scw-btn-primary-border: #584a75;
+  --scw-radius: 4px;
+  --scw-radius-sm: 3px;
+  --scw-radius-lg: 4px;
+  --scw-rim-width: 1px;
+  --scw-font-body: var(--font-primary, "Signika"), sans-serif;
+  --scw-font-name: "SCW Amiri", "Amiri", Georgia, serif;
+  --scw-font-mono: monospace;
+  --scw-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --scw-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+/* Buttons are Foundry's square controls: a dark tile with a hairline, lighter on hover. */
+.sc-combat-wheel[data-scw-theme="obsidian"] :is(.scw-bar, .scw-pod, .scw-tools) .scw-btn {
+  border-color: #302831;
+  background: rgba(11, 10, 19, 0.75);
+  color: #efe6d8;
+}
+.sc-combat-wheel[data-scw-theme="obsidian"] :is(.scw-bar, .scw-pod, .scw-tools) .scw-btn:not(:disabled):hover {
+  border-color: #584a75;
+  background: #0b0a13;
+  color: #f7f3e8;
+}
+.sc-combat-wheel[data-scw-theme="obsidian"] .scw-round-main { color: #ffffff; text-shadow: 0 0 5px #000; }
+/* The cards: a translucent dark backing, black hairlines on three sides and the disposition along the foot. */
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-track .scw-slot { box-shadow: none; }
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-slot-bg { background: rgba(29, 29, 29, 0.75); }
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-portrait-img { object-position: 50% 0; }
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-rim {
+  border: 1px solid #000;
+  border-top-width: 0;
+  border-bottom: 2px solid var(--scw-rim-color, #000);
+}
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-slot:hover .scw-rim { border-color: rgba(255, 255, 255, 0.62); }
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-slot.is-active .scw-rim {
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: none;
+  animation: scw-obsidian-blink 0.5s ease-in-out infinite alternate;
+}
+@keyframes scw-obsidian-blink {
+  from { border-color: rgba(255, 255, 255, 0.18); }
+  to { border-color: rgba(255, 255, 255, 0.62); }
+}
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-track .scw-slot::after { background: rgba(0, 0, 0, 0.35); }
+/* Health as a full-height bar down the left edge, filling from the foot. */
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track[data-scw-health="band"] .scw-health {
+  inset: 0 auto 0 0;
+  width: max(4px, 6%);
+  border-radius: 0;
+  background:
+    linear-gradient(to top, transparent 0 calc(var(--scw-health, 1) * 100%), rgba(0, 0, 0, 0.84) calc(var(--scw-health, 1) * 100%) 100%),
+    linear-gradient(180deg, var(--scw-health-color), color-mix(in srgb, var(--scw-health-color) 50%, #000));
+  box-shadow: inset 0 0 2px #000;
+  opacity: 1;
+}
+/* The initiative over a faint outline d20, top left beside the bar. */
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
+  top: 3px;
+  left: calc(max(4px, 6%) + 3px);
+  /* Its own layer, so the die drawn behind the number stays above the portrait. */
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font: 600 11px/1 var(--scw-font-body);
+  text-shadow: 0 0 5px #000, 0 0 2px #000;
+  opacity: 0.85;
+}
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden])::before {
+  content: "\f6cf";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: var(--fa-font-regular, normal 400 1em/1 "Font Awesome 6 Pro");
+  font-size: 22px;
+  opacity: 0.5;
+  z-index: -1;
+}
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-badge-round {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font: 600 10px var(--scw-font-body);
+  text-shadow: 0 0 5px #000;
+  opacity: 0.8;
+}
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-name-tag { font-family: var(--scw-font-name); }
+
+/* ---------- Tide: a dark rounded panel of cards, the others dimmed
+ * until pointed at, a teal edge on the acting card, a thin health line at
+ * the foot, a pill-shaped bar. The disposition shows along each card's foot. ---------- */
+.sc-combat-wheel[data-scw-theme="tide"] {
+  --scw-neutral-100: #f3f7f7;
+  --scw-neutral-300: #c8d0d2;
+  --scw-neutral-500: #8a9294;
+  --scw-neutral-700: #53476b;
+  --scw-neutral-800: #36303b;
+  --scw-accent-100: #e8f4f7;
+  --scw-accent-200: #c2e0e8;
+  --scw-accent-300: #7ab6c4;
+  --scw-accent-400: #5ea3b6;
+  --scw-accent-700: #4e8b9e;
+  --scw-accent-800: #2c5260;
+  --scw-accent-900: #0b0a13;
+  --scw-bg: #0b0a13;
+  --scw-surface: #0b0a13;
+  --scw-surface-bg: rgba(11, 10, 19, 0.95);
+  --scw-text: #f3f7f7;
+  --scw-text-muted: #a9b4b8;
+  --scw-divider: #36303b;
+  --scw-accent: #4e8b9e;
+  --scw-active: #4e8b9e;
+  --scw-active-glow: none;
+  --scw-friendly: #68b76a;
+  --scw-neutral: #e8be41;
+  --scw-hostile: #e26158;
+  --scw-secret: #9b7ec4;
+  --scw-critical: #e26158;
+  --scw-health-good: #68b76a;
+  --scw-health-warn: #e8be41;
+  --scw-health-danger: #e26158;
+  --scw-hp-fill: #68b76a;
+  --scw-border: 0 solid transparent;
+  --scw-header-bg: rgba(11, 10, 19, 0.95);
+  --scw-header-text: #f3f7f7;
+  --scw-header-edge: 1px solid rgba(68, 147, 173, 0.5);
+  --scw-btn-primary-text: #f3f7f7;
+  --scw-btn-primary-bg: transparent;
+  --scw-btn-primary-border: transparent;
+  --scw-radius: 4px;
+  --scw-radius-sm: 2px;
+  --scw-radius-lg: 6px;
+  --scw-rim-width: 1px;
+  --scw-font-body: var(--font-primary, "Signika"), sans-serif;
+  --scw-font-name: var(--scw-font-body);
+  --scw-name-weight: 600;
+  --scw-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  --scw-shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.65);
+}
+/* The bar is a pill a little away from the cards; its buttons are bare icons. */
+.sc-combat-wheel[data-scw-theme="tide"] .scw-bar { border-radius: 2rem; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-up:not(.scw-split) .scw-bar-part { margin-top: 8px; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-down:not(.scw-split) .scw-bar-part { margin-bottom: 8px; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-right:not(.scw-split) .scw-bar-part { margin-right: 8px; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-left:not(.scw-split) .scw-bar-part { margin-left: 8px; }
+.sc-combat-wheel[data-scw-theme="tide"] .scw-pod { border-radius: 1.25rem; }
+.sc-combat-wheel[data-scw-theme="tide"] :is(.scw-bar, .scw-pod, .scw-tools) .scw-btn {
+  border-color: transparent;
+  background: transparent;
+  color: #f3f7f7;
+}
+.sc-combat-wheel[data-scw-theme="tide"] :is(.scw-bar, .scw-pod, .scw-tools) .scw-btn:not(:disabled):hover { background: transparent; opacity: 0.7; }
+.sc-combat-wheel[data-scw-theme="tide"] .scw-end-turn-label { font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.sc-combat-wheel[data-scw-theme="tide"] .scw-round-main {
+  padding: 0 4px;
+  border: 1px solid rgba(68, 147, 173, 0.5);
+  border-radius: 2px;
+  font-weight: 600;
+}
+/* The panel behind the cards: as wide as they reach and as deep as they stand. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-track::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 6px;
+  background: rgba(11, 10, 19, 0.95);
+  box-shadow: var(--scw-shadow);
+}
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track:is(.scw-up, .scw-down) .scw-track::before {
+  left: calc(var(--scw-span) / -2 - 6px);
+  width: calc(var(--scw-span) + 12px);
+  height: calc(var(--scw-depth) + 6px);
+}
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track.scw-up .scw-track::before { top: calc(-1 * var(--scw-depth) - 6px); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track.scw-down .scw-track::before { top: 0; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track.scw-side .scw-track::before {
+  top: calc(var(--scw-span) / -2 - 6px);
+  height: calc(var(--scw-span) + 12px);
+  width: calc(var(--scw-depth) + 6px);
+}
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track.scw-right .scw-track::before { left: 0; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track.scw-left .scw-track::before { left: calc(-1 * var(--scw-depth) - 6px); }
+/* Cards: a cool hairline, a shade over the foot, the disposition as a line along it. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-track .scw-slot { box-shadow: none; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-slot-bg { background: rgba(11, 10, 19, 0.95); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-portrait-img { object-position: 50% 0; filter: saturate(0.75); transition: filter 300ms ease-out; }
+/* Over the art's foot only (the health line, at level 3, stays above it). */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 70% 0 0;
+  z-index: 1;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), transparent);
+  pointer-events: none;
+}
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-rim {
+  border: 1px solid #36303b;
+  border-bottom: 2px solid var(--scw-rim-color, #36303b);
+}
+/* The renderer owns each card's own opacity (it fades the ends in and out), so the dimming goes on its content. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-slot:not(.is-active) > :is(.scw-portrait, .scw-rim) { opacity: 0.65; transition: opacity 300ms ease-out; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-track .scw-slot:not(.is-active)::after { opacity: 1; background: rgba(0, 0, 0, 0.25); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-track .scw-slot.is-past:not(.is-active)::after { background: rgba(0, 0, 0, 0.45); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-slot:hover > :is(.scw-portrait, .scw-rim) { opacity: 1; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-track .scw-slot:hover::after { opacity: 0; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-slot:is(:hover, .is-active) .scw-portrait-img { filter: saturate(1); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-slot.is-active .scw-rim { border: 2px solid #4e8b9e; box-shadow: none; }
+/* Health as a thin line along the foot, green to amber to red. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"] .scw-health {
+  inset: auto 3px 4px;
+  z-index: 3;
+  width: auto;
+  height: 3px;
+  border-radius: 3px;
+  background:
+    linear-gradient(to right, var(--scw-health-color) 0 calc(var(--scw-health, 1) * 100%), rgba(238, 238, 238, 0.15) calc(var(--scw-health, 1) * 100%) 100%);
+  box-shadow: none;
+  opacity: 1;
+}
+/* The initiative in a small dark tag, top left, shown when the card is pointed at. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
+  top: 1px;
+  left: 1px;
+  min-width: 32px;
+  padding: 4px 6px;
+  border-radius: 2px;
+  background: rgba(11, 10, 19, 0.95);
+  box-shadow: none;
+  color: #f3f7f7;
+  font: 500 11px/1 var(--scw-font-body);
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.sc-combat-wheel[data-scw-theme="tide"].scw-show-initiative.scw-view-track .scw-slot:is(:hover, :focus-visible) .scw-badge-init:not([hidden]) { opacity: 1; }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-badge-round {
+  border-radius: 2px;
+  background: rgba(11, 10, 19, 0.95);
+  box-shadow: 0 0 0 1px rgba(68, 147, 173, 0.5);
+  color: #f3f7f7;
+  font: 600 9px var(--scw-font-body);
+}
+.sc-combat-wheel[data-scw-theme="tide"] .scw-slot.is-defeated .scw-flag-defeated { font-size: 2rem; opacity: 0.8; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-slot.is-active .scw-rim { animation: none; }
+}

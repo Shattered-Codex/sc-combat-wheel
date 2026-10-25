@@ -1,0 +1,1259 @@
+{
+  "SC_COMBAT_WHEEL": {
+    "Title": "Initiative Wheel",
+    "Controls": {
+      "Toggle": "Initiative Wheel"
+    },
+    "Settings": {
+      "openOnStart": {
+        "Name": "Open when combat starts",
+        "Hint": "Shows the wheel for everyone as soon as the combat begins, and closes it when the combat ends."
+      },
+      "hideNativeTracker": {
+        "Name": "Hide the native combat tab",
+        "Hint": "Hides the Combat Tracker tab in the sidebar while the wheel is open."
+      },
+      "layoutPreset": {
+        "Name": "Wheel layout",
+        "Hint": "Size of the wheel and how many slices are visible.",
+        "Choices": {
+          "mini": "Mini — 7 slices, smallest",
+          "compact": "Compact — 7 slices (recommended)",
+          "dense": "Dense — 9 slices, large combats",
+          "large": "Large — 7 slices, streaming",
+          "custom": "Custom — radii and slice angle below"
+        }
+      },
+      "orientation": {
+        "Name": "Direction",
+        "Hint": "Which side of the control bar the portraits sit on. On the sides the bar stands as a vertical rail.",
+        "Choices": {
+          "up": "Portraits above, bar below",
+          "right": "Portraits to the right, bar on the left",
+          "down": "Portraits below, bar on top",
+          "left": "Portraits to the left, bar on the right"
+        }
+      },
+      "anchor": {
+        "Name": "Turn anchor",
+        "Hint": "Where the acting combatant sits: in the middle, near the start with one past turn before it, or near the end with one turn to come after it.",
+        "Choices": {
+          "middle": "Middle",
+          "left": "Start",
+          "end": "End"
+        }
+      },
+      "clickAction": {
+        "Name": "Slice click",
+        "Hint": "What clicking a portrait does.",
+        "Choices": {
+          "pan": "Center the camera on the token",
+          "select": "Select the token",
+          "sheet": "Open the sheet",
+          "none": "Nothing"
+        }
+      },
+      "cameraFollows": {
+        "Name": "Camera follows the turn",
+        "Hint": "Centers the camera on the acting token at every turn."
+      },
+      "cameraPan": {
+        "Name": "Camera movement",
+        "Hint": "How the camera travels to a token, when it follows the turn or you click a portrait: it takes longer the farther the token is. Reduced motion always goes straight there.",
+        "Choices": {
+          "fast": "Fast",
+          "smooth": "Smooth",
+          "slow": "Slow"
+        }
+      },
+      "animationSpeed": {
+        "Name": "Animation speed",
+        "Hint": "How fast the wheel turns. Reduced-motion system settings always win.",
+        "Choices": {
+          "slow": "Slow",
+          "normal": "Normal",
+          "fast": "Fast",
+          "off": "Off"
+        }
+      },
+      "portraitSource": {
+        "Name": "Portrait source",
+        "Hint": "Image shown on each slice.",
+        "Choices": {
+          "token": "Token image",
+          "actor": "Actor portrait",
+          "flag": "Custom portrait (module flag), then token"
+        }
+      },
+      "hpForPlayers": {
+        "Name": "Enemy hit points for players",
+        "Hint": "What players see of combatants that are not friendly and not their own.",
+        "Choices": {
+          "number": "Exact number",
+          "bar": "Bar only",
+          "state": "Descriptive state",
+          "hidden": "Nothing"
+        }
+      },
+      "defeatedMode": {
+        "Name": "Dead combatants",
+        "Hint": "Defeated, or at 0 hit points as far as each viewer may know. Their portrait always turns black and white.",
+        "Choices": {
+          "fade": "Keep them, in black and white",
+          "remove": "Remove them from the wheel"
+        }
+      },
+      "npcNames": {
+        "Name": "Combatant names for players",
+        "Hint": "The core tracker always shows names; the token option follows each token's name display mode.",
+        "Choices": {
+          "always": "Always show (like the core tracker)",
+          "token": "Follow the token's name display"
+        }
+      },
+      "nextUpNotice": {
+        "Name": "Up-next notice",
+        "Hint": "The player whose combatant acts next gets a notice and their slice pulses."
+      },
+      "secondsPerRound": {
+        "Name": "Seconds per round",
+        "Hint": "Used for the elapsed game time in the details panel."
+      },
+      "portraitShape": {
+        "Name": "Portrait shape",
+        "Hint": "Ring sectors, or soft-cornered squares that never crop square token art.",
+        "Choices": {
+          "sector": "Sector",
+          "square": "Rounded square"
+        }
+      },
+      "sliceGap": {
+        "Name": "Gap between slices",
+        "Hint": "Angle between slices, in degrees."
+      },
+      "scale": {
+        "Name": "Scale",
+        "Hint": "Overall size of the widget, in percent."
+      },
+      "restOpacity": {
+        "Name": "Opacity at rest",
+        "Hint": "Opacity while the mouse is not over the wheel, in percent."
+      },
+      "theme": {
+        "Name": "Theme",
+        "Hint": "Colors and fonts of the wheel.",
+        "Choices": {
+          "system": "Follow the game system",
+          "nocturne": "Nocturne",
+          "foundry": "Foundry (core interface colors)",
+          "parchment": "Parchment",
+          "stone": "Stone and iron",
+          "contrast": "High contrast",
+          "transparent": "Transparent (streaming)",
+          "dnd5e": "D&D 5e",
+          "pf2e": "Pathfinder 2e",
+          "daggerheart": "Daggerheart",
+          "coc7": "Call of Cthulhu 7e",
+          "scifi-holo": "Sci-fi: Holo",
+          "scifi-neon": "Sci-fi: Neon",
+          "scifi-terminal": "Sci-fi: Terminal",
+          "scifi-alert": "Sci-fi: Alert",
+          "graphite": "Graphite",
+          "mist": "Mist",
+          "verdant": "Verdant",
+          "crimson": "Crimson",
+          "abyss": "Abyss",
+          "ember": "Ember",
+          "frost": "Frost",
+          "royal": "Royal",
+          "nord": "Nord",
+          "midnight": "Midnight",
+          "paper": "Paper",
+          "arcane": "Arcane",
+          "infernal": "Infernal",
+          "celestial": "Celestial",
+          "sakura": "Sakura",
+          "steampunk": "Steampunk",
+          "eldritch": "Eldritch",
+          "gothic": "Gothic",
+          "noir": "Noir",
+          "bloodmoon": "Blood moon",
+          "scifi-synth": "Sci-fi: Synthwave",
+          "scifi-cyber": "Sci-fi: Cyberpunk",
+          "obsidian": "Obsidian",
+          "tide": "Tide"
+        }
+      },
+      "customOuter": {
+        "Name": "Custom layout: outer radius",
+        "Hint": "Pixels. Only used with the Custom layout."
+      },
+      "customInner": {
+        "Name": "Custom layout: inner radius",
+        "Hint": "Pixels, at least 40 below the outer radius. Only used with the Custom layout."
+      },
+      "customStep": {
+        "Name": "Custom layout: slice angle",
+        "Hint": "Degrees, 15–45. Visible slices = 2 × floor(90 / angle) + 1."
+      },
+      "soundsAllowed": {
+        "Name": "Allow wheel sounds (whole table)",
+        "Hint": "When off, the wheel plays no sound for anyone."
+      },
+      "soundVolume": {
+        "Name": "Wheel volume",
+        "Hint": "In percent, multiplied by Foundry's interface volume."
+      },
+      "soundTurnChange": {
+        "Name": "Sound: any turn change",
+        "Hint": "Plays on every real turn change, when nothing more specific applies."
+      },
+      "soundTurnChangeFile": {
+        "Name": "File: any turn change",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "soundOwnTurn": {
+        "Name": "Sound: your turn",
+        "Hint": "One of your combatants starts its turn. Not used for the GM."
+      },
+      "soundOwnTurnFile": {
+        "Name": "File: your turn",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "soundNextUp": {
+        "Name": "Sound: you are next",
+        "Hint": "One of your combatants acts next. Not used for the GM."
+      },
+      "soundNextUpFile": {
+        "Name": "File: you are next",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "soundRoundStart": {
+        "Name": "Sound: new round",
+        "Hint": "A new round begins."
+      },
+      "soundRoundStartFile": {
+        "Name": "File: new round",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "soundCombatStart": {
+        "Name": "Sound: combat starts",
+        "Hint": "The combat begins."
+      },
+      "soundCombatStartFile": {
+        "Name": "File: combat starts",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "skipDead": {
+        "Name": "Skip dead combatants' turns",
+        "Hint": "When the turn reaches a dead combatant, the GM's client moves on by itself. Going back never skips.",
+        "Choices": {
+          "never": "Never skip",
+          "npcs": "Skip NPCs only (players keep their turn, e.g. for death saves)",
+          "all": "Skip everyone who is dead"
+        }
+      },
+      "concealment": {
+        "Name": "Hidden from players",
+        "Hint": "Who stays off the players' wheel. The GM always sees everyone, faded, with a crossed-out eye.",
+        "Choices": {
+          "hidden": "Only combatants hidden in the tracker",
+          "tokenHidden": "Also combatants whose token is hidden on the map",
+          "invisible": "Also invisible combatants"
+        }
+      },
+      "hpSource": {
+        "Name": "Hit points come from",
+        "Hint": "Automatic uses a preset for dnd5e, pf2e, Daggerheart, CoC7, SWADE, Imperium Maledictum and Fabula Ultima, or the system's main token bar.",
+        "Choices": {
+          "auto": "Automatic (system preset)",
+          "bar1": "Token bar 1",
+          "bar2": "Token bar 2",
+          "attribute": "Attribute path (below)"
+        }
+      },
+      "hpPath": {
+        "Name": "Hit points attribute path",
+        "Hint": "Relative to the actor's system data, naming the parent of value and max. Example: attributes.hp"
+      },
+      "hpInverted": {
+        "Name": "The value counts damage",
+        "Hint": "Tick when the attribute counts damage taken (marked hit points, wounds). The wheel then shows max minus value."
+      },
+      "hpOverlay": {
+        "Name": "Health on the portrait",
+        "Hint": "How remaining health shows over each portrait. Players only see what the enemy hit points setting allows.",
+        "Choices": {
+          "off": "Off",
+          "drain": "Lost health tints red from the top",
+          "fill": "Health left fills from the bottom (green → red)",
+          "band": "Thin gauge on the side"
+        }
+      },
+      "hpOverlayOpacity": {
+        "Name": "Health overlay strength",
+        "Hint": "In percent."
+      },
+      "view": {
+        "Name": "View",
+        "Hint": "How the turn order is drawn.",
+        "Choices": {
+          "wheel": "Wheel",
+          "carousel": "Carousel",
+          "slider": "Slider"
+        }
+      },
+      "trackSize": {
+        "Name": "Card size",
+        "Hint": "Size of each portrait card.",
+        "Choices": {
+          "small": "Small",
+          "medium": "Medium (recommended)",
+          "large": "Large — streaming"
+        }
+      },
+      "trackReach": {
+        "Name": "Cards on each side",
+        "Hint": "How many combatants show on each side of the one acting; the others wait off the ends."
+      },
+      "barLayout": {
+        "Name": "Bar shape",
+        "Hint": "One bar along the portraits, or split into two columns standing beside them: turn and round on one side, ending the turn and the tools on the other. The split bar has no details panel.",
+        "Choices": {
+          "bar": "One bar",
+          "split": "Two side columns"
+        }
+      },
+      "barControls": {
+        "Name": "Bar tools",
+        "Hint": "Lock, direction, appearance, settings and, for the GM, rolls and ending the combat: as buttons in the bar, or gathered in a More menu.",
+        "Choices": {
+          "inline": "In the bar",
+          "menu": "In a More menu"
+        }
+      },
+      "phaseStripPlacement": {
+        "Name": "Acting strip position",
+        "Hint": "Where the portraits of who acts in the current phase sit.",
+        "Choices": {
+          "beyond": "Past the bar, away from the portraits",
+          "end": "Beside the bar, at its far end",
+          "over": "Past the portraits, on the other side"
+        }
+      },
+      "phaseStripImage": {
+        "Name": "Acting strip image",
+        "Hint": "The same portrait the wheel shows, or the token's own art.",
+        "Choices": {
+          "portrait": "Portrait",
+          "token": "Token"
+        }
+      },
+      "phaseStripFrame": {
+        "Name": "Acting strip frame",
+        "Hint": "How each image is cut. Tiles put the images edge to edge like one picture; without a frame the whole image shows, which suits token art.",
+        "Choices": {
+          "round": "Round",
+          "square": "Rounded square",
+          "tiles": "Tiles (images side by side)",
+          "none": "No frame (whole image)"
+        }
+      },
+      "trackShape": {
+        "Name": "Card shape",
+        "Hint": "Square, or a rectangle standing up like a character portrait or lying down like a scene.",
+        "Choices": {
+          "square": "Square",
+          "tall": "Portrait (upright rectangle)",
+          "wide": "Landscape (lying rectangle)"
+        }
+      },
+      "trackSpacing": {
+        "Name": "Space between cards",
+        "Hint": "In pixels. Below zero the cards overlap, the nearer one on top."
+      },
+      "trackNames": {
+        "Name": "Names on the cards",
+        "Hint": "Writes each name over the foot of its card, as players are allowed to see it.",
+        "Choices": {
+          "none": "None",
+          "acting": "Only the acting card",
+          "all": "Every card"
+        }
+      },
+      "phaseStripSize": {
+        "Name": "Acting strip size",
+        "Hint": "Size of each image in the strip.",
+        "Choices": {
+          "small": "Small",
+          "medium": "Medium",
+          "large": "Large"
+        }
+      },
+      "phaseStripNames": {
+        "Name": "Names in the acting strip",
+        "Hint": "Writes each name under its image (over it, for tiles)."
+      },
+      "colorAccent": {
+        "Name": "Accent",
+        "Hint": "Buttons, highlights and the accent ramp derived from it."
+      },
+      "colorBackground": {
+        "Name": "Background",
+        "Hint": "The badges over the portraits (initiative, round, die) and the backdrop of See everyone."
+      },
+      "colorSurface": {
+        "Name": "Surface",
+        "Hint": "The bar, the hub and the menus."
+      },
+      "colorText": {
+        "Name": "Text",
+        "Hint": "Text, with its muted shade and dividers derived from it."
+      },
+      "colorActive": {
+        "Name": "Highlight color",
+        "Hint": "The ring and glow of whoever is acting, and the acting effects."
+      },
+      "colorFriendly": {
+        "Name": "Friendly",
+        "Hint": "Rim of friendly combatants."
+      },
+      "colorNeutral": {
+        "Name": "Neutral",
+        "Hint": "Rim of neutral combatants."
+      },
+      "colorHostile": {
+        "Name": "Hostile",
+        "Hint": "Rim of hostile combatants."
+      },
+      "colorSecret": {
+        "Name": "Secret",
+        "Hint": "Rim of secret combatants."
+      },
+      "particleType": {
+        "Name": "Particles",
+        "Hint": "The kind of particle; None turns them off.",
+        "Choices": {
+          "none": "None",
+          "embers": "Embers",
+          "arcane": "Arcane",
+          "stardust": "Stardust",
+          "frost": "Frost",
+          "shadow": "Shadow",
+          "fireflies": "Fireflies",
+          "petals": "Petals",
+          "bubbles": "Bubbles",
+          "sparks": "Sparks",
+          "snow": "Snow",
+          "rain": "Rain",
+          "leaves": "Falling leaves",
+          "ash": "Ash",
+          "motes": "Golden motes",
+          "confetti": "Confetti",
+          "runes": "Runes",
+          "wisps": "Wisps"
+        }
+      },
+      "particlePlacement": {
+        "Name": "Where",
+        "Hint": "Around the acting portrait, or over the whole wheel or cards.",
+        "Choices": {
+          "acting": "Acting portrait",
+          "widget": "Whole widget"
+        }
+      },
+      "particleSpeed": {
+        "Name": "Effect speed",
+        "Hint": "How fast every effect and particle moves.",
+        "Choices": {
+          "slow": "Slow",
+          "normal": "Normal",
+          "fast": "Fast"
+        }
+      },
+      "particleIntensity": {
+        "Name": "Effect intensity",
+        "Hint": "How strong every effect is: the acting portrait's, the turn change's and the particles (how many and how bright).",
+        "Choices": {
+          "subtle": "Subtle",
+          "normal": "Normal",
+          "strong": "Strong"
+        }
+      },
+      "particleColor": {
+        "Name": "Particle color",
+        "Hint": "The theme's accent, the acting combatant's side, or a color of your own.",
+        "Choices": {
+          "theme": "Theme accent",
+          "side": "Acting combatant's side",
+          "custom": "Custom"
+        }
+      },
+      "particleCustomColor": {
+        "Name": "Custom particle color",
+        "Hint": "Used when the particle color is Custom."
+      },
+      "barSize": {
+        "Name": "Bar size",
+        "Hint": "Compact makes the bar slimmer, with smaller buttons and the turn button as an icon.",
+        "Choices": {
+          "normal": "Normal",
+          "compact": "Compact"
+        }
+      },
+      "showInitiative": {
+        "Name": "Initiative on portraits",
+        "Hint": "Shows each combatant's initiative, as the core tracker does."
+      },
+      "styleFont": {
+        "Name": "Name font",
+        "Hint": "The font of names and titles.",
+        "Choices": {
+          "theme": "From the theme",
+          "sans": "Clean (Signika)",
+          "serif": "Classic serif (Amiri)",
+          "display": "Condensed display (Modesto)",
+          "futuristic": "Futuristic (Bruno Ace)",
+          "mono": "Monospace"
+        }
+      },
+      "styleCorners": {
+        "Name": "Corners",
+        "Hint": "How rounded the bar, the hub, the menus and the cards are.",
+        "Choices": {
+          "theme": "From the theme",
+          "sharp": "Sharp",
+          "soft": "Soft",
+          "round": "Round"
+        }
+      },
+      "stylePanels": {
+        "Name": "Panels",
+        "Hint": "The bar, the hub and the menus: solid, see-through, or frosted glass that blurs the map behind.",
+        "Choices": {
+          "theme": "From the theme",
+          "solid": "Solid",
+          "translucent": "Translucent",
+          "glass": "Glass"
+        }
+      },
+      "styleRim": {
+        "Name": "Portrait border",
+        "Hint": "How thick the colored border of each portrait is.",
+        "Choices": {
+          "theme": "From the theme",
+          "thin": "Thin",
+          "normal": "Normal",
+          "thick": "Thick"
+        }
+      },
+      "styleNames": {
+        "Name": "Names in capitals",
+        "Hint": "Writes names and titles in capital letters, or as typed.",
+        "Choices": {
+          "theme": "From the theme",
+          "normal": "As typed",
+          "uppercase": "Capitals"
+        }
+      },
+      "styleButtons": {
+        "Name": "Main button",
+        "Hint": "The look of the turn button.",
+        "Choices": {
+          "theme": "From the theme",
+          "outline": "Outline",
+          "filled": "Filled"
+        }
+      },
+      "barVisibility": {
+        "Name": "Show the bar",
+        "Hint": "Always, only while the mouse is over the widget, or never. Without the bar, move the widget and change turns with the keyboard shortcuts.",
+        "Choices": {
+          "always": "Always",
+          "hover": "On hover",
+          "hidden": "Never"
+        }
+      },
+      "barHidden": {
+        "Name": "Items in the bar",
+        "Hint": "Untick what you never use; it leaves the bar and its menu.",
+        "Choices": {
+          "grab": "Drag handle",
+          "previous": "Previous turn (GM)",
+          "endTurn": "End turn button",
+          "round": "Round and turn",
+          "roll": "Roll initiative",
+          "virtual": "Virtual positions (GM)",
+          "grid": "See everyone",
+          "details": "Details panel",
+          "lock": "Lock position",
+          "direction": "Direction",
+          "appearance": "Appearance",
+          "settings": "Settings",
+          "endCombat": "End combat (GM)"
+        }
+      },
+      "actingEffect": {
+        "Name": "Effect on the acting portrait",
+        "Hint": "Drawn around the acting portrait, outside it, while they act. Under reduced motion only the glow stays, still.",
+        "Choices": {
+          "none": "None",
+          "pulse": "Breathing glow",
+          "halo": "Halo",
+          "aura": "Energy aura",
+          "flicker": "Flame",
+          "rays": "Crown of rays",
+          "shine": "Shine"
+        }
+      },
+      "turnEffect": {
+        "Name": "Effect on a new turn",
+        "Hint": "Plays once around the new acting portrait at each real turn change.",
+        "Choices": {
+          "none": "None",
+          "ripple": "Waves",
+          "burst": "Burst of light",
+          "flash": "Flash",
+          "pop": "Pop"
+        }
+      },
+      "soundTurnBack": {
+        "Name": "Sound: turn goes back",
+        "Hint": "When the GM goes back a turn. Off plays what going forward would."
+      },
+      "soundTurnBackFile": {
+        "Name": "File: turn goes back",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "soundCombatEnd": {
+        "Name": "Sound: combat ends",
+        "Hint": "When a combat that had started is ended."
+      },
+      "soundCombatEndFile": {
+        "Name": "File: combat ends",
+        "Hint": "Used when the sound above is \"Your own file\"."
+      },
+      "bannerStyle": {
+        "Name": "Message shape",
+        "Hint": "How a virtual position's on-screen message looks: a card with a title band, a band across the whole screen, or a small notice.",
+        "Choices": {
+          "card": "Card",
+          "strip": "Across the screen",
+          "toast": "Small notice"
+        }
+      },
+      "bannerPosition": {
+        "Name": "Message place",
+        "Hint": "Where on the screen the message appears.",
+        "Choices": {
+          "top": "Top",
+          "center": "Center",
+          "bottom": "Bottom"
+        }
+      },
+      "bannerSize": {
+        "Name": "Message size",
+        "Hint": "How big the message's title and text are.",
+        "Choices": {
+          "small": "Small",
+          "normal": "Normal",
+          "large": "Large"
+        }
+      },
+      "bannerImage": {
+        "Name": "Picture in the message",
+        "Hint": "Shows the virtual position's picture beside its title."
+      },
+      "styleFinish": {
+        "Name": "Finish",
+        "Hint": "The sci-fi themes' touches, in this theme's own colours: HUD corner brackets and scanlines, neon glow, a CRT screen (portraits in one colour, monospace), hazard stripes, or a glitch. \"From the theme\" keeps the theme's own.",
+        "Choices": {
+          "theme": "From the theme",
+          "hud": "HUD",
+          "neon": "Neon",
+          "crt": "CRT screen",
+          "hazard": "Hazard stripes",
+          "glitch": "Glitch"
+        }
+      }
+    },
+    "Keybindings": {
+      "toggle": "Show or hide the wheel",
+      "nextTurn": "Next turn",
+      "previousTurn": "Previous turn",
+      "toggleLock": "Lock or unlock the wheel position",
+      "seeAll": "See everyone",
+      "backToTurn": "Back to the current turn",
+      "resetPosition": "Reset wheel position"
+    },
+    "Notifications": {
+      "NotAllowed": "You are not allowed to do that in this combat.",
+      "NextUp": "{name} acts next — get ready.",
+      "PortraitRatio": "Custom wheel: portraits are {ratio}:1 (depth to width). Above 1.4:1 art gets stretched or cropped; bring the radii closer or widen the slices.",
+      "SoundSilent": "Nothing to play: the sound is off, the file is missing, or the volume is at zero.",
+      "VirtualAdded": "{name} joined the combat.",
+      "SettingsSaved": "Initiative Wheel settings saved.",
+      "AutoAdvanceLoop": "Stopped advancing automatically: every combatant left would be skipped.",
+      "ConsequenceFailed": "\"{name}\": the {kind} consequence failed. See the console for details.",
+      "AppearanceSaved": "Initiative Wheel appearance saved.",
+      "PhaseNextUp": "Your phase is next: {name}. Get ready.",
+      "PositionReset": "The wheel is back in its default place."
+    },
+    "Slice": {
+      "RollOne": "Roll initiative",
+      "Unknown": "Unknown",
+      "Defeated": "Defeated",
+      "Hidden": "Hidden from players",
+      "TurnBadge": "TURN",
+      "Virtual": "Virtual position"
+    },
+    "Tooltip": {
+      "Initiative": "Initiative {value}",
+      "Hp": "{value} HP"
+    },
+    "HealthState": {
+      "unhurt": "Unhurt",
+      "wounded": "Wounded",
+      "bloodied": "Bloodied",
+      "critical": "Critical",
+      "down": "Down"
+    },
+    "Disposition": {
+      "friendly": "Friendly",
+      "neutral": "Neutral",
+      "hostile": "Hostile",
+      "secret": "Secret"
+    },
+    "Sides": {
+      "friendly": "{count} friendly",
+      "neutral": "{count} neutral",
+      "hostile": "{count} hostile",
+      "secret": "{count} secret",
+      "friendlyLabel": "Friendly",
+      "neutralLabel": "Neutral",
+      "hostileLabel": "Hostile",
+      "secretLabel": "Secret"
+    },
+    "Hub": {
+      "Empty": "No combatants",
+      "RollInitiative": "Roll initiative",
+      "RollInfo": "{rolled} of {total} rolled",
+      "Waiting": "Waiting",
+      "Acting": "Acting",
+      "First": "First up",
+      "Viewing": "Viewing",
+      "Virtual": "Virtual position"
+    },
+    "Phase": {
+      "Now": "Phase now",
+      "Half": {
+        "move": "Movement",
+        "act": "Actions"
+      },
+      "Progress": "{done} of {total} finished",
+      "StripLabel": "Acting now: {phase}",
+      "MarkDone": "Mark {name} as finished",
+      "UnmarkDone": "Undo {name}'s finish",
+      "MarkMoved": "Mark {name} as done moving",
+      "UnmarkMoved": "Undo {name}'s movement",
+      "Status": {
+        "acting": "Acting",
+        "done": "Finished",
+        "defeated": "Defeated",
+        "waiting": "Waiting"
+      }
+    },
+    "Bar": {
+      "Drag": "Drag",
+      "Lock": "Lock position",
+      "Unlock": "Unlock position",
+      "Direction": "Direction",
+      "Directions": {
+        "up": "Portraits above the bar",
+        "right": "Portraits to the right",
+        "down": "Portraits below the bar",
+        "left": "Portraits to the left"
+      },
+      "PreviousTurn": "Previous turn",
+      "EndOwnTurn": "End my turn",
+      "Round": "Round {round}",
+      "Setup": "Setup",
+      "Expand": "Details",
+      "Collapse": "Hide details",
+      "EndCombat": "End combat",
+      "BackToTurn": "Back to turn",
+      "SeeAll": "See everyone",
+      "Settings": "Settings",
+      "EndTurn": "End turn",
+      "More": "More",
+      "Locked": "Position locked",
+      "Appearance": "Appearance",
+      "NextPhase": "Next phase",
+      "PreviousPhase": "Previous phase",
+      "Finish": "Done",
+      "FinishMove": "Done moving",
+      "Finished": "Finished",
+      "LockToggle": "Lock position",
+      "DirectionNow": "Direction: {direction}"
+    },
+    "Hp": {
+      "Value": "{value} HP"
+    },
+    "RollMenu": {
+      "Title": "Roll initiative",
+      "All": "Everyone",
+      "Npc": "NPCs only",
+      "Pc": "Characters only",
+      "Reset": "Clear initiatives",
+      "Kicker": "Initiative"
+    },
+    "Details": {
+      "Character": "Character",
+      "Combat": "Combat",
+      "Participants": "Participants",
+      "Standing": "Standing",
+      "OfTotal": "{count} of {total}",
+      "SideHp": "{side} HP",
+      "Elapsed": "Game time",
+      "NextUp": "Next up",
+      "Expiring": "Expiring this round",
+      "EffectRounds": "{name} · {rounds}r",
+      "Position": "{index} of {total}",
+      "Previous": "Previous in combat order",
+      "Next": "Next in combat order",
+      "Phase": "Phase"
+    },
+    "Grid": {
+      "Title": "All participants · R{round}",
+      "Hint": "Pick someone to view them on the wheel, without changing the turn",
+      "HintGM": "Click to view on the wheel · drag to change the order · + adds a virtual position",
+      "Close": "Close",
+      "RemoveVirtual": "Remove this virtual position",
+      "Insert": "Add a virtual position here",
+      "NewVirtual": "New virtual position",
+      "NoTemplate": "No template: just a message on screen",
+      "Cancel": "Cancel",
+      "Add": "Add",
+      "TitlePlaceholder": "Title (e.g. The lair shakes)",
+      "MessagePlaceholder": "Message shown on screen when its turn comes"
+    },
+    "Sounds": {
+      "off": "Off",
+      "chime": "Chime",
+      "bell": "Bell",
+      "gong": "Gong",
+      "drum": "War drum",
+      "arcane": "Arcane shimmer",
+      "blip": "Sci-fi: blip",
+      "scan": "Sci-fi: scan",
+      "alert": "Sci-fi: alert",
+      "harp": "Harp",
+      "fanfare": "Fanfare",
+      "horn": "War horn",
+      "pluck": "Pluck",
+      "sparkle": "Sparkle",
+      "heartbeat": "Heartbeat",
+      "whoosh": "Whoosh",
+      "rewind": "Rewind",
+      "coreNotify": "Foundry: notify",
+      "coreDrums": "Foundry: drums",
+      "coreLock": "Foundry: lock",
+      "coreDice": "Foundry: dice",
+      "file": "Your own file"
+    },
+    "SettingsMenu": {
+      "Name": "Initiative Wheel settings",
+      "Label": "Open settings",
+      "Hint": "Behaviour and sounds for this browser; table, players, rules and virtual positions for the world. Appearance has its own editor.",
+      "Scopes": {
+        "client": {
+          "Label": "This browser",
+          "Badge": "This browser only"
+        },
+        "world": {
+          "Label": "World",
+          "Badge": "Whole table · GM only"
+        },
+        "user": {
+          "Label": "You",
+          "Badge": "Just you, on any device"
+        }
+      },
+      "Sections": {
+        "appearance": {
+          "Title": "Appearance and sounds",
+          "Hint": "The wheel's look (yours on any device, or the table's) and the sounds this browser plays, set up in their own editor."
+        },
+        "behavior": {
+          "Title": "Behaviour",
+          "Hint": "When the wheel opens and what clicking a portrait does. Applies to this browser only."
+        },
+        "sounds": {
+          "Title": "Sounds",
+          "Hint": "What you hear on turn changes, and how loud: set up and tested in the appearance editor. Applies to this browser only; the GM can still mute the wheel for the whole table."
+        },
+        "table": {
+          "Title": "Table",
+          "Hint": "Choices the GM makes for everyone: portraits, sounds and up-next notices. Applies to the whole world. The table's look is set in the appearance editor."
+        },
+        "players": {
+          "Title": "What players see",
+          "Hint": "How much of the enemies the players' wheels reveal. The GM always sees everything. Applies to the whole world."
+        },
+        "rules": {
+          "Title": "Combat rules",
+          "Hint": "Where hit points come from, what counts as dead and how game time passes. Applies to the whole world."
+        },
+        "virtual": {
+          "Title": "Virtual positions",
+          "Hint": "Reusable turns without an actor (lair actions, timers, events) and what happens on their turn. Applies to the whole world."
+        },
+        "foundry": {
+          "Title": "Foundry combat",
+          "Hint": "Foundry's own combat settings, the same as in its Combat Tracker Settings window, edited here so all of combat sits in one place."
+        }
+      },
+      "PlayerNotice": "World options are managed by the GM. Only the options below apply to you.",
+      "Unsaved": "Unsaved changes",
+      "Saved": "Saved",
+      "Reset": "Reset defaults",
+      "Close": "Close",
+      "Test": "Test this sound",
+      "Save": "Save changes",
+      "ResetPosition": {
+        "Name": "Wheel position",
+        "Hint": "Brings the wheel back to where it opens by default, in case it was dragged somewhere you can no longer reach. Also in the token controls on the left (the target icon under the wheel's button), and for the GM in the combat tracker's options menu; a shortcut can be set in Configure Controls.",
+        "Button": "Reset position",
+        "Menu": "Reset wheel position"
+      }
+    },
+    "AppearanceMenu": {
+      "Name": "Initiative Wheel appearance",
+      "Label": "Edit appearance",
+      "Hint": "Theme, layout, direction, portraits and motion of the wheel, with a live preview. Every user has their own."
+    },
+    "Appearance": {
+      "Title": "Appearance editor",
+      "Open": "Appearance and sounds editor",
+      "OpenHint": "Format, theme, layout, bar, colors, effects, combat styles and this browser's sounds, with a live preview that turns and plays them.",
+      "OpenButton": "Open editor",
+      "Theme": "Theme",
+      "ThemeGroups": {
+        "general": "General",
+        "systems": "Game systems",
+        "scifi": "Sci-fi",
+        "sober": "Sober",
+        "vivid": "Vivid",
+        "horror": "Horror",
+        "carousels": "Carousels"
+      },
+      "Views": "Format",
+      "ViewHints": {
+        "wheel": "A half wheel that turns one slice per turn.",
+        "carousel": "A row of cards that slides along the bar; the acting card rises.",
+        "slider": "The acting card in front, the others shrinking and turning away to the sides."
+      },
+      "Preview": "Live preview",
+      "Source": "Combatants shown",
+      "Sample": "Sample",
+      "ThisCombat": "This combat",
+      "PreviousTurn": "Previous turn (sample)",
+      "NextTurn": "Next turn (sample)",
+      "Details": "Show the bar details",
+      "Zoomed": "Shown at {percent}% so it fits the preview; the table sees it at full size.",
+      "Panels": {
+        "presets": "Ready-made",
+        "layout": "Layout",
+        "portraits": "Portraits",
+        "bar": "Bar",
+        "phases": "Phases",
+        "motion": "Motion",
+        "effects": "Effects",
+        "sharing": "Sharing",
+        "sounds": "Sounds",
+        "visual": "Visual"
+      },
+      "Names": {
+        "knight": "Knight",
+        "lair": "Lair action",
+        "wolf": "Dire wolf",
+        "archer": "Archer",
+        "dragon": "Red dragon",
+        "cleric": "Cleric",
+        "bandit": "Bandit",
+        "commoner": "Villager",
+        "bear": "Cave bear",
+        "lion": "Lion"
+      },
+      "DiscardTitle": "Discard unsaved changes?",
+      "DiscardText": "You have unsaved appearance changes. Close without saving them?",
+      "SamplePhase": "Fast",
+      "PanelHints": {
+        "effects": "Particles are drawn by the browser with CSS animations only, and stop when the system asks for reduced motion.",
+        "presets": "Pick a complete look to start from, then change anything in the other sections. Nothing is saved until you press Save.",
+        "sounds": "These apply to this browser only: ready-made looks and the table look never change them. Turn the preview with Sounds on to hear them in combat order.",
+        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints."
+      },
+      "Sections": "Sections",
+      "ThemeColor": "Theme's",
+      "MoreOptions": "More fine-tuning here with \"Show all options\" on the left.",
+      "Groups": {
+        "size": "Size",
+        "placement": "Placement",
+        "portrait": "Portrait",
+        "info": "Information",
+        "panels": "Panels",
+        "sides": "Sides",
+        "acting": "Effects",
+        "text": "Text",
+        "particles": "Particles",
+        "motion": "Motion",
+        "items": "Items in the bar",
+        "strip": "Acting strip",
+        "display": "Display",
+        "soundGeneral": "General",
+        "soundEvents": "When to play",
+        "banner": "Virtual position message",
+        "finish": "Finish",
+        "palette": "Palette"
+      },
+      "CloseGallery": "Close ready-made looks",
+      "TurnLabel": "Round {round} · {turn}",
+      "PreviewSound": "Sounds",
+      "PreviewSoundHint": "Turning the sample plays the sound that turn would play for you.",
+      "OptionsShown": "How many options to show",
+      "Essential": "Essential",
+      "All": "All",
+      "ResetSection": "Reset this section",
+      "SoundsMuted": "The GM has muted the wheel's sounds for the whole table: you can set them up, but nothing plays during combat.",
+      "TestSequence": "Hear a combat",
+      "TestSequenceButton": "Play",
+      "TestSequenceHint": "Plays combat start, you are next, your turn and new round, one after another.",
+      "SoundEvents": {
+        "combatStart": "Combat starts",
+        "roundStart": "New round",
+        "turnChange": "Any turn change",
+        "nextUp": "You are next",
+        "ownTurn": "Your turn",
+        "turnBack": "Turn goes back",
+        "combatEnd": "Combat ends"
+      },
+      "TestBanner": "Test message",
+      "TestBannerHint": "Shows the message on screen as it is set up here, before saving.",
+      "SampleBannerTitle": "Lair action",
+      "SampleBannerText": "The cave trembles: stalactites fall from the ceiling.",
+      "SoundOverlap": "Foundry's combat sounds ({theme}) also play for: {events}. You will hear two sounds at once: set Foundry's combat sounds to none below, or turn these off.",
+      "PaletteMaker": "Palette from one colour",
+      "PaletteSeed": "Colour to build the palette from",
+      "PaletteMode": "Dark or light palette",
+      "PaletteDark": "Dark",
+      "PaletteLight": "Light",
+      "PaletteMake": "Make palette",
+      "PaletteHint": "Fills in Accent, Background, Surface and Text below, readable by construction; change any of them after.",
+      "ContrastText": "The text is hard to read on the panels ({ratio}:1, at least 4.5:1 is needed).",
+      "ContrastAccent": "The accent barely stands out from the panels ({ratio}:1, at least 3:1 is needed).",
+      "ContrastFix": "Pick other colours, or make a palette from one colour above.",
+      "ThemesHint": "Point at a theme to see it in the preview; click to choose it.",
+      "CloseThemes": "Close the themes"
+    },
+    "Virtual": {
+      "Name": "Name",
+      "Initiative": "Initiative",
+      "Image": "Image",
+      "NoMacro": "No macro",
+      "AutoAdvance": "Advance on its own",
+      "AutoAdd": "Add to every new combat",
+      "Hidden": "Hidden from players",
+      "AddToCombat": "Add to current combat",
+      "Remove": "Remove",
+      "Empty": "No virtual positions yet.",
+      "Add": "New virtual position",
+      "NewName": "Lair action",
+      "MenuTitle": "Add virtual position"
+    },
+    "Consequence": {
+      "Title": "Consequences",
+      "Hint": "What happens when the turn reaches this position. Messages, sounds and hooks run on every client that sees it; the rest runs once, on the active GM.",
+      "Add": "+ Add a consequence…",
+      "Enabled": "On",
+      "Missing": "needs",
+      "DropHere": "Drop a document or paste a UUID",
+      "Kinds": {
+        "screenMessage": "Message on screen",
+        "chatMessage": "Chat message",
+        "sound": "Play a sound",
+        "hook": "Fire a hook",
+        "macro": "Run a macro",
+        "rollTable": "Draw from a roll table",
+        "jumpScare": "SC Jump Scare: play a scare",
+        "puzzle": "SC Puzzle Engine: puzzle",
+        "resource": "SC Resources: change a resource"
+      },
+      "Fields": {
+        "title": "Title",
+        "text": "Text",
+        "audience": "Who sees it",
+        "seconds": "Seconds on screen",
+        "src": "Sound file",
+        "volume": "Volume (%)",
+        "name": "Hook name",
+        "macroUuid": "Macro",
+        "tableUuid": "Roll table",
+        "scareId": "Scare id",
+        "puzzleUuid": "Puzzle page",
+        "action": "Action",
+        "target": "Actors",
+        "actorUuid": "Actor (when \"one actor\")",
+        "resourceId": "Resource id",
+        "operation": "Operation",
+        "amount": "Amount"
+      },
+      "Choices": {
+        "audience": {
+          "all": "Everyone who sees the position",
+          "gm": "GM only"
+        },
+        "action": {
+          "open": "Open it",
+          "arm": "Arm it",
+          "trigger": "Trigger it"
+        },
+        "target": {
+          "party": "Player characters in this combat",
+          "combatants": "Every combatant in this combat",
+          "actor": "One actor"
+        },
+        "operation": {
+          "add": "Add",
+          "subtract": "Subtract",
+          "set": "Set to",
+          "restore": "Restore to max"
+        }
+      }
+    },
+    "Sharing": {
+      "Mode": {
+        "Name": "Table look",
+        "Hint": "Your saved look is the table look. Players choose: they follow it until they make their own. Everyone uses mine: players cannot change it. Everyone uses their own: nobody follows it.",
+        "Choices": {
+          "optional": "Players choose",
+          "forced": "Everyone uses mine",
+          "off": "Everyone uses their own"
+        }
+      },
+      "Publish": "Each time you save, your look becomes the table look.",
+      "Follow": {
+        "Name": "Use the GM's look",
+        "Hint": "Shows the wheel as the GM set it up. Changing anything here makes it your own look."
+      },
+      "FollowingNotice": "You are using the GM's look. Change anything to make your own.",
+      "ForcedNotice": "The GM chose the look for the whole table.",
+      "OffNotice": "Each player uses their own look at this table."
+    },
+    "CoreCombat": {
+      "NoTheme": "None",
+      "NoResource": "None",
+      "Markers": "Token turn markers",
+      "Theme": {
+        "Name": "Foundry combat sounds",
+        "Hint": "Foundry's own sound theme for the start of combat, your turn and being next. It plays on top of the wheel's sounds above, so you may want only one of them on. Saved for this browser."
+      },
+      "Resource": {
+        "Name": "Tracked resource",
+        "Hint": "The attribute Foundry's combat tracker shows for each combatant."
+      },
+      "SkipDefeated": {
+        "Name": "Skip defeated",
+        "Hint": "Foundry skips combatants marked as defeated when the turn advances."
+      },
+      "MarkerEnabled": {
+        "Name": "Turn markers",
+        "Hint": "Draws Foundry's turn marker under the acting token."
+      },
+      "MarkerAnimation": {
+        "Name": "Marker animation",
+        "Hint": "How the turn marker moves."
+      },
+      "MarkerSrc": {
+        "Name": "Marker image",
+        "Hint": "An image or video to use as the turn marker; empty uses Foundry's own."
+      },
+      "MarkerDisposition": {
+        "Name": "Tint by disposition",
+        "Hint": "Tints the marker with the token's disposition color."
+      },
+      "Preview": "Play a sound of this theme"
+    },
+    "Presets": {
+      "classic": {
+        "Name": "Classic",
+        "Hint": "The half wheel in Nocturne, as it comes."
+      },
+      "system": {
+        "Name": "Game system",
+        "Hint": "The wheel in your game system's colors, with initiative on the portraits."
+      },
+      "minimal": {
+        "Name": "Minimal",
+        "Hint": "Small cards, a slim bar with its tools in the More menu. Fades a little at rest."
+      },
+      "sidebar": {
+        "Name": "Side rail",
+        "Hint": "Wide cards running down a rail by the sidebar, every name shown."
+      },
+      "spotlight": {
+        "Name": "Spotlight",
+        "Hint": "The acting card large in front, the others turning away; a little stardust."
+      },
+      "streaming": {
+        "Name": "Streaming",
+        "Hint": "Large cards, names and initiative for viewers, on soft glass."
+      },
+      "fantasy": {
+        "Name": "Fantasy",
+        "Hint": "Crimson court and embers in the acting combatant's color."
+      },
+      "scifi": {
+        "Name": "Sci-fi",
+        "Hint": "Holographic wheel, compact bar and faint sparks."
+      },
+      "obsidian": {
+        "Name": "Obsidian",
+        "Hint": "Tall cards with fine black frames hanging from the top, health down the left edge, initiative on a faint d20, the controls in side columns shown on hover."
+      },
+      "tide": {
+        "Name": "Tide",
+        "Hint": "A dark panel of cards, the others dimmed until pointed at, a teal edge on the acting card, a thin health line and a pill bar below."
+      }
+    },
+    "CombatStyles": {
+      "Gallery": "Styles",
+      "Title": "Table styles",
+      "Save": "Save current look as a style",
+      "SaveTitle": "Save combat style",
+      "Name": "Name",
+      "Saved": "Style “{name}” saved.",
+      "Default": "Default combat style",
+      "DefaultHint": "Every combat uses it unless another is picked for it. The usual look is the table look you publish when you save.",
+      "Prompt": "Ask which style when a combat starts",
+      "Usual": "The usual look",
+      "IsDefault": "Default for combats",
+      "Delete": "Delete style",
+      "DeleteText": "Delete the style “{name}”? Combats that used it go back to the usual look.",
+      "EmptyGM": "No saved styles yet. Set up a look and save it here to use it in your combats.",
+      "Empty": "The GM has not saved any styles yet.",
+      "ActiveNotice": "This combat uses the “{name}” style. What you change here is the usual look, shown outside it.",
+      "AskTitle": "Combat style",
+      "AskText": "Which look should the table see in this combat?",
+      "Use": "Use this style",
+      "Field": "Style",
+      "UsualMeta": "The table look, as saved",
+      "NoMatch": "No style by that name",
+      "Choose": "Combat style…",
+      "UseInCombat": "Use in this combat",
+      "Applied": "This combat now uses “{name}”.",
+      "NoCombat": "There is no combat to give a style to.",
+      "NoStyles": "No saved styles yet: save one in the appearance editor's Styles."
+    }
+  }
+}

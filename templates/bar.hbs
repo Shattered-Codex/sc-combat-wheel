@@ -1,0 +1,305 @@
+{{#*inline "tools"}}
+  <div class="scw-tools">
+    {{#if bar.inline}}
+      {{#if bar.rollMenu}}
+        <button type="button" class="scw-btn scw-btn--ghost {{#if bar.rollOpen}}is-on{{/if}}" data-action="toggleMenu" data-menu="roll"
+                data-tooltip="{{bar.rollMenu.label}}" aria-label="{{bar.rollMenu.label}}"
+                aria-expanded="{{bar.rollOpen}}" aria-haspopup="menu">
+          <i class="fa-solid {{bar.rollMenu.icon}}" aria-hidden="true"></i>
+        </button>
+      {{/if}}
+      {{#if bar.canAddVirtual}}
+        <button type="button" class="scw-btn scw-btn--ghost {{#if bar.virtualOpen}}is-on{{/if}}" data-action="toggleMenu" data-menu="virtual"
+                data-tooltip="{{localize "SC_COMBAT_WHEEL.Virtual.MenuTitle"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Virtual.MenuTitle"}}"
+                aria-expanded="{{bar.virtualOpen}}" aria-haspopup="menu">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+        </button>
+      {{/if}}
+    {{/if}}
+    {{#if bar.show.grid}}
+    <button type="button" class="scw-btn scw-btn--ghost" data-action="openGrid" {{#unless bar.canOpenGrid}}disabled{{/unless}}
+            data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.SeeAll"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.SeeAll"}}">
+      <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i>
+    </button>
+    {{/if}}
+    {{#if (and bar.details bar.show.details)}}
+      <button type="button" class="scw-btn scw-btn--ghost" data-action="toggleExpand"
+              data-tooltip="{{bar.expandLabel}}" aria-label="{{bar.expandLabel}}" aria-expanded="{{bar.expanded}}">
+        <i class="fa-solid {{bar.expandIcon}}" aria-hidden="true"></i>
+      </button>
+    {{/if}}
+    {{#if bar.inline}}
+      {{#if bar.toolRule}}<span class="scw-bar-rule" aria-hidden="true"></span>{{/if}}
+      {{#if bar.show.lock}}
+      <button type="button" class="scw-btn scw-btn--ghost {{#if bar.locked}}is-on{{/if}}" data-action="toggleLock"
+              data-tooltip="{{bar.lockLabel}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.LockToggle"}}" aria-pressed="{{bar.locked}}">
+        <i class="fa-solid {{#if bar.locked}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i>
+      </button>
+      {{/if}}
+      {{#if bar.show.direction}}
+      <button type="button" class="scw-btn scw-btn--ghost {{#if bar.directionOpen}}is-on{{/if}}" data-action="toggleMenu" data-menu="direction"
+              data-tooltip="{{bar.directionLabel}}" aria-label="{{bar.directionLabel}}" aria-expanded="{{bar.directionOpen}}" aria-haspopup="menu"
+              {{#if bar.locked}}disabled{{/if}}>
+        <i class="fa-solid {{bar.orientationIcon}}" aria-hidden="true"></i>
+      </button>
+      {{/if}}
+      {{#if bar.show.appearance}}
+      <button type="button" class="scw-btn scw-btn--ghost" data-action="openAppearance"
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}">
+        <i class="fa-solid fa-palette" aria-hidden="true"></i>
+      </button>
+      {{/if}}
+      {{#if bar.show.settings}}
+      <button type="button" class="scw-btn scw-btn--ghost" data-action="openSettings"
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.Settings"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.Settings"}}">
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </button>
+      {{/if}}
+      {{#if (and bar.isGM bar.show.endCombat)}}
+        <button type="button" class="scw-btn scw-btn--ghost is-danger" data-action="endCombat"
+                data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.EndCombat"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.EndCombat"}}">
+          <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+        </button>
+      {{/if}}
+    {{else}}
+      <button type="button" class="scw-btn scw-btn--ghost {{#if bar.moreOpen}}is-on{{/if}}" data-action="toggleMenu" data-menu="more"
+              data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.More"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.More"}}"
+              aria-expanded="{{bar.moreOpen}}" aria-haspopup="menu">
+        <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+      </button>
+    {{/if}}
+  </div>
+{{/inline}}
+{{#*inline "rollItems"}}
+  <span class="scw-details-kicker">{{localize "SC_COMBAT_WHEEL.RollMenu.Kicker"}}</span>
+  {{#each bar.rollOptions}}
+    <button type="button" class="scw-menu-item" role="menuitem" data-action="roll" data-group="{{group}}">
+      <i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{label}}</span><span class="scw-count">{{count}}</span>
+    </button>
+  {{/each}}
+{{/inline}}
+{{#*inline "virtualItems"}}
+  <span class="scw-details-kicker">{{localize "SC_COMBAT_WHEEL.Virtual.MenuTitle"}}</span>
+  {{#each bar.virtualTemplates}}
+    <button type="button" class="scw-menu-item" role="menuitem" data-action="addVirtual" data-template-id="{{id}}">
+      <i class="fa-solid fa-bolt" aria-hidden="true"></i><span>{{name}}</span><span class="scw-count">{{initiative}}</span>
+    </button>
+  {{else}}
+    <span class="scw-menu-empty">{{localize "SC_COMBAT_WHEEL.Virtual.Empty"}}</span>
+  {{/each}}
+{{/inline}}
+{{#*inline "directionItems"}}
+  <span class="scw-details-kicker" id="scw-direction-label">{{localize "SC_COMBAT_WHEEL.Bar.Direction"}}</span>
+  <div class="scw-menu-segments" role="group" aria-labelledby="scw-direction-label">
+    {{#each bar.orientations}}
+      <button type="button" class="scw-btn scw-btn--secondary {{#if active}}is-on{{/if}}" role="menuitemradio"
+              aria-checked="{{#if active}}true{{else}}false{{/if}}" data-action="setOrientation" data-orientation="{{value}}"
+              data-tooltip="{{label}}" aria-label="{{label}}" {{#if disabled}}disabled{{/if}}>
+        <i class="fa-solid {{icon}}" aria-hidden="true"></i>
+      </button>
+    {{/each}}
+  </div>
+{{/inline}}
+{{#*inline "grab"}}
+  {{#if bar.show.grab}}
+  <span class="scw-grab {{#if bar.locked}}is-disabled{{/if}}" data-drag-handle
+        data-tooltip="{{bar.dragLabel}}" aria-label="{{bar.dragLabel}}">
+    <i class="fa-solid {{#if bar.locked}}fa-lock{{else}}{{bar.gripIcon}}{{/if}}" aria-hidden="true"></i>
+  </span>
+  {{/if}}
+{{/inline}}
+{{#*inline "previous"}}
+  {{#if (and bar.isGM bar.show.previous)}}
+    <button type="button" class="scw-btn scw-btn--secondary" data-action="previousTurn"
+            data-tooltip="{{bar.previousLabel}}" aria-label="{{bar.previousLabel}}">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+  {{/if}}
+{{/inline}}
+{{#*inline "endTurn"}}
+  {{#if (and bar.endTurnLabel bar.show.endTurn)}}
+    <button type="button" class="scw-btn scw-btn--primary scw-btn--label scw-end-turn" data-action="endTurn"
+            data-tooltip="{{bar.endTurnLabel}}" aria-label="{{bar.endTurnLabel}}" {{#if bar.endTurnDisabled}}disabled{{/if}}>
+      <span class="scw-end-turn-label">{{bar.endTurnLabel}}</span><i class="fa-solid {{bar.endTurnIcon}}" aria-hidden="true"></i>
+    </button>
+  {{/if}}
+{{/inline}}
+{{#*inline "round"}}
+  {{#if bar.show.round}}
+    <div class="scw-round">
+      <span class="scw-round-main">{{bar.roundLabel}}</span>
+      <span class="scw-round-sub">{{bar.turnLabel}}</span>
+    </div>
+  {{/if}}
+{{/inline}}
+{{#*inline "backToTurn"}}
+  {{#if bar.peeking}}
+    <button type="button" class="scw-btn scw-btn--secondary" data-action="backToTurn"
+            data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.BackToTurn"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.BackToTurn"}}">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+    </button>
+  {{/if}}
+{{/inline}}
+{{#*inline "rollOwn"}}
+  {{#if bar.canRollOwn}}
+    <button type="button" class="scw-btn scw-btn--ghost scw-bar-roll {{#if bar.rolling}}is-rolling{{/if}}" data-action="rollPending"
+            data-tooltip="{{localize "SC_COMBAT_WHEEL.Hub.RollInitiative"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Hub.RollInitiative"}}"
+            {{#if bar.rolling}}disabled{{/if}}>
+      <i class="fa-solid fa-dice-d20" aria-hidden="true"></i>
+    </button>
+  {{/if}}
+{{/inline}}
+{{#*inline "menus"}}
+  {{#if bar.rollOpen}}
+    <div class="scw-roll-menu" role="menu">{{> rollItems}}</div>
+  {{/if}}
+  {{#if bar.virtualOpen}}
+    <div class="scw-roll-menu scw-more-menu" role="menu">{{> virtualItems}}</div>
+  {{/if}}
+  {{#if bar.directionOpen}}
+    <div class="scw-roll-menu" role="menu">{{> directionItems}}</div>
+  {{/if}}
+
+  {{#if bar.moreOpen}}
+    <div class="scw-roll-menu scw-more-menu" role="menu">
+      {{#if bar.isGM}}
+        {{#if (and bar.rollOptions.length bar.show.roll)}}{{> rollItems}}{{/if}}
+        {{#if (and bar.virtualTemplates bar.show.virtual)}}{{> virtualItems}}{{/if}}
+        <hr class="scw-menu-rule">
+      {{/if}}
+
+      {{#if bar.show.lock}}
+      <button type="button" class="scw-menu-item" role="menuitem" data-action="toggleLock">
+        <i class="fa-solid {{bar.lockIcon}}" aria-hidden="true"></i><span>{{bar.lockLabel}}</span>
+      </button>
+      {{/if}}
+      {{#if bar.show.direction}}{{> directionItems}}{{/if}}
+      {{#if bar.show.appearance}}
+      <button type="button" class="scw-menu-item" role="menuitem" data-action="openAppearance">
+        <i class="fa-solid fa-palette" aria-hidden="true"></i><span>{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}</span>
+      </button>
+      {{/if}}
+      {{#if bar.show.settings}}
+      <button type="button" class="scw-menu-item" role="menuitem" data-action="openSettings">
+        <i class="fa-solid fa-gear" aria-hidden="true"></i><span>{{localize "SC_COMBAT_WHEEL.Bar.Settings"}}</span>
+      </button>
+      {{/if}}
+      {{#if (and bar.isGM bar.show.endCombat)}}
+        <hr class="scw-menu-rule">
+        <button type="button" class="scw-menu-item is-danger" role="menuitem" data-action="endCombat">
+          <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i><span>{{localize "SC_COMBAT_WHEEL.Bar.EndCombat"}}</span>
+        </button>
+      {{/if}}
+    </div>
+  {{/if}}
+{{/inline}}
+<div class="scw-bar-part">
+  {{#if bar.split}}
+  {{!-- RF-104: the bar split in two columns beside the portraits. Each has a
+       main zone next to them (back a turn / end the turn, like a player's
+       controls around the acting card) and the rest further out. --}}
+  <div class="scw-pod scw-pod--start">
+    <div class="scw-pod-main">{{> previous}}{{> backToTurn}}</div>
+    <div class="scw-pod-more">{{> grab}}{{> round}}</div>
+  </div>
+  <div class="scw-pod scw-pod--end">
+    <div class="scw-pod-main">{{> endTurn}}{{> rollOwn}}</div>
+    <div class="scw-pod-more">{{> tools}}</div>
+    {{> menus}}
+  </div>
+  {{else}}
+  <div class="scw-bar">
+    <div class="scw-bar-row">
+      {{> grab}}
+      {{> previous}}
+      {{> endTurn}}
+      {{> round}}
+      <div class="scw-spacer"></div>
+      {{> backToTurn}}
+      {{> rollOwn}}
+      {{> tools}}
+    </div>
+
+    {{#if bar.expanded}}
+      <div class="scw-details">
+        <section class="scw-details-block">
+          <h3 class="scw-details-kicker">{{#if bar.phased}}{{localize "SC_COMBAT_WHEEL.Details.Phase"}}{{else}}{{localize "SC_COMBAT_WHEEL.Details.Character"}}{{/if}}</h3>
+          {{#if bar.character}}
+            <div class="scw-details-nav">
+              <button type="button" class="scw-btn scw-btn--ghost scw-btn--tiny" data-action="viewStep" data-step="-1"
+                      data-tooltip="{{localize "SC_COMBAT_WHEEL.Details.Previous"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Details.Previous"}}">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+              </button>
+              <span class="scw-details-name">{{bar.character.name}}</span>
+              <button type="button" class="scw-btn scw-btn--ghost scw-btn--tiny" data-action="viewStep" data-step="1"
+                      data-tooltip="{{localize "SC_COMBAT_WHEEL.Details.Next"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Details.Next"}}">
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+              <span class="scw-details-pos {{#if bar.character.viewing}}is-viewing{{/if}}">{{bar.character.position}}</span>
+            </div>
+            <span class="scw-details-sub">{{bar.character.subtitle}}</span>
+            {{#if bar.character.isPhase}}
+              {{#if bar.character.hp}}<span class="scw-details-sub">{{bar.character.hp.text}}</span>{{/if}}
+            {{else}}
+              <div class="scw-details-stats">
+                <span><i class="fa-solid fa-bolt" aria-hidden="true"></i>{{bar.character.initiative}}</span>
+                {{#if bar.character.hp}}
+                  <span><i class="fa-solid fa-heart" aria-hidden="true"></i>{{bar.character.hp.text}}</span>
+                {{/if}}
+              </div>
+            {{/if}}
+            {{#if bar.character.hp}}
+              <span class="scw-hp"><span class="scw-hp-fill {{#if bar.character.hp.critical}}is-critical{{/if}}" style="width: {{bar.character.hp.width}}"></span></span>
+            {{/if}}
+            <div class="scw-tags">
+              {{#each bar.character.effects}}
+                <span class="scw-tag">{{#if img}}<img src="{{img}}" alt="">{{/if}}{{label}}</span>
+              {{/each}}
+            </div>
+          {{else}}
+            <span class="scw-details-sub">—</span>
+          {{/if}}
+        </section>
+        <section class="scw-details-block">
+          <h3 class="scw-details-kicker">{{localize "SC_COMBAT_WHEEL.Details.Combat"}}</h3>
+          <dl class="scw-details-rows">
+            {{#each bar.combatRows}}
+              <dt>{{label}}</dt><dd>{{value}}</dd>
+            {{/each}}
+          </dl>
+        </section>
+      </div>
+    {{/if}}
+  </div>
+
+  {{/if}}
+
+  {{#if bar.strip}}
+    <section class="scw-strip" style="--scw-phase-color: {{bar.strip.color}}" aria-label="{{bar.strip.label}}">
+      <span class="scw-strip-head" data-tooltip="{{bar.strip.name}}" aria-hidden="true"><i class="{{bar.strip.icon}}"></i></span>
+      <ul class="scw-strip-list">
+        {{#each bar.strip.members}}
+          <li class="scw-strip-member">
+            <button type="button" class="scw-strip-actor is-{{status}} is-{{dispositionKey}} {{#if isOwner}}is-own{{/if}}"
+                    data-strip-combatant="{{id}}" data-tooltip="{{tooltip}}" aria-label="{{tooltip}}">
+              <span class="scw-strip-portrait">
+                {{#if img}}<img src="{{img}}" alt="" draggable="false">{{else}}<span class="scw-strip-initials">{{initials}}</span>{{/if}}
+                {{#if isDone}}{{#unless doneToggle}}<i class="scw-strip-badge fa-solid fa-check" aria-hidden="true"></i>{{/unless}}{{/if}}
+                {{#if isDefeated}}<i class="scw-strip-badge fa-solid fa-skull" aria-hidden="true"></i>{{/if}}
+              </span>
+              <span class="scw-strip-name">{{name}}</span>
+            </button>
+            {{#if doneToggle}}
+              <button type="button" class="scw-strip-done {{#if doneToggle.pressed}}is-pressed{{/if}}" data-action="toggleMemberDone" data-combatant-id="{{id}}"
+                      aria-pressed="{{#if doneToggle.pressed}}true{{else}}false{{/if}}" aria-label="{{doneToggle.label}}" data-tooltip="{{doneToggle.label}}">
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+              </button>
+            {{/if}}
+          </li>
+        {{/each}}
+      </ul>
+    </section>
+  {{/if}}
+
+  {{#unless bar.split}}{{> menus}}{{/unless}}
+</div>

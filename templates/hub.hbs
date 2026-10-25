@@ -1,0 +1,37 @@
+<div class="scw-hub-clip">
+  <div class="scw-hub">
+    <div class="scw-hub-content" aria-live="polite">
+      {{#if hub.roll}}
+        {{#if hub.canRoll}}
+          <button type="button" class="scw-roll-request {{#if hub.rolling}}is-rolling{{/if}}" data-action="rollPending"
+                  {{#if hub.rolling}}disabled{{/if}}>
+            <span class="scw-d20"><i class="fa-solid fa-dice-d20" aria-hidden="true"></i></span>
+            <span class="scw-roll-title">{{hub.title}}</span>
+            <span class="scw-roll-info">{{hub.info}}</span>
+          </button>
+        {{else}}
+          <div class="scw-roll-request is-passive">
+            <span class="scw-d20"><i class="fa-solid fa-dice-d20" aria-hidden="true"></i></span>
+            <span class="scw-roll-info">{{hub.info}}</span>
+          </div>
+        {{/if}}
+      {{else if hub.turn}}
+        <span class="scw-hub-label {{#if hub.peeking}}is-muted{{/if}}">
+          {{#if hub.icon}}<i class="scw-hub-icon {{hub.icon}}" {{#if hub.color}}style="--scw-phase-color: {{hub.color}}"{{/if}} aria-hidden="true"></i>{{/if}}{{hub.label}}
+        </span>
+        <span class="scw-hub-name">{{hub.name}}</span>
+        {{#if hub.hp}}
+          <span class="scw-hp"><span class="scw-hp-fill {{#if hub.hp.critical}}is-critical{{/if}}" style="width: {{hub.hp.width}}"></span></span>
+          {{#if hub.hp.text}}<span class="scw-hp-text">{{hub.hp.text}}</span>{{/if}}
+        {{/if}}
+        {{#if hub.peeking}}
+          <button type="button" class="scw-btn scw-btn--primary scw-btn--label scw-btn--small" data-action="backToTurn">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Bar.BackToTurn"}}
+          </button>
+        {{/if}}
+      {{else}}
+        <span class="scw-hub-label is-muted">{{hub.label}}</span>
+      {{/if}}
+    </div>
+  </div>
+</div>

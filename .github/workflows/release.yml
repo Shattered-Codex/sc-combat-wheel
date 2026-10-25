@@ -258,6 +258,8 @@ jobs:
               assert not any(part.startswith(".") or part in {"AGENTS.md", "CLAUDE.md"}
                              for name in names for part in Path(name).parts), "Development material in package."
           artifacts = ["./module.json", f"./{archive_path}", "./CHANGELOG.md", "./module-tiers.json"]
+          if Path("beta.json").is_file():
+              artifacts.append("./beta.json")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write(f"artifacts={','.join(artifacts)}\n")
           PYZIP
@@ -320,6 +322,11 @@ jobs:
           aws s3 cp module.json "${TARGET}/module.json" --endpoint-url "${ENDPOINT}" --no-progress
           aws s3 cp module-tiers.json "${TARGET}/module-tiers.json" --endpoint-url "${ENDPOINT}" --no-progress
           aws s3 cp "./${MODULE_ID}.zip" "${TARGET}/${MODULE_ID}.zip" --endpoint-url "${ENDPOINT}" --no-progress
+          if [[ -f beta.json ]]; then
+            aws s3 cp beta.json "${TARGET}/beta.json" --endpoint-url "${ENDPOINT}" --no-progress
+          else
+            aws s3 rm "${TARGET}/beta.json" --endpoint-url "${ENDPOINT}" --no-progress
+          fi
 
       - name: Publish to Foundry Package API
         if: success()

@@ -6,8 +6,8 @@
     },
     "Settings": {
       "openOnStart": {
-        "Name": "Open when combat starts",
-        "Hint": "Shows the wheel for everyone as soon as the combat begins, and closes it when the combat ends."
+        "Name": "Open automatically",
+        "Hint": "Shows the wheel for everyone as soon as the combat has combatants, so they can roll initiative, and again when it begins. Closes it when the combat ends."
       },
       "hideNativeTracker": {
         "Name": "Hide the native combat tab",
@@ -44,8 +44,28 @@
         }
       },
       "clickAction": {
-        "Name": "Slice click",
-        "Hint": "What clicking a portrait does.",
+        "Name": "Click on a slice",
+        "Hint": "What a left click on a portrait does.",
+        "Choices": {
+          "pan": "Center the camera on the token",
+          "select": "Select the token",
+          "sheet": "Open the sheet",
+          "none": "Nothing"
+        }
+      },
+      "doubleClickAction": {
+        "Name": "Double click on a slice",
+        "Hint": "What a double click on a portrait does. The single click runs first, as in Foundry's tracker.",
+        "Choices": {
+          "pan": "Center the camera on the token",
+          "select": "Select the token",
+          "sheet": "Open the sheet",
+          "none": "Nothing"
+        }
+      },
+      "rightClickAction": {
+        "Name": "Right click on a slice",
+        "Hint": "What a right click on a portrait does.",
         "Choices": {
           "pan": "Center the camera on the token",
           "select": "Select the token",
@@ -78,7 +98,7 @@
       },
       "portraitSource": {
         "Name": "Portrait source",
-        "Hint": "Image shown on each slice.",
+        "Hint": "Image shown on each slice. Each user may pick the token or the character portrait in their own look instead (Appearance → Portraits).",
         "Choices": {
           "token": "Token image",
           "actor": "Actor portrait",
@@ -125,6 +145,15 @@
         "Choices": {
           "sector": "Sector",
           "square": "Rounded square"
+        }
+      },
+      "portraitImage": {
+        "Name": "Portrait image",
+        "Hint": "The token's art or the character's portrait. \"As the table\" keeps what the GM chose for the world. Players only see a character's portrait when Foundry already shows it to them (Limited permission or more); otherwise the token.",
+        "Choices": {
+          "table": "As the table",
+          "token": "Token",
+          "actor": "Character portrait"
         }
       },
       "sliceGap": {
@@ -451,7 +480,27 @@
           "motes": "Golden motes",
           "confetti": "Confetti",
           "runes": "Runes",
-          "wisps": "Wisps"
+          "wisps": "Wisps",
+          "smoke": "Smoke",
+          "glyphs": "Glyphs"
+        }
+      },
+      "particleMotion": {
+        "Name": "Motion",
+        "Hint": "How the particles move. Automatic gives each kind its own.",
+        "Choices": {
+          "auto": "Automatic",
+          "burst": "Burst out",
+          "rise": "Rise",
+          "fall": "Fall",
+          "swirl": "Swirl",
+          "twinkle": "Twinkle",
+          "wander": "Wander",
+          "drift": "Drift and sway",
+          "float": "Float up slowly",
+          "hover": "Hover",
+          "orbit": "Orbit",
+          "wave": "Rise in waves"
         }
       },
       "particlePlacement": {
@@ -473,7 +522,7 @@
       },
       "particleIntensity": {
         "Name": "Effect intensity",
-        "Hint": "How strong every effect is: the acting portrait's, the turn change's and the particles (how many and how bright).",
+        "Hint": "How strong every effect is: the acting portrait's, the widget's, the turn change's and the particles. Stronger is brighter, then bigger: glows, flames, rings and particles grow, and more particles show.",
         "Choices": {
           "subtle": "Subtle",
           "normal": "Normal",
@@ -589,6 +638,7 @@
           "lock": "Lock position",
           "direction": "Direction",
           "appearance": "Appearance",
+          "style": "Switch style (GM)",
           "settings": "Settings",
           "endCombat": "End combat (GM)"
         }
@@ -602,8 +652,28 @@
           "halo": "Halo",
           "aura": "Energy aura",
           "flicker": "Flame",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "void": "Void",
           "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic circle",
           "shine": "Shine"
+        }
+      },
+      "actingWaves": {
+        "Name": "Waves around the acting portrait",
+        "Hint": "Rings that keep leaving the acting portrait, as in the SC Item Rarity Colors. They add to the effect above.",
+        "Choices": {
+          "none": "None",
+          "energy": "Energy",
+          "ripples": "Ripples",
+          "shockwave": "Shockwave",
+          "arcane": "Arcane",
+          "mist": "Mist",
+          "sonar": "Sonar",
+          "prism": "Prism",
+          "burst": "Burst"
         }
       },
       "turnEffect": {
@@ -614,7 +684,23 @@
           "ripple": "Waves",
           "burst": "Burst of light",
           "flash": "Flash",
-          "pop": "Pop"
+          "pop": "Pop",
+          "shockwave": "Shockwave",
+          "lightning": "Lightning"
+        }
+      },
+      "widgetEffect": {
+        "Name": "Effect around the widget",
+        "Hint": "Drawn around the whole wheel (its rim) or the row of cards, all the time.",
+        "Choices": {
+          "none": "None",
+          "pulse": "Breathing glow",
+          "halo": "Halo",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic frame"
         }
       },
       "soundTurnBack": {
@@ -741,6 +827,7 @@
       "Waiting": "Waiting",
       "Acting": "Acting",
       "First": "First up",
+      "Yours": "Your character",
       "Viewing": "Viewing",
       "Virtual": "Virtual position"
     },
@@ -785,6 +872,7 @@
       "SeeAll": "See everyone",
       "Settings": "Settings",
       "EndTurn": "End turn",
+      "StartCombat": "Start combat",
       "More": "More",
       "Locked": "Position locked",
       "Appearance": "Appearance",
@@ -805,7 +893,8 @@
       "Npc": "NPCs only",
       "Pc": "Characters only",
       "Reset": "Clear initiatives",
-      "Kicker": "Initiative"
+      "Kicker": "Initiative",
+      "Group": "Roll initiative: {group} ({count})"
     },
     "Details": {
       "Character": "Character",
@@ -967,7 +1056,6 @@
         "portraits": "Portraits",
         "bar": "Bar",
         "phases": "Phases",
-        "motion": "Motion",
         "effects": "Effects",
         "sharing": "Sharing",
         "sounds": "Sounds",
@@ -1005,6 +1093,7 @@
         "panels": "Panels",
         "sides": "Sides",
         "acting": "Effects",
+        "widget": "Around the widget",
         "text": "Text",
         "particles": "Particles",
         "motion": "Motion",
@@ -1228,32 +1317,24 @@
     },
     "CombatStyles": {
       "Gallery": "Styles",
-      "Title": "Table styles",
+      "Title": "Saved styles",
       "Save": "Save current look as a style",
-      "SaveTitle": "Save combat style",
+      "SaveTitle": "Save style",
       "Name": "Name",
       "Saved": "Style “{name}” saved.",
-      "Default": "Default combat style",
-      "DefaultHint": "Every combat uses it unless another is picked for it. The usual look is the table look you publish when you save.",
-      "Prompt": "Ask which style when a combat starts",
-      "Usual": "The usual look",
-      "IsDefault": "Default for combats",
       "Delete": "Delete style",
-      "DeleteText": "Delete the style “{name}”? Combats that used it go back to the usual look.",
-      "EmptyGM": "No saved styles yet. Set up a look and save it here to use it in your combats.",
+      "DeleteText": "Delete the style “{name}”? The current look stays as it is.",
+      "EmptyGM": "No saved styles yet. Set up a look and save it here to switch to it any time.",
       "Empty": "The GM has not saved any styles yet.",
-      "ActiveNotice": "This combat uses the “{name}” style. What you change here is the usual look, shown outside it.",
-      "AskTitle": "Combat style",
-      "AskText": "Which look should the table see in this combat?",
+      "AskTitle": "Switch style",
+      "AskText": "Which saved style should the table see now?",
       "Use": "Use this style",
       "Field": "Style",
-      "UsualMeta": "The table look, as saved",
       "NoMatch": "No style by that name",
-      "Choose": "Combat style…",
-      "UseInCombat": "Use in this combat",
-      "Applied": "This combat now uses “{name}”.",
-      "NoCombat": "There is no combat to give a style to.",
-      "NoStyles": "No saved styles yet: save one in the appearance editor's Styles."
+      "Choose": "Switch style…",
+      "Applied": "The table now uses “{name}”.",
+      "NoStyles": "No saved styles yet: save one in the appearance editor's Styles.",
+      "Current": "Current look"
     }
   }
 }

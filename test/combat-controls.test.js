@@ -29,3 +29,26 @@ describe("CombatControls.endOwnTurn", () => {
     assert.equal(combat.advances, 1);
   });
 });
+
+describe("CombatControls.startCombat", () => {
+  const combatOf = (started) => ({ started, starts: 0, startCombat() { this.starts += 1; } });
+
+  it("starts a combat still being set up, for the GM only", () => {
+    const combat = combatOf(false);
+    CombatControls.startCombat(combat);
+    assert.equal(combat.starts, 1);
+    game.user.isGM = false;
+    try {
+      CombatControls.startCombat(combat);
+    } finally {
+      game.user.isGM = true;
+    }
+    assert.equal(combat.starts, 1);
+  });
+
+  it("does nothing once the combat started", () => {
+    const combat = combatOf(true);
+    CombatControls.startCombat(combat);
+    assert.equal(combat.starts, 0);
+  });
+});

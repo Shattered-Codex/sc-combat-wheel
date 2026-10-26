@@ -6,8 +6,8 @@
     },
     "Settings": {
       "openOnStart": {
-        "Name": "Abrir ao iniciar o combate",
-        "Hint": "Mostra a roda para todos assim que o combate começa e fecha quando ele termina."
+        "Name": "Abrir automaticamente",
+        "Hint": "Mostra a roda para todos assim que o combate tem combatentes, para rolarem a iniciativa, e de novo quando ele começa. Fecha quando ele termina."
       },
       "hideNativeTracker": {
         "Name": "Esconder a aba nativa de combate",
@@ -45,7 +45,27 @@
       },
       "clickAction": {
         "Name": "Clique na fatia",
-        "Hint": "O que acontece ao clicar num retrato.",
+        "Hint": "O que acontece ao clicar num retrato com o botão esquerdo.",
+        "Choices": {
+          "pan": "Centralizar a câmera no token",
+          "select": "Selecionar o token",
+          "sheet": "Abrir a ficha",
+          "none": "Nada"
+        }
+      },
+      "doubleClickAction": {
+        "Name": "Duplo clique na fatia",
+        "Hint": "O que acontece ao dar duplo clique num retrato. O clique simples acontece antes, como no tracker do Foundry.",
+        "Choices": {
+          "pan": "Centralizar a câmera no token",
+          "select": "Selecionar o token",
+          "sheet": "Abrir a ficha",
+          "none": "Nada"
+        }
+      },
+      "rightClickAction": {
+        "Name": "Clique direito na fatia",
+        "Hint": "O que acontece ao clicar num retrato com o botão direito.",
         "Choices": {
           "pan": "Centralizar a câmera no token",
           "select": "Selecionar o token",
@@ -78,7 +98,7 @@
       },
       "portraitSource": {
         "Name": "Fonte do retrato",
-        "Hint": "Imagem mostrada em cada fatia.",
+        "Hint": "Imagem mostrada em cada fatia. Cada usuário pode escolher o token ou o retrato do personagem no próprio visual (Aparência → Retratos).",
         "Choices": {
           "token": "Imagem do token",
           "actor": "Retrato do ator",
@@ -125,6 +145,15 @@
         "Choices": {
           "sector": "Setor",
           "square": "Quadrado de cantos suaves"
+        }
+      },
+      "portraitImage": {
+        "Name": "Imagem do retrato",
+        "Hint": "A arte do token ou o retrato do personagem. \"Como a mesa\" mantém o que o Mestre escolheu para o mundo. Jogadores só veem o retrato de um personagem quando o Foundry já mostra a eles (permissão Limitada ou mais); senão, o token.",
+        "Choices": {
+          "table": "Como a mesa",
+          "token": "Token",
+          "actor": "Retrato do personagem"
         }
       },
       "sliceGap": {
@@ -451,7 +480,27 @@
           "motes": "Poeira dourada",
           "confetti": "Confete",
           "runes": "Runas",
-          "wisps": "Fogos-fátuos"
+          "wisps": "Fogos-fátuos",
+          "smoke": "Fumaça",
+          "glyphs": "Glifos"
+        }
+      },
+      "particleMotion": {
+        "Name": "Movimento",
+        "Hint": "Como as partículas se movem. Automático dá a cada tipo o seu.",
+        "Choices": {
+          "auto": "Automático",
+          "burst": "Explodir para fora",
+          "rise": "Subir",
+          "fall": "Cair",
+          "swirl": "Girar",
+          "twinkle": "Cintilar",
+          "wander": "Vagar",
+          "drift": "Cair balançando",
+          "float": "Subir devagar",
+          "hover": "Pairar",
+          "orbit": "Orbitar",
+          "wave": "Subir em ondas"
         }
       },
       "particlePlacement": {
@@ -473,7 +522,7 @@
       },
       "particleIntensity": {
         "Name": "Intensidade dos efeitos",
-        "Hint": "A força de todos os efeitos: o de quem age, o da troca de turno e as partículas (quantas e o quanto brilham).",
+        "Hint": "A força de todos os efeitos: o de quem age, o do widget, o da troca de turno e as partículas. Mais forte é mais brilhante e depois maior: brilhos, chamas, anéis e partículas crescem, e aparecem mais partículas.",
         "Choices": {
           "subtle": "Sutil",
           "normal": "Normal",
@@ -589,6 +638,7 @@
           "lock": "Travar posição",
           "direction": "Direção",
           "appearance": "Aparência",
+          "style": "Trocar estilo (Mestre)",
           "settings": "Configurações",
           "endCombat": "Encerrar combate (Mestre)"
         }
@@ -602,8 +652,28 @@
           "halo": "Halo",
           "aura": "Aura de energia",
           "flicker": "Chama",
+          "flames": "Chamas de energia",
+          "inferno": "Inferno",
+          "void": "Vazio",
           "rays": "Coroa de raios",
+          "storm": "Tempestade",
+          "runes": "Círculo rúnico",
           "shine": "Reflexo"
+        }
+      },
+      "actingWaves": {
+        "Name": "Ondas em quem age",
+        "Hint": "Anéis que não param de sair do retrato de quem age, como no SC Item Rarity Colors. Somam-se ao efeito acima.",
+        "Choices": {
+          "none": "Nenhuma",
+          "energy": "Energia",
+          "ripples": "Ondulações",
+          "shockwave": "Onda de choque",
+          "arcane": "Arcana",
+          "mist": "Névoa",
+          "sonar": "Sonar",
+          "prism": "Prisma",
+          "burst": "Explosão"
         }
       },
       "turnEffect": {
@@ -614,7 +684,23 @@
           "ripple": "Ondas",
           "burst": "Explosão de luz",
           "flash": "Clarão",
-          "pop": "Salto"
+          "pop": "Salto",
+          "shockwave": "Onda de choque",
+          "lightning": "Relâmpago"
+        }
+      },
+      "widgetEffect": {
+        "Name": "Efeito em volta do widget",
+        "Hint": "Desenhado em volta da roda inteira (a borda dela) ou da fileira de cartões, o tempo todo.",
+        "Choices": {
+          "none": "Nenhum",
+          "pulse": "Brilho pulsante",
+          "halo": "Halo",
+          "flames": "Chamas de energia",
+          "inferno": "Inferno",
+          "rays": "Coroa de raios",
+          "storm": "Tempestade",
+          "runes": "Moldura rúnica"
         }
       },
       "soundTurnBack": {
@@ -741,6 +827,7 @@
       "Waiting": "Aguardando",
       "Acting": "Agindo",
       "First": "Primeiro",
+      "Yours": "Seu personagem",
       "Viewing": "Visualizando",
       "Virtual": "Posição virtual"
     },
@@ -785,6 +872,7 @@
       "SeeAll": "Ver todos",
       "Settings": "Configurações",
       "EndTurn": "Encerrar turno",
+      "StartCombat": "Iniciar combate",
       "More": "Mais",
       "Locked": "Posição travada",
       "Appearance": "Aparência",
@@ -805,7 +893,8 @@
       "Npc": "Só NPCs",
       "Pc": "Só personagens",
       "Reset": "Limpar iniciativas",
-      "Kicker": "Iniciativa"
+      "Kicker": "Iniciativa",
+      "Group": "Rolar iniciativa: {group} ({count})"
     },
     "Details": {
       "Character": "Personagem",
@@ -967,7 +1056,6 @@
         "portraits": "Retratos",
         "bar": "Barra",
         "phases": "Fases",
-        "motion": "Movimento",
         "effects": "Efeitos",
         "sharing": "Compartilhar",
         "sounds": "Sons",
@@ -1005,6 +1093,7 @@
         "panels": "Painéis",
         "sides": "Lados",
         "acting": "Efeitos",
+        "widget": "Em volta do widget",
         "text": "Texto",
         "particles": "Partículas",
         "motion": "Movimento",
@@ -1228,32 +1317,24 @@
     },
     "CombatStyles": {
       "Gallery": "Estilos",
-      "Title": "Estilos da mesa",
+      "Title": "Estilos salvos",
       "Save": "Salvar o visual atual como estilo",
-      "SaveTitle": "Salvar estilo de combate",
+      "SaveTitle": "Salvar estilo",
       "Name": "Nome",
       "Saved": "Estilo “{name}” salvo.",
-      "Default": "Estilo padrão dos combates",
-      "DefaultHint": "Todo combate usa este, a menos que outro seja escolhido para ele. O visual de sempre é o visual da mesa que você publica ao salvar.",
-      "Prompt": "Perguntar o estilo ao iniciar cada combate",
-      "Usual": "O visual de sempre",
-      "IsDefault": "Padrão dos combates",
       "Delete": "Apagar estilo",
-      "DeleteText": "Apagar o estilo “{name}”? Os combates que o usavam voltam ao visual de sempre.",
-      "EmptyGM": "Nenhum estilo salvo ainda. Monte um visual e salve aqui para usar nos seus combates.",
+      "DeleteText": "Apagar o estilo “{name}”? O visual atual continua como está.",
+      "EmptyGM": "Nenhum estilo salvo ainda. Monte um visual e salve aqui para trocar para ele quando quiser.",
       "Empty": "O Mestre ainda não salvou nenhum estilo.",
-      "ActiveNotice": "Este combate usa o estilo “{name}”. O que você muda aqui é o visual de sempre, que aparece fora dele.",
-      "AskTitle": "Estilo do combate",
-      "AskText": "Qual visual a mesa deve ver neste combate?",
+      "AskTitle": "Trocar estilo",
+      "AskText": "Qual estilo salvo a mesa deve ver agora?",
       "Use": "Usar este estilo",
       "Field": "Estilo",
-      "UsualMeta": "O visual da mesa, como está salvo",
       "NoMatch": "Nenhum estilo com esse nome",
-      "Choose": "Estilo deste combate…",
-      "UseInCombat": "Usar neste combate",
-      "Applied": "Este combate agora usa “{name}”.",
-      "NoCombat": "Não há combate para receber um estilo.",
-      "NoStyles": "Nenhum estilo salvo ainda: salve um em Estilos, no editor de aparência."
+      "Choose": "Trocar estilo…",
+      "Applied": "A mesa agora usa “{name}”.",
+      "NoStyles": "Nenhum estilo salvo ainda: salve um em Estilos, no editor de aparência.",
+      "Current": "Visual atual"
     }
   }
 }

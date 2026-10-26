@@ -1,6 +1,3 @@
-/** Sound events from the most to the least specific (RF-51). */
-export const SOUND_EVENTS = Object.freeze(["combatStart", "turnBack", "ownTurn", "nextUp", "roundStart", "turnChange", "combatEnd"]);
-
 /** Whether the turn moved forward: a later round, or a later turn in the same round. */
 export function isForward(previous, next) {
   if (next.round !== previous.round) return next.round > previous.round;

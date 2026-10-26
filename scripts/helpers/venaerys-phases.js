@@ -55,7 +55,7 @@ export function currentPhaseIdOf(combat, plan = phasePlanOf(combat)) {
 }
 
 /** Whether a phase splits into a movement half and an actions half; event phases never do. */
-export function isSplitPhase(combat, phase) {
+function isSplitPhase(combat, phase) {
   if (!phase || phase.type === "event") return false;
   const split = venaerysFlags(combat).split;
   if (split === "all") return true;

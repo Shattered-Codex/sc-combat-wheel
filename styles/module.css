@@ -2,7 +2,7 @@
  * SC - Combat Wheel. The root is a zero-size anchor placed at the middle of the
  * bar's arc-side edge; every part is positioned from it (ARCHITECTURE §4).
  * Geometry arrives as custom properties set by CombatWheelApp:
- * --scw-R, --scw-Rm, --scw-S, --scw-hub-r, --scw-bar-w, --scw-bar-h-*.
+ * --scw-Rm, --scw-S, --scw-hub-r, --scw-half, --scw-bar-w, --scw-bar-h-*.
  */
 
 /* ---------- root: undo Foundry's .application window chrome (the id outranks it) ---------- */
@@ -1439,6 +1439,9 @@
 .sc-combat-wheel.scw-view-track .scw-hub-clip { display: none; }
 
 .sc-combat-wheel .scw-bar-roll.is-rolling i { animation: scw-spin 850ms linear infinite; }
+/* RF-16: the GM's group rolls keep the bar's button size; how many each one rolls sits in the corner. */
+.sc-combat-wheel .scw-setup-roll { position: relative; }
+.sc-combat-wheel .scw-setup-roll .scw-count { position: absolute; right: 1px; bottom: 1px; font-size: 9px; line-height: 1; }
 
 /* RF-94: initiative on the portrait — top of the slice on the wheel, top-left corner of a card. */
 .sc-combat-wheel .scw-badge-init { display: none; }

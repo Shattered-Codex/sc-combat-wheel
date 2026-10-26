@@ -24,6 +24,8 @@ export function upgradeLook(values) {
   }
   // The tools column beside the bar became the "More" menu (the split bar stands in columns of its own).
   if (look.barControls === "column") look.barControls = "menu";
+  // The arc bar was tried and withdrawn: such a look gets the straight bar.
+  if (look.barLayout === "arc") look.barLayout = "bar";
   if (MERGED_THEMES[look.theme]) look.theme = MERGED_THEMES[look.theme];
   return look;
 }

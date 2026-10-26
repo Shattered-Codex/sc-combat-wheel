@@ -5,7 +5,7 @@ import { migrateBrowserAppearance, registerSettings } from "./hooks/register-set
 import CombatWheelAppearanceApp from "./applications/CombatWheelAppearanceApp.js";
 import CombatWheelSettingsApp from "./applications/CombatWheelSettingsApp.js";
 import CombatWatcher from "./services/CombatWatcher.js";
-import CombatStylePicker from "./services/CombatStylePicker.js";
+import StylePicker from "./services/StylePicker.js";
 import StyleLoader from "./services/StyleLoader.js";
 
 const watcher = new CombatWatcher();
@@ -22,18 +22,18 @@ Hooks.once("init", () => {
   registerTrackerMenu(watcher);
 });
 
-// RF-108: the GM who starts a combat picks its style; only their client runs combatStart.
-Hooks.on("combatStart", (combat) => void CombatStylePicker.onCombatStart(combat));
-
 Hooks.once("ready", () => {
   game.modules.get(MODULE_ID).api = {
     open: () => watcher.open(),
-    close: () => watcher.close(),
+    close: () => watcher.dismiss(),
     toggle: () => watcher.toggle(),
     openSettings: (tab) => CombatWheelSettingsApp.open(tab),
     openAppearance: () => CombatWheelAppearanceApp.open(),
     resetPosition: () => watcher.resetPosition(),
-    chooseCombatStyle: (combat) => CombatStylePicker.choose(combat),
+    chooseStyle: () => StylePicker.choose(),
+    applyStyle: (id) => StylePicker.apply(id),
+    /** @deprecated combats no longer have a style of their own (D-32): the quick change of chooseStyle(). */
+    chooseCombatStyle: () => StylePicker.choose(),
     get app() {
       return watcher.app;
     },
@@ -55,7 +55,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     visible: true,
     onChange: () => watcher.toggle(),
   };
-  // RF-110: the GM changes the current combat's style from here too, whatever other modules do to the tracker.
+  // RF-110: the GM's quick change between saved styles, whatever other modules do to the tracker.
   tokens.tools[`${MODULE_ID}-combat-style`] = {
     name: `${MODULE_ID}-combat-style`,
     title: `${I18N_ROOT}.CombatStyles.Choose`,
@@ -63,7 +63,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     order: Object.keys(tokens.tools).length,
     button: true,
     visible: game.user.isGM,
-    onChange: () => CombatStylePicker.choose(),
+    onChange: () => StylePicker.choose(),
   };
   // RF-105: always on screen, for the GM and players alike, even when other modules rework the tracker's menu.
   tokens.tools[`${MODULE_ID}-reset-position`] = {

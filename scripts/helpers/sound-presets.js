@@ -72,7 +72,7 @@ export const SYNTH_PRESETS = Object.freeze({
 });
 
 /** Sounds that already ship with Foundry core. */
-export const CORE_SOUNDS = Object.freeze({
+const CORE_SOUNDS = Object.freeze({
   coreNotify: "sounds/notify.wav",
   coreDrums: "sounds/drums.wav",
   coreLock: "sounds/lock.wav",

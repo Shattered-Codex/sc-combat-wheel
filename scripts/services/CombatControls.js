@@ -16,6 +16,12 @@ export default class CombatControls {
     return combat.previousTurn();
   }
 
+  /** The bar's start button, while the combat is still being set up. */
+  static startCombat(combat) {
+    if (!CombatControls.#requireGM(combat) || combat.started) return null;
+    return combat.startCombat();
+  }
+
   /** Core asks for confirmation before deleting the encounter. */
   static endCombat(combat) {
     if (!CombatControls.#requireGM(combat)) return null;

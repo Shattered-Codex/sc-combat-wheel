@@ -43,6 +43,12 @@
         <i class="fa-solid {{bar.orientationIcon}}" aria-hidden="true"></i>
       </button>
       {{/if}}
+      {{#if bar.styleMenu}}
+      <button type="button" class="scw-btn scw-btn--ghost {{#if bar.styleOpen}}is-on{{/if}}" data-action="toggleMenu" data-menu="style"
+              data-tooltip="{{bar.styleLabel}}" aria-label="{{bar.styleLabel}}" aria-expanded="{{bar.styleOpen}}" aria-haspopup="menu">
+        <i class="fa-solid fa-swatchbook" aria-hidden="true"></i>
+      </button>
+      {{/if}}
       {{#if bar.show.appearance}}
       <button type="button" class="scw-btn scw-btn--ghost" data-action="openAppearance"
               data-tooltip="{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}" aria-label="{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}">
@@ -88,6 +94,20 @@
     <span class="scw-menu-empty">{{localize "SC_COMBAT_WHEEL.Virtual.Empty"}}</span>
   {{/each}}
 {{/inline}}
+{{#*inline "styleItems"}}
+  <span class="scw-details-kicker">{{bar.styleLabel}}</span>
+  {{#each bar.styles}}
+    <button type="button" class="scw-menu-item" role="menuitemradio" aria-checked="{{#if current}}true{{else}}false{{/if}}"
+            data-action="applyStyle" data-style-id="{{id}}">
+      <i class="fa-solid {{#if current}}fa-check{{else}}fa-swatchbook{{/if}}" aria-hidden="true"></i><span>{{name}}</span>
+    </button>
+  {{else}}
+    <span class="scw-menu-empty">{{localize "SC_COMBAT_WHEEL.CombatStyles.NoStyles"}}</span>
+    <button type="button" class="scw-menu-item" role="menuitem" data-action="openAppearance">
+      <i class="fa-solid fa-palette" aria-hidden="true"></i><span>{{localize "SC_COMBAT_WHEEL.Bar.Appearance"}}</span>
+    </button>
+  {{/each}}
+{{/inline}}
 {{#*inline "directionItems"}}
   <span class="scw-details-kicker" id="scw-direction-label">{{localize "SC_COMBAT_WHEEL.Bar.Direction"}}</span>
   <div class="scw-menu-segments" role="group" aria-labelledby="scw-direction-label">
@@ -109,7 +129,7 @@
   {{/if}}
 {{/inline}}
 {{#*inline "previous"}}
-  {{#if (and bar.isGM bar.show.previous)}}
+  {{#if (and bar.canGoBack bar.show.previous)}}
     <button type="button" class="scw-btn scw-btn--secondary" data-action="previousTurn"
             data-tooltip="{{bar.previousLabel}}" aria-label="{{bar.previousLabel}}">
       <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -118,11 +138,19 @@
 {{/inline}}
 {{#*inline "endTurn"}}
   {{#if (and bar.endTurnLabel bar.show.endTurn)}}
-    <button type="button" class="scw-btn scw-btn--primary scw-btn--label scw-end-turn" data-action="endTurn"
+    <button type="button" class="scw-btn scw-btn--primary scw-btn--label scw-end-turn" data-action="{{bar.endTurnAction}}"
             data-tooltip="{{bar.endTurnLabel}}" aria-label="{{bar.endTurnLabel}}" {{#if bar.endTurnDisabled}}disabled{{/if}}>
       <span class="scw-end-turn-label">{{bar.endTurnLabel}}</span><i class="fa-solid {{bar.endTurnIcon}}" aria-hidden="true"></i>
     </button>
   {{/if}}
+{{/inline}}
+{{#*inline "setupRolls"}}
+  {{#each bar.setupRolls}}
+    <button type="button" class="scw-btn scw-btn--ghost scw-setup-roll" data-action="roll" data-group="{{group}}"
+            data-tooltip="{{label}}" aria-label="{{label}}" {{#if disabled}}disabled{{/if}}>
+      <i class="fa-solid {{icon}}" aria-hidden="true"></i><span class="scw-count" aria-hidden="true">{{count}}</span>
+    </button>
+  {{/each}}
 {{/inline}}
 {{#*inline "round"}}
   {{#if bar.show.round}}
@@ -159,12 +187,16 @@
   {{#if bar.directionOpen}}
     <div class="scw-roll-menu" role="menu">{{> directionItems}}</div>
   {{/if}}
+  {{#if bar.styleOpen}}
+    <div class="scw-roll-menu scw-more-menu" role="menu">{{> styleItems}}</div>
+  {{/if}}
 
   {{#if bar.moreOpen}}
     <div class="scw-roll-menu scw-more-menu" role="menu">
       {{#if bar.isGM}}
         {{#if (and bar.rollOptions.length bar.show.roll)}}{{> rollItems}}{{/if}}
         {{#if (and bar.virtualTemplates bar.show.virtual)}}{{> virtualItems}}{{/if}}
+        {{#if bar.styleMenu}}{{> styleItems}}{{/if}}
         <hr class="scw-menu-rule">
       {{/if}}
 
@@ -203,7 +235,7 @@
     <div class="scw-pod-more">{{> grab}}{{> round}}</div>
   </div>
   <div class="scw-pod scw-pod--end">
-    <div class="scw-pod-main">{{> endTurn}}{{> rollOwn}}</div>
+    <div class="scw-pod-main">{{> endTurn}}{{> setupRolls}}{{> rollOwn}}</div>
     <div class="scw-pod-more">{{> tools}}</div>
     {{> menus}}
   </div>
@@ -213,6 +245,7 @@
       {{> grab}}
       {{> previous}}
       {{> endTurn}}
+      {{> setupRolls}}
       {{> round}}
       <div class="scw-spacer"></div>
       {{> backToTurn}}

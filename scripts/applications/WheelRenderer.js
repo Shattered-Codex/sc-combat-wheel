@@ -20,7 +20,7 @@ export default class WheelRenderer {
   /**
    * @param {HTMLElement} container  the wheel part's root
    * @param {object} layout          from layoutFor()
-   * @param {object} handlers        { onClick(id, event), onHoverIn(id, event), onHoverOut(event), onRollOne(id) }
+   * @param {object} handlers        { onClick(id, event), onDoubleClick(id, event), onContextMenu(id, event), onHoverIn(id, event), onHoverOut(event), onRollOne(id) }
    */
   mount(container, layout, handlers) {
     this.#layout = layout;
@@ -65,6 +65,8 @@ export default class WheelRenderer {
         highlight: peeking || !model?.activeHidden,
         // Hidden from this player, the real turn is nobody on the wheel: no badge.
         isRealTurn: peeking && !model.activeHidden && slot.s === model.T,
+        // Before the start nobody has acted, whoever the anchor rests on.
+        past: slot.past && Boolean(model?.started),
       });
     }
   }
@@ -131,6 +133,14 @@ export default class WheelRenderer {
       if (event.target.closest(".scw-flag-unrolled")) handlers.onRollOne(slot.combatantId);
       else handlers.onClick(slot.combatantId, event);
     });
+    // The single click has already run twice by then, as in the core tracker.
+    element.addEventListener("dblclick", (event) => {
+      if (!slot.combatantId || event.target.closest(".scw-flag-unrolled")) return;
+      handlers.onDoubleClick(slot.combatantId, event);
+    });
+    element.addEventListener("contextmenu", (event) => {
+      if (slot.combatantId) handlers.onContextMenu(slot.combatantId, event);
+    });
     element.addEventListener("keydown", (event) => {
       if (!slot.combatantId || (event.key !== "Enter" && event.key !== " ")) return;
       event.preventDefault();
@@ -141,7 +151,7 @@ export default class WheelRenderer {
     return slot;
   }
 
-  #applySlot(slot, geometry, vm, { instant, showRound, highlight, isRealTurn }) {
+  #applySlot(slot, geometry, vm, { instant, showRound, highlight, isRealTurn, past }) {
     const { element } = slot;
     // A recycled slot jumps from one hidden edge to the other: never animate that.
     const recycled = slot.s !== null && slot.s !== geometry.s;
@@ -155,10 +165,10 @@ export default class WheelRenderer {
     const visible = geometry.visible && vm !== null;
     // Cards overlap, so a see-through past card would show the one behind it: they dim with a veil instead.
     let opacity = 0;
-    if (visible) opacity = geometry.past && wheel ? PAST_OPACITY : 1;
+    if (visible) opacity = past && wheel ? PAST_OPACITY : 1;
     if (visible && vm.concealed) opacity *= HIDDEN_OPACITY;
     element.style.opacity = String(opacity);
-    element.classList.toggle("is-past", visible && geometry.past);
+    element.classList.toggle("is-past", visible && past);
     element.classList.toggle("is-visible", visible);
     element.classList.toggle("is-active", active);
     element.classList.toggle("is-next-up", Boolean(visible && vm?.isOwner && geometry.k === 1 && !game.user.isGM));

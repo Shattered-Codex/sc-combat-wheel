@@ -17,7 +17,7 @@
   pointer-events: none;
   contain: layout style;
   --scw-fx-speed: 1;
-  --scw-fx-strength: 0.75;
+  --scw-fx-strength: 0.9;
   --scw-fx-color: var(--scw-accent);
   --scw-fx-p: var(--scw-fx-color);
 }
@@ -258,6 +258,25 @@
   background: radial-gradient(closest-side, color-mix(in srgb, var(--scw-fx-p) 35%, white) 0 18%, var(--scw-fx-p) 40%, color-mix(in srgb, var(--scw-fx-p) 30%, transparent) 65%, transparent);
 }
 
+/* Smoke: a soft, pale puff that swells as it rises and thins out. */
+.sc-combat-wheel .scw-fx-ps--puff {
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-p) 55%, rgb(225 220 232 / 0.55)) 0 18%, color-mix(in srgb, var(--scw-fx-p) 30%, transparent) 46%, transparent 70%);
+}
+
+/* Glyph: one sign of the rune strip (effects.css), picked by --g, as in the SC Item Rarity Colors. */
+.sc-combat-wheel .scw-fx-ps--glyph {
+  width: calc(var(--s) * 10 / 14);
+  margin: calc(var(--s) / -2) calc(var(--s) * -5 / 14);
+  background: var(--scw-fx-p);
+  -webkit-mask: var(--scw-rune-h) no-repeat;
+  mask: var(--scw-rune-h) no-repeat;
+  -webkit-mask-size: calc(var(--s) * 240 / 14) var(--s);
+  mask-size: calc(var(--s) * 240 / 14) var(--s);
+  -webkit-mask-position: calc((var(--g) * 16 + 3) * var(--s) / -14) 0;
+  mask-position: calc((var(--g) * 16 + 3) * var(--s) / -14) 0;
+}
+
 /* Type tints, mixed into the chosen color. */
 .sc-combat-wheel .scw-fx--embers { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 55%, #ffb347); }
 .sc-combat-wheel .scw-fx--arcane { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 70%, white); }
@@ -277,6 +296,8 @@
 .sc-combat-wheel .scw-fx--confetti { --scw-fx-p: var(--scw-fx-color); }
 .sc-combat-wheel .scw-fx--runes { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 70%, white); }
 .sc-combat-wheel .scw-fx--wisps { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 35%, #5fe3c8); }
+.sc-combat-wheel .scw-fx--smoke { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 45%, #cfc8d8); }
+.sc-combat-wheel .scw-fx--glyphs { --scw-fx-p: color-mix(in srgb, var(--scw-fx-color) 85%, white); }
 
 /* Rain falls at a steady speed. */
 .sc-combat-wheel .scw-fx--rain .scw-fx-pt { animation-timing-function: linear; }

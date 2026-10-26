@@ -5,7 +5,7 @@ import SoundPlayer from "./SoundPlayer.js";
 import TokenInteractions from "./TokenInteractions.js";
 
 /** Which setting pair (choice, file) each sound event reads (RF-52). */
-export const SOUND_SETTINGS = Object.freeze({
+const SOUND_SETTINGS = Object.freeze({
   turnChange: [SETTINGS.soundTurnChange, SETTINGS.soundTurnChangeFile],
   ownTurn: [SETTINGS.soundOwnTurn, SETTINGS.soundOwnTurnFile],
   nextUp: [SETTINGS.soundNextUp, SETTINGS.soundNextUpFile],

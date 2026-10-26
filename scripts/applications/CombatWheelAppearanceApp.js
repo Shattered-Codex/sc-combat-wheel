@@ -14,11 +14,10 @@ import { contrastRatio, paletteFromColor, parseCssColor } from "../helpers/palet
 import { isPortraitRatioOk, portraitRatio, presetFromSettings } from "../helpers/wheel-geometry.js";
 import { SAMPLE_COMBATANTS, samplePhase, sampleWheelModel } from "../helpers/sample-combat.js";
 import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
-import { combatStyle, getSetting, ownAppearance, savedStyles, setSetting, withLook, withTableLook } from "../hooks/register-settings.js";
+import { currentStyleId, getSetting, ownAppearance, savedStyles, setSetting, styleLook, withTableLook } from "../hooks/register-settings.js";
 import { upsertStyle } from "../helpers/combat-styles.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
 import ScreenBanner from "../services/ScreenBanner.js";
-import CombatStylePicker from "../services/CombatStylePicker.js";
 import TurnSideEffects from "../services/TurnSideEffects.js";
 import { isVenaerysActive, projectCombat } from "../services/project-combat.js";
 import AppearancePreview from "./AppearancePreview.js";
@@ -94,7 +93,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       applySavedStyle: CombatWheelAppearanceApp.#onApplySavedStyle,
       saveStyle: CombatWheelAppearanceApp.#onSaveStyle,
       deleteSavedStyle: CombatWheelAppearanceApp.#onDeleteSavedStyle,
-      useStyleInCombat: CombatWheelAppearanceApp.#onUseStyleInCombat,
       testSound: CombatWheelAppearanceApp.#onTestSound,
       testSequence: CombatWheelAppearanceApp.#onTestSequence,
       previewCoreTheme: CombatWheelAppearanceApp.#onPreviewCoreTheme,
@@ -117,8 +115,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   #sequenceTimers = [];
   /** RF-91, unsaved: the GM's table look mode, or whether a player follows the table look. */
   #sharing = null;
-  /** RF-108, unsaved (GM): the style combats use by default, and whether starting one asks. */
-  #combatStyles = null;
   #saved = false;
   #panel = APPEARANCE_PANELS[0].id;
   /** "sample" turns the made-up encounter; "combat" shows the current one as this user sees it. */
@@ -157,7 +153,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.#sharing ??= CombatWheelAppearanceApp.#savedSharing();
     this.#draft ??= this.#following() ? withTableLook(ownAppearance()) : ownAppearance();
     this.#sounds ??= CombatWheelAppearanceApp.#savedSounds();
-    this.#combatStyles ??= CombatWheelAppearanceApp.#savedCombatStyles();
     const systemId = game.system.id;
     if (this.#source === "combat" && !this.#combatModel()) this.#source = "sample";
     const draft = this.#draft;
@@ -218,7 +213,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       })),
       sounds: this.#soundsContext(),
       styles: this.#stylesContext(),
-      combatStyleNotice: this.#combatStyleNotice(),
     };
   }
 
@@ -277,7 +271,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.#draft = null;
     this.#sounds = null;
     this.#sharing = null;
-    this.#combatStyles = null;
     this.#saved = false;
     this.#galleryOpen = false;
     this.#themesOpen = false;
@@ -401,53 +394,25 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   }
 
   /* -------------------------------------------- */
-  /*  Combat styles (RF-108)                      */
+  /*  Saved styles (RF-108)                       */
   /* -------------------------------------------- */
 
-  static #savedCombatStyles() {
-    return { defaultId: getSetting(SETTINGS.combatStyleDefault) ?? "", prompt: Boolean(getSetting(SETTINGS.combatStylePrompt)) };
-  }
-
-  #combatStylesDirty() {
-    if (!game.user.isGM || !this.#combatStyles) return false;
-    const saved = CombatWheelAppearanceApp.#savedCombatStyles();
-    return this.#combatStyles.defaultId !== saved.defaultId || this.#combatStyles.prompt !== saved.prompt;
-  }
-
-  /** The table's saved styles as gallery cards; the GM also gets the combat defaults. */
+  /** The table's saved styles as gallery cards; the one the saved look is now is marked. */
   #stylesContext() {
     const systemId = game.system.id;
-    const { defaultId, prompt } = this.#combatStyles;
     const styles = savedStyles();
-    const inCombat = combatStyle()?.id ?? null;
+    const current = currentStyleId(styles);
     return {
       isGM: game.user.isGM,
-      // RF-110: with a combat on, the GM can give it any style straight from here.
-      canUseInCombat: game.user.isGM && Boolean(game.combat),
-      useLabel: t("CombatStyles.UseInCombat"),
-      prompt,
       deleteLabel: t("CombatStyles.Delete"),
-      defaults: [{ id: "", name: t("CombatStyles.Usual") }, ...styles].map((style) => ({
-        value: style.id,
-        label: style.name,
-        selected: style.id === defaultId,
-      })),
       list: styles.map((style) => ({
         id: style.id,
         name: style.name,
         swatch: resolveTheme({ chosen: style.values.theme, systemId }),
         view: t(`Settings.view.Choices.${VIEWS.includes(style.values.view) ? style.values.view : VIEWS[0]}`),
-        isDefault: style.id === defaultId,
-        inCombat: style.id === inCombat,
+        isCurrent: style.id === current,
       })),
     };
-  }
-
-  /** While the current combat has a style, the editor says that what it edits is the usual look. */
-  #combatStyleNotice() {
-    const style = combatStyle();
-    if (!style || !(game.user.isGM || this.#following())) return "";
-    return f("CombatStyles.ActiveNotice", { name: style.name });
   }
 
   /* -------------------------------------------- */
@@ -530,10 +495,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }
     if (typeof data.coreCombatTheme === "string") this.#sounds.coreTheme = data.coreCombatTheme;
     if (game.user.isGM && TABLE_LOOK_MODES.includes(data.tableLookMode)) this.#sharing.mode = data.tableLookMode;
-    if (game.user.isGM && typeof data.combatStyleDefault === "string") {
-      this.#combatStyles.defaultId = data.combatStyleDefault;
-      this.#combatStyles.prompt = Boolean(data.combatStylePrompt);
-    }
   }
 
   /** Own look values that differ from the saved ones; a follower keeps none of their own. */
@@ -550,12 +511,12 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
 
   #isDirty() {
     if (!this.#draft) return false;
-    return this.#sharingDirty() || this.#dirtyKeys().length > 0 || this.#soundsDirty() || this.#combatStylesDirty();
+    return this.#sharingDirty() || this.#dirtyKeys().length > 0 || this.#soundsDirty();
   }
 
-  /** The current combat as this user may see it, or null when it shows nobody. */
+  /** The current combat as this user may see it, with the draft's portrait art (RF-117), or null when it shows nobody. */
   #combatModel() {
-    const model = projectCombat(game.combat);
+    const model = projectCombat(game.combat, { portraitImage: this.#draft?.[SETTINGS.portraitImage] });
     return model?.N ? model : null;
   }
 
@@ -968,8 +929,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     const style = savedStyles().find((candidate) => candidate.id === target.dataset.styleId);
     if (!style || this.#locked()) return;
     this.#captureDraft();
-    const defaults = Object.fromEntries(ENTRIES.map((entry) => [entry.key, settingDefault(entry)]));
-    this.#draft = withLook(defaults, style.values);
+    this.#draft = styleLook(style.values);
     if (!game.user.isGM) this.#sharing.follow = false;
     this.#galleryOpen = false;
     this.render();
@@ -992,14 +952,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.render();
   }
 
-  /** RF-110: the current combat takes this style for the whole table, at once (not part of the draft). */
-  static async #onUseStyleInCombat(event, target) {
-    if (!game.user.isGM || !game.combat) return;
-    this.#captureDraft();
-    await CombatStylePicker.apply(game.combat, target.dataset.styleId);
-    this.render();
-  }
-
   static async #onDeleteSavedStyle(event, target) {
     if (!game.user.isGM) return;
     const style = savedStyles().find((candidate) => candidate.id === target.dataset.styleId);
@@ -1012,7 +964,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     if (!confirmed) return;
     this.#captureDraft();
     await setSetting(SETTINGS.savedStyles, savedStyles().filter((candidate) => candidate.id !== style.id));
-    if (this.#combatStyles.defaultId === style.id) this.#combatStyles.defaultId = "";
     this.render();
   }
 
@@ -1107,9 +1058,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     writes.push(CoreCombatSettings.save({ theme: this.#sounds.coreTheme }));
     const saved = CombatWheelAppearanceApp.#savedSharing();
     if (game.user.isGM) {
-      const styles = this.#combatStyles;
-      if (styles.defaultId !== getSetting(SETTINGS.combatStyleDefault)) writes.push(setSetting(SETTINGS.combatStyleDefault, styles.defaultId));
-      if (styles.prompt !== getSetting(SETTINGS.combatStylePrompt)) writes.push(setSetting(SETTINGS.combatStylePrompt, styles.prompt));
       if (this.#sharing.mode !== saved.mode) writes.push(setSetting(SETTINGS.tableLookMode, this.#sharing.mode));
       writes.push(setSetting(SETTINGS.tableLook, { ...this.#draft }));
     } else if (this.#sharing.follow !== saved.follow) {

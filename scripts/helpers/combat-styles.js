@@ -1,7 +1,7 @@
 /**
- * RF-108: the GM's saved combat styles — named looks kept for the table — and
- * which one a combat draws with. A combat's own choice (a flag) wins; without
- * one, the table's default style applies; "none" means the usual look.
+ * RF-108: the GM's saved styles — named looks kept for the table, loaded in
+ * the appearance editor or by the quick change (RF-110). "none" stays
+ * reserved: combats once used it for "the usual look".
  */
 export const NO_STYLE = "none";
 const NAME_LIMIT = 60;
@@ -19,19 +19,6 @@ export function normalizeStyles(raw) {
     styles.push({ id, name, values: { ...style.values } });
   }
   return styles;
-}
-
-/**
- * The style a combat draws with, or null for the usual look.
- * @param {object} options
- * @param {object[]} options.styles   normalizeStyles() output
- * @param {string} [options.flag]     the combat's own choice, if it has one
- * @param {string} [options.defaultId] the table's default style
- */
-export function chosenStyle({ styles, flag, defaultId }) {
-  const id = flag || defaultId;
-  if (!id || id === NO_STYLE) return null;
-  return styles.find((style) => style.id === id) ?? null;
 }
 
 /** Saving under a name already taken replaces that style, keeping its id; a new name adds one. */

@@ -1,10 +1,10 @@
 import { I18N_ROOT } from "../constants/module-constants.js";
 import { contextMenuEntry } from "../helpers/context-menu-entry.js";
-import CombatStylePicker from "../services/CombatStylePicker.js";
+import StylePicker from "../services/StylePicker.js";
 
 /**
  * The combat tracker's options menu (the "⋮" by the round), which Foundry only
- * builds for the GM: "Combat style…" for the viewed combat (RF-110), and
+ * builds for the GM: the quick change between saved styles (RF-110), and
  * "Reset wheel position" (RF-105), so a wheel dragged out of reach comes back
  * from a place that is always on screen. Players have the settings screen's
  * button and the shortcut.
@@ -14,8 +14,8 @@ export function registerTrackerMenu(watcher) {
     entries.push(contextMenuEntry({
       label: `${I18N_ROOT}.CombatStyles.Choose`,
       icon: "fa-solid fa-swatchbook",
-      visible: () => Boolean(application.viewed),
-      onClick: () => CombatStylePicker.choose(application.viewed),
+      visible: () => true,
+      onClick: () => StylePicker.choose(),
     }, game.release.generation));
     entries.push(contextMenuEntry({
       label: `${I18N_ROOT}.SettingsMenu.ResetPosition.Menu`,

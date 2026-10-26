@@ -94,9 +94,6 @@
     </div>
   </header>
 
-  {{#if combatStyleNotice}}
-    <p class="scw-config__notice scw-appearance__notice"><i class="fa-solid fa-swatchbook" aria-hidden="true"></i>{{combatStyleNotice}}</p>
-  {{/if}}
   <p class="scw-config__notice scw-appearance__notice" data-following-notice {{#unless following}}hidden{{/unless}}>
     <i class="fa-solid fa-users" aria-hidden="true"></i>{{followingNotice}}
   </p>
@@ -179,7 +176,7 @@
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
-      {{!-- RF-108: the table's saved styles, and (for the GM) which one combats use. --}}
+      {{!-- RF-108: the table's saved styles; the token controls switch between them at once (RF-110). --}}
       <section class="scw-appearance__styles" aria-labelledby="scw-appearance-styles-title">
         <div class="scw-appearance__styles-head">
           <h4 class="scw-field-group__title" id="scw-appearance-styles-title">{{localize "SC_COMBAT_WHEEL.CombatStyles.Title"}}</h4>
@@ -190,22 +187,6 @@
             </button>
           {{/if}}
         </div>
-        {{#if styles.isGM}}
-          <div class="scw-appearance__combat-styles">
-            <label class="scw-field__name" for="scw-combat-style-default">{{localize "SC_COMBAT_WHEEL.CombatStyles.Default"}}</label>
-            <select id="scw-combat-style-default" name="combatStyleDefault" aria-describedby="scw-combat-style-default-hint">
-              {{#each styles.defaults}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-            </select>
-            <label class="scw-appearance__follow">
-              <span class="scw-config-check">
-                <input type="checkbox" name="combatStylePrompt" {{#if styles.prompt}}checked{{/if}}>
-                <span class="scw-config-check__box"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </span>
-              {{localize "SC_COMBAT_WHEEL.CombatStyles.Prompt"}}
-            </label>
-            <p class="scw-appearance__panel-hint" id="scw-combat-style-default-hint">{{localize "SC_COMBAT_WHEEL.CombatStyles.DefaultHint"}}</p>
-          </div>
-        {{/if}}
         {{#if styles.list.length}}
           <div class="scw-preset-grid">
             {{#each styles.list}}
@@ -217,15 +198,8 @@
                     <span class="scw-preset__view">{{view}}</span>
                   </span>
                   <span class="scw-preset__name">{{name}}</span>
-                  {{#if isDefault}}<span class="scw-preset__hint">{{localize "SC_COMBAT_WHEEL.CombatStyles.IsDefault"}}</span>{{/if}}
+                  {{#if isCurrent}}<span class="scw-preset__hint"><i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "SC_COMBAT_WHEEL.CombatStyles.Current"}}</span>{{/if}}
                 </button>
-                {{#if ../styles.canUseInCombat}}
-                  <button type="button" class="scw-config-icon-btn scw-saved-style__use {{#if inCombat}}is-active{{/if}}" data-action="useStyleInCombat" data-style-id="{{id}}"
-                          aria-pressed="{{#if inCombat}}true{{else}}false{{/if}}"
-                          data-tooltip="{{../styles.useLabel}}" aria-label="{{../styles.useLabel}}: {{name}}">
-                    <i class="fa-solid fa-swords" aria-hidden="true"></i>
-                  </button>
-                {{/if}}
                 {{#if ../styles.isGM}}
                   <button type="button" class="scw-config-icon-btn scw-saved-style__delete" data-action="deleteSavedStyle" data-style-id="{{id}}"
                           data-tooltip="{{../styles.deleteLabel}}" aria-label="{{../styles.deleteLabel}}: {{name}}">

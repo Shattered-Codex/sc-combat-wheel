@@ -46,7 +46,6 @@
 
   /* Surfaces: a breath of the accent on top, settling into the ground below. */
   --scw-surface-bg: linear-gradient(180deg, color-mix(in oklab, var(--scw-surface) 88%, var(--scw-accent) 12%), color-mix(in oklab, var(--scw-surface) 90%, var(--scw-bg)));
-  --scw-panel-bg: color-mix(in srgb, var(--scw-bg) 92%, transparent);
   --scw-surface-blur: none;
   --scw-border: 1px solid color-mix(in oklab, var(--scw-accent) 36%, transparent);
   --scw-header-bg: linear-gradient(90deg, color-mix(in oklab, var(--scw-accent) 24%, var(--scw-surface)), var(--scw-surface));

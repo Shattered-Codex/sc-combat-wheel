@@ -14,9 +14,10 @@ function isVideo(src) {
 /**
  * The WheelModel of `combat` as the current user may see it: its phases when
  * SC Venaerys's Initiative runs it (RF-80), its turns otherwise.
+ * @param {object} [look]  `portraitImage` of a look not saved yet (the appearance editor's draft)
  */
-export function projectCombat(combat) {
-  const context = projectionContext();
+export function projectCombat(combat, look = {}) {
+  const context = projectionContext(look);
   if (isVenaerysActive()) {
     const phased = PhaseProjector.project(combat, {
       ...context,
@@ -37,10 +38,10 @@ export function projectCombatant(combatant) {
   return CombatantAdapter.toViewModel(combatant, { ...projectionContext(), round: combatant.parent?.round ?? 0 });
 }
 
-function projectionContext() {
+function projectionContext(look = {}) {
   return {
     isGM: game.user.isGM,
-    settings: projectionSettings(),
+    settings: projectionSettings(look),
     healthSource: activeHealthSource(),
     unknownName: game.i18n.localize(`${I18N_ROOT}.Slice.Unknown`),
     isVideo,

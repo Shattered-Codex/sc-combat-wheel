@@ -6,6 +6,8 @@ import { healthTone, readHealth } from "../helpers/health-source.js";
 const DEFAULT_HEALTH_SOURCE = { kind: "bar", bar: "bar1" };
 
 const DEFAULT_IMAGE_POSITION = "50% 20%";
+/** Foundry's CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, kept here so the adapter reads no globals. */
+const OWNERSHIP_LIMITED = 1;
 
 /**
  * Translates a Combatant into the view model the wheel draws (ARCHITECTURE §2).
@@ -33,7 +35,9 @@ export default class CombatantAdapter {
         npcNames: settings.npcNames,
         tokenDisplayName: token?.displayName,
       }) ?? context.unknownName;
-    const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo);
+    const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo, {
+      revealActor: isGM || CombatantAdapter.#canSeeActor(combatant),
+    });
     const initiative = Number.isFinite(combatant.initiative) ? combatant.initiative : null;
     const health = readHealth(combatant, context.healthSource ?? DEFAULT_HEALTH_SOURCE);
     const hp = hpView(health, {
@@ -78,13 +82,18 @@ export default class CombatantAdapter {
     };
   }
 
-  /** Portrait source with fallbacks; videos fall back to the actor image. */
-  static portraitFor(combatant, source = "token", isVideo = () => false) {
+  /**
+   * Portrait source with fallbacks; videos fall back to the actor image.
+   * RF-117: without `revealActor`, the character's own art ("actor", "flag")
+   * gives way to the token — a disguised creature keeps its disguise.
+   */
+  static portraitFor(combatant, source = "token", isVideo = () => false, { revealActor = true } = {}) {
     const actor = combatant.actor ?? null;
     const actorImg = actor?.img ?? null;
     const tokenImg = combatant.token?.texture?.src ?? null;
     let src = null;
     let position = null;
+    if (!revealActor) source = "token";
 
     if (source === "flag") {
       const flag = actor?.flags?.[MODULE_ID]?.portrait;
@@ -98,6 +107,14 @@ export default class CombatantAdapter {
     src ??= combatant.img ?? null;
     if (src && isVideo(src)) src = actorImg && !isVideo(actorImg) ? actorImg : null;
     return { src, position: position ?? DEFAULT_IMAGE_POSITION };
+  }
+
+  /**
+   * Whether this user could see the character's art in Foundry already: a
+   * Limited permission shows the actor's sheet with its image.
+   */
+  static #canSeeActor(combatant) {
+    return (combatant.actor?.permission ?? 0) >= OWNERSHIP_LIMITED;
   }
 
   /** Temporary effects (status conditions included), deduplicated by name and icon. */

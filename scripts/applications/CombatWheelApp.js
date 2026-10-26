@@ -3,9 +3,10 @@ import { shortestOffset } from "../helpers/wheel-geometry.js";
 import { layoutFromSettings } from "../helpers/view-layout.js";
 import { normalizeOrientation } from "../helpers/orientation.js";
 import { initiativeBetween, initiativeForMove } from "../helpers/initiative-order.js";
-import { activeTheme, appearanceValues, getSetting, setSetting } from "../hooks/register-settings.js";
+import { activeTheme, appearanceValues, currentStyleId, getSetting, savedStyles, setSetting } from "../hooks/register-settings.js";
 import { projectCombat } from "../services/project-combat.js";
 import CombatControls from "../services/CombatControls.js";
+import StylePicker from "../services/StylePicker.js";
 import TokenInteractions from "../services/TokenInteractions.js";
 import VirtualPositions from "../services/VirtualPositions.js";
 import WidgetPosition from "../services/WidgetPosition.js";
@@ -15,7 +16,7 @@ import WheelAnimator from "./WheelAnimator.js";
 import OverviewLayer from "./OverviewLayer.js";
 import WheelAppearance from "./WheelAppearance.js";
 import WheelParticles from "./WheelParticles.js";
-import WheelActingFx from "./WheelActingFx.js";
+import WheelFxLayer from "./WheelFxLayer.js";
 import WheelRenderer from "./WheelRenderer.js";
 import WheelViewData from "./WheelViewData.js";
 
@@ -39,6 +40,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       endTurn: CombatWheelApp.#onEndTurn,
       toggleMenu: CombatWheelApp.#onToggleMenu,
       previousTurn: CombatWheelApp.#onPreviousTurn,
+      startCombat: CombatWheelApp.#onStartCombat,
       endCombat: CombatWheelApp.#onEndCombat,
       endOwnTurn: CombatWheelApp.#onEndOwnTurn,
       toggleMemberDone: CombatWheelApp.#onToggleMemberDone,
@@ -51,6 +53,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       addVirtual: CombatWheelApp.#onAddVirtual,
       openSettings: CombatWheelApp.#onOpenSettings,
       openAppearance: CombatWheelApp.#onOpenAppearance,
+      applyStyle: CombatWheelApp.#onApplyStyle,
       backToTurn: CombatWheelApp.#onBackToTurn,
       viewStep: CombatWheelApp.#onViewStep,
     },
@@ -64,7 +67,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   #renderer = new WheelRenderer();
   #particles = new WheelParticles();
-  #actingFx = new WheelActingFx();
+  #actingFx = new WheelFxLayer("acting");
+  #widgetFx = new WheelFxLayer("widget");
   #grid = new OverviewLayer();
   /** Order signature of the ring the overview shows, to refresh it after a move or insert. */
   #gridSignature = "";
@@ -208,6 +212,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
         orientation: this.#orientation,
         viewIndex: this.#viewIndex,
         virtualTemplates: game.user.isGM ? VirtualPositions.templates() : [],
+        savedStyles: game.user.isGM ? CombatWheelApp.#styleChoices() : [],
       },
     };
   }
@@ -318,7 +323,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
     this.#animator.show(this.#model ?? CombatWheelApp.#emptyModel(), this.#motion(), this.#viewT());
     this.#particles.update(element, WheelAppearance.particleOptions(look, this.#layout, this.#orientation, this.#model));
-    this.#actingFx.update(element, this.#layout, this.#orientation);
+    this.#widgetFx.update(element, WheelAppearance.widgetFxOptions(look, this.#layout, this.#orientation));
+    this.#actingFx.update(element, WheelAppearance.actingFxOptions(look, this.#layout, this.#orientation));
     if (this.#turnFxPending) {
       this.#turnFxPending = false;
       WheelAppearance.playTurnEffect(element);
@@ -340,6 +346,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     this.#renderer.unmount();
     this.#particles.destroy();
     this.#actingFx.destroy();
+    this.#widgetFx.destroy();
     this.#setViewIndex(null);
     this.#model = null;
     this.#ui = { menu: null, rolling: false };
@@ -364,11 +371,21 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     this.element.classList.remove("is-grid");
     this.#renderer.mount(container, layout, {
       onClick: (id) => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)),
+      onDoubleClick: (id) => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.doubleClickAction)),
+      onContextMenu: (id, event) => this.#onContextMenu(id, event),
       onHoverIn: (id, event) => TokenInteractions.hoverIn(this.combat, id, event),
       onHoverOut: (event) => TokenInteractions.hoverOut(event),
       onRollOne: (id) => CombatControls.rollOne(this.combat, id),
     });
     this.#placeWidget();
+  }
+
+  /** The right click runs its action, keeping the browser's menu away only when it has one. */
+  #onContextMenu(combatantId, event) {
+    const action = getSetting(SETTINGS.rightClickAction);
+    if (action === "none") return;
+    event.preventDefault();
+    return TokenInteractions.click(this.combat, combatantId, action);
   }
 
   #placeWidget() {
@@ -411,6 +428,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     for (const actor of this.element.querySelectorAll("[data-strip-combatant]")) {
       const id = actor.dataset.stripCombatant;
       actor.addEventListener("click", () => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)));
+      actor.addEventListener("dblclick", () => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.doubleClickAction)));
+      actor.addEventListener("contextmenu", (event) => this.#onContextMenu(id, event));
       actor.addEventListener("pointerenter", (event) => TokenInteractions.hoverIn(this.combat, id, event));
       actor.addEventListener("pointerleave", (event) => TokenInteractions.hoverOut(event));
     }
@@ -438,6 +457,11 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   static #onPreviousTurn() {
     return this.previousTurn();
+  }
+
+  static #onStartCombat() {
+    this.#closeMenu();
+    return CombatControls.startCombat(this.combat);
   }
 
   static #onEndCombat() {
@@ -500,6 +524,20 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   static #onOpenSettings(event, target) {
     this.#closeMenu();
     return CombatWheelSettingsApp.open(target.dataset.tab);
+  }
+
+  /** RF-110: the saved styles for the bar's menu, the one the look is now marked. */
+  static #styleChoices() {
+    const styles = savedStyles();
+    if (!styles.length) return [];
+    const current = currentStyleId(styles);
+    return styles.map(({ id, name }) => ({ id, name, current: id === current }));
+  }
+
+  /** Saving the look rebuilds the wheel through the settings' onChange. */
+  static #onApplyStyle(event, target) {
+    this.#closeMenu();
+    return StylePicker.apply(target.dataset.styleId);
   }
 
   static #onOpenAppearance() {

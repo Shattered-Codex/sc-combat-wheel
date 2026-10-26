@@ -207,7 +207,7 @@ export function squarePolygon({ Rm }, size) {
 }
 
 /** Grid cell metrics at full size; the grid shrinks to fit the room it has. */
-export const GRID = Object.freeze({ tile: 72, cellWidth: 82, cellHeight: 96, header: 40, padding: 12 });
+const GRID = Object.freeze({ tile: 72, cellWidth: 82, cellHeight: 96, header: 40, padding: 12 });
 
 /** The full-screen overview (RF-20) floats bigger portraits, with room for "+" between them. */
 export const OVERVIEW_GRID = Object.freeze({ tile: 104, cellWidth: 144, cellHeight: 150, maxCols: 10 });
@@ -234,7 +234,7 @@ export function gridLayout({ N, maxWidth = Infinity, maxHeight = Infinity, metri
 }
 
 /** SPEC §6: the custom layout warns past this depth-to-width ratio (either way). */
-export const MAX_PORTRAIT_RATIO = 1.4;
+const MAX_PORTRAIT_RATIO = 1.4;
 
 /**
  * A custom preset from the user's radii and slice angle. The slice angle is

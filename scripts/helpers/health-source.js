@@ -6,7 +6,7 @@
  * `max − value`. Presets still need checking against each system's current
  * version (SPEC §5.4).
  */
-export const HEALTH_PRESETS = Object.freeze({
+const HEALTH_PRESETS = Object.freeze({
   dnd5e: { path: "attributes.hp", inverted: false },
   pf2e: { path: "attributes.hp", inverted: false },
   daggerheart: { path: "resources.hitPoints", inverted: true },

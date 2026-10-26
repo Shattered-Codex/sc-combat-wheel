@@ -99,8 +99,70 @@ describe("WheelViewData.bar end turn (RF-10)", () => {
     assert.match(WheelViewData.bar(model({ canEndOwnTurn: false }), ui()).endTurnLabel, /EndTurn/);
   });
 
-  it("shows nothing before the combat starts", () => {
-    assert.equal(WheelViewData.bar(model({ started: false, canEndOwnTurn: true }), ui()).endTurnLabel, null);
+  it("gives a player nothing to end before the combat starts", () => {
+    game.user.isGM = false;
+    try {
+      assert.equal(WheelViewData.bar(model({ started: false, canEndOwnTurn: true }), ui()).endTurnLabel, null);
+    } finally {
+      game.user.isGM = true;
+    }
+  });
+});
+
+describe("WheelViewData while setting up (RF-16)", () => {
+  const setup = (extra = {}) =>
+    model({
+      started: false,
+      round: 0,
+      ring: [vm("a", { hasInitiative: false }), vm("b", { hasInitiative: false }), vm("c", { hasInitiative: false, hasPlayerOwner: true })],
+      rolledCount: 0,
+      ...extra,
+    });
+
+  it("turns the GM's turn button into Start combat, with no way back", () => {
+    const bar = WheelViewData.bar(setup(), ui());
+    assert.match(bar.endTurnLabel, /StartCombat/);
+    assert.equal(bar.endTurnAction, "startCombat");
+    assert.equal(bar.endTurnDisabled, false);
+    assert.equal(bar.canGoBack, false);
+    assert.equal(WheelViewData.bar(setup({ N: 0, ring: [] }), ui()).endTurnDisabled, true, "nobody to fight");
+    assert.equal(WheelViewData.bar(model(), ui()).endTurnAction, "endTurn");
+  });
+
+  it("puts the GM's group rolls in the bar, each with how many it rolls", () => {
+    const bar = WheelViewData.bar(setup(), ui());
+    assert.deepEqual(bar.setupRolls.map((r) => [r.group, r.count, r.disabled]), [["all", 3, false], ["npc", 2, false], ["pc", 1, false]]);
+    // Nothing to clear yet, so no popover button.
+    assert.equal(bar.rollMenu, null);
+  });
+
+  it("keeps a rolled group in place, disabled, and leaves only Clear in the popover", () => {
+    const ring = [vm("a"), vm("b"), vm("c", { hasInitiative: false, hasPlayerOwner: true })];
+    const bar = WheelViewData.bar(setup({ ring, rolledCount: 2 }), ui());
+    assert.deepEqual(bar.setupRolls.map((r) => r.disabled), [false, true, false]);
+    assert.deepEqual(bar.rollOptions.map((o) => o.group), ["reset"]);
+    assert.equal(bar.rollMenu.icon, "fa-rotate-left");
+  });
+
+  it("disables the group rolls while a roll is in flight, and hides them with the roll item", () => {
+    assert.ok(WheelViewData.bar(setup(), ui({ rolling: true })).setupRolls.every((r) => r.disabled));
+    assert.equal(WheelViewData.bar(setup(), ui({ barHidden: ["roll"] })).setupRolls, null);
+    assert.equal(WheelViewData.bar(model(), ui()).setupRolls, null, "not once it started");
+  });
+
+  it("gives players no group rolls", () => {
+    game.user.isGM = false;
+    try {
+      assert.equal(WheelViewData.bar(setup(), ui()).setupRolls, null);
+    } finally {
+      game.user.isGM = true;
+    }
+  });
+
+  it("names the player's own combatant in the hub once they rolled", () => {
+    const hub = WheelViewData.hub(setup({ needsRoll: false, focusOwn: true, current: vm("c") }), ui());
+    assert.match(hub.label, /Hub\.Yours/);
+    assert.equal(hub.name, "c");
   });
 });
 
@@ -203,14 +265,13 @@ describe("WheelViewData.bar tools (RF-83)", () => {
 
   it("offers no roll once everyone rolled, and clearing only once someone did", () => {
     const rolled = WheelViewData.bar(model(), ui());
-    assert.equal(rolled.canRoll, false);
     assert.deepEqual(rolled.rollOptions.map((o) => o.group), ["reset"]);
     // The inline button still opens the menu, now for clearing.
     assert.match(rolled.rollMenu.label, /RollMenu\.Reset/);
     assert.equal(rolled.rollMenu.icon, "fa-rotate-left");
     const pending = model({ ring: [vm("a", { hasInitiative: false }), vm("b", { hasInitiative: false, hasPlayerOwner: true })], rolledCount: 0 });
     const bar = WheelViewData.bar(pending, ui());
-    assert.equal(bar.canRoll, true);
+    assert.match(bar.rollMenu.label, /RollMenu\.Title/);
     assert.deepEqual(bar.rollOptions.map((o) => o.group), ["all", "npc", "pc"]);
   });
 
@@ -221,13 +282,39 @@ describe("WheelViewData.bar tools (RF-83)", () => {
   });
 });
 
+describe("WheelViewData.bar style switcher (RF-110)", () => {
+  const savedStyles = [{ id: "deep", name: "Underwater", current: true }, { id: "boss", name: "Boss", current: false }];
+
+  it("lists the saved styles for the GM, the current one marked", () => {
+    const bar = WheelViewData.bar(model(), ui({ savedStyles }));
+    assert.equal(bar.styleMenu, true);
+    assert.deepEqual(bar.styles.map((style) => [style.id, style.current]), [["deep", true], ["boss", false]]);
+    assert.equal(WheelViewData.bar(model(), ui({ savedStyles, menu: "style" })).styleOpen, true);
+  });
+
+  it("keeps the switcher for the GM with nothing saved yet, to say where to save one", () => {
+    const bar = WheelViewData.bar(model(), ui());
+    assert.equal(bar.styleMenu, true);
+    assert.deepEqual(bar.styles, []);
+  });
+
+  it("offers nothing to players, or once the user hides it", () => {
+    assert.equal(WheelViewData.bar(model(), ui({ savedStyles, barHidden: ["style"] })).styleMenu, false);
+    game.user.isGM = false;
+    try {
+      assert.equal(WheelViewData.bar(model(), ui({ savedStyles })).styleMenu, false);
+    } finally {
+      game.user.isGM = true;
+    }
+  });
+});
+
 describe("WheelViewData.bar items (RF-99)", () => {
   it("leaves out what the user turned off, rolls included", () => {
     const pending = model({ ring: [vm("a", { hasInitiative: false })], rolledCount: 0 });
     const bar = WheelViewData.bar(pending, ui({ barHidden: ["roll", "grid"] }));
     assert.equal(bar.show.grid, false);
     assert.equal(bar.show.lock, true);
-    assert.equal(bar.canRoll, false);
     assert.equal(bar.rollMenu, null);
   });
 });

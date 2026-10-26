@@ -889,10 +889,12 @@
     #262b26;
 }
 
-/* The widget is fitted between the heading and the turn controls, never under them. */
+/* The widget is fitted between the heading and the turn controls, never under
+   them; what its effects reach past the fitted room is cut at the stage. */
 .sc-combat-wheel-settings .scw-appearance__stage {
   position: absolute;
   inset: 36px 0 46px;
+  overflow: hidden;
 }
 
 .sc-combat-wheel-settings .scw-appearance__preview-head {
@@ -1160,23 +1162,6 @@
   margin: 4px 0 0;
 }
 
-.sc-combat-wheel-settings .scw-appearance__combat-styles {
-  display: grid;
-  grid-template-columns: auto minmax(180px, 260px) auto;
-  align-items: center;
-  gap: 6px 12px;
-  justify-content: start;
-}
-
-.sc-combat-wheel-settings .scw-appearance__combat-styles .scw-field__name {
-  flex: none;
-}
-
-.sc-combat-wheel-settings .scw-appearance__combat-styles .scw-appearance__panel-hint {
-  grid-column: 1 / -1;
-  margin: 0;
-}
-
 .sc-combat-wheel-settings .scw-saved-style {
   position: relative;
   display: flex;
@@ -1184,18 +1169,7 @@
 
 .sc-combat-wheel-settings .scw-saved-style > .scw-preset {
   flex: 1;
-  padding-right: 72px;
-}
-
-.sc-combat-wheel-settings .scw-saved-style__use {
-  position: absolute;
-  top: 6px;
-  right: 40px;
-}
-
-.sc-combat-wheel-settings .scw-saved-style__use.is-active {
-  border-color: var(--scw-cfg-accent);
-  color: var(--scw-cfg-accent);
+  padding-right: 40px;
 }
 
 .sc-combat-wheel-settings .scw-saved-style__delete {

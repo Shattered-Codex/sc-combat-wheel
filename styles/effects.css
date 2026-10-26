@@ -1,27 +1,44 @@
-/* === Acting and turn-change effects ======================================== */
-/* Two families, chosen by attributes on the widget root (.sc-combat-wheel,
-   also the editor preview):
-     data-scw-acting-fx = none | pulse | halo | aura | flicker | rays | shine
-       loops around the acting portrait while it acts;
-     data-scw-turn-fx = none | ripple | burst | flash | pop
-       plays once while the root has .scw-turn-fx-run (added on a turn
-       change, removed 1200ms later), so each lasts at most 1100ms.
-   Two places to draw (RF-112):
-     .scw-afx                the layer just behind the acting slot
-                             (WheelActingFx), where nothing clips: glows,
-                             halo, aura, flame, rays, waves and burst;
-     the acting slot itself  light over the art, inside its own shape
-                             (shine's sweep, flash) and the art's `scale` (pop).
-   Two knobs, like the rarity colors' effects: --scw-fx-strength scales every
-   opacity and --scw-fx-speed every duration (WheelAppearance, from the effect
+/* === Acting, widget and turn-change effects =============================== */
+/* WheelFxLayer draws two layers under the widget's anchor (RF-112, RF-116):
+     .scw-afx--acting  just behind the acting slot, where nothing clips;
+     .scw-afx--widget  around the whole widget: the wheel's rim (only the half
+                       on the portraits' side shows, data-side) or the row of
+                       cards.
+   Each picks its parts from its own attributes:
+     data-fx    = the looping effect: pulse | halo | aura | flicker | flames |
+                  inferno | void | rays | storm | runes | shine (none: nothing);
+     data-waves = continuous rings: energy | ripples | shockwave | arcane |
+                  mist | sonar | prism | burst (acting only);
+     data-shape = round (a circle: the wheel) | card (a rounded rectangle).
+   Turn-change effects play once on the acting layer, from the root's
+     data-scw-turn-fx = ripple | burst | flash | pop | shockwave | lightning
+   while it has .scw-turn-fx-run (added on a turn change, removed 1200ms later).
+   The acting art itself carries shine's sweep, flash's light and pop's swell.
+   Three knobs, like the SC Item Rarity Colors' effects: --scw-fx-strength
+   scales every opacity, --scw-fx-speed every duration and --scw-fx-boost the
+   size of glows, flames, rings and particles (WheelAppearance, from the
    intensity and speed). The colour is the acting colour (--scw-active).
-   Only transform and opacity animate. Off in the grid view; under reduced
+   Auras, waves, flames, storm and runes follow the Rarity Colors' effects;
+   their masks are the same SVGs. Only transform and opacity animate (the
+   wave rings' border-radius aside). Off in the grid view; under reduced
    motion nothing moves, and the glows stay lit so the acting cue remains. */
 
 .sc-combat-wheel {
-  --scw-fx-strength: 0.75;
+  --scw-fx-strength: 0.9;
   --scw-fx-speed: 1;
+  --scw-fx-boost: 1.1;
   --scw-fx-c: var(--scw-active);
+  /* A ring of 18 runes between two circles (40 smaller ones for the widget's rim), and two jagged rings of lightning. */
+  --scw-rune-ring: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2247%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%220.8%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2232%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%220.8%22/%3E%3Cg transform=%22rotate(0.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(20.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(40.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(60.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(80.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(100.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(120.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(140.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(160.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(180.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(200.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M7 1L3 6l4 2-4 5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(220.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M5 13V1M5 1L1 5M5 1l4 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(240.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 1v12M3 1l5 3-5 3 5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(260.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M2 13V1M8 13V1M2 1l6 6M8 1L2 7%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(280.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M5 1L1 7l4 6 4-6z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(300.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(320.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3Cg transform=%22rotate(340.0 50 50)%22%3E%3Cpath transform=%22translate(45.5 4.5) scale(0.9)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.4%22/%3E%3C/g%3E%3C/svg%3E");
+  --scw-rune-ring-fine: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2248.2%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%220.35%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2242.3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%220.35%22/%3E%3Cg transform=%22rotate(0 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(9 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(18 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(27 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(36 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(45 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(54 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(63 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(72 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(81 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(90 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M7 1L3 6l4 2-4 5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(99 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 13V1M5 1L1 5M5 1l4 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(108 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 1l5 3-5 3 5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(117 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 13V1M8 13V1M2 1l6 6M8 1L2 7%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(126 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 1L1 7l4 6 4-6z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(135 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(144 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(153 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(162 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(171 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(180 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(189 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(198 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(207 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(216 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(225 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M7 1L3 6l4 2-4 5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(234 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 13V1M5 1L1 5M5 1l4 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(243 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 1l5 3-5 3 5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(252 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 13V1M8 13V1M2 1l6 6M8 1L2 7%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(261 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 1L1 7l4 6 4-6z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(270 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(279 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(288 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(297 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(306 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(315 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(324 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(333 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(342 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3Cg transform=%22rotate(351 50 50)%22%3E%3Cpath transform=%22translate(48.20 2.23) scale(0.36)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/svg%3E");
+  --scw-storm-a: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M89.5 50.0 L93.9 55.6 L88.9 59.8 L84.3 63.6 L86.2 69.8 L78.6 71.8 L76.2 74.6 L75.8 83.0 L74.8 87.3 L66.9 88.0 L60.3 85.1 L58.4 89.4 L54.8 86.6 L51.2 85.3 L46.7 89.3 L40.5 89.0 L35.3 87.2 L30.5 84.5 L24.1 86.8 L19.3 80.7 L19.5 72.9 L17.7 69.7 L11.9 69.2 L9.2 65.1 L6.7 60.8 L15.1 53.1 L5.9 49.7 L5.5 44.4 L15.3 41.6 L10.1 34.4 L18.0 33.7 L12.6 25.6 L22.9 26.0 L25.5 23.6 L23.3 16.3 L27.8 16.0 L33.6 17.0 L38.7 15.5 L43.5 14.4 L47.6 13.0 L51.5 5.3 L57.0 12.6 L62.6 15.1 L69.2 10.9 L70.1 20.1 L75.7 23.2 L82.4 22.2 L81.3 28.5 L81.1 32.1 L84.6 35.7 L87.4 40.0 L94.1 43.6 L90.7 49.1 Z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.35%22 stroke-width=%223.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M89.5 50.0 L93.9 55.6 L88.9 59.8 L84.3 63.6 L86.2 69.8 L78.6 71.8 L76.2 74.6 L75.8 83.0 L74.8 87.3 L66.9 88.0 L60.3 85.1 L58.4 89.4 L54.8 86.6 L51.2 85.3 L46.7 89.3 L40.5 89.0 L35.3 87.2 L30.5 84.5 L24.1 86.8 L19.3 80.7 L19.5 72.9 L17.7 69.7 L11.9 69.2 L9.2 65.1 L6.7 60.8 L15.1 53.1 L5.9 49.7 L5.5 44.4 L15.3 41.6 L10.1 34.4 L18.0 33.7 L12.6 25.6 L22.9 26.0 L25.5 23.6 L23.3 16.3 L27.8 16.0 L33.6 17.0 L38.7 15.5 L43.5 14.4 L47.6 13.0 L51.5 5.3 L57.0 12.6 L62.6 15.1 L69.2 10.9 L70.1 20.1 L75.7 23.2 L82.4 22.2 L81.3 28.5 L81.1 32.1 L84.6 35.7 L87.4 40.0 L94.1 43.6 L90.7 49.1 Z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.1%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  --scw-storm-b: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M97.4 50.0 L96.5 57.8 L93.4 61.0 L91.4 65.7 L87.4 68.0 L85.3 72.4 L81.2 75.4 L83.0 81.6 L78.1 84.0 L72.3 86.6 L70.9 91.3 L65.0 92.7 L59.6 96.8 L54.3 95.9 L49.3 94.6 L43.5 92.0 L39.8 92.6 L33.5 91.6 L28.6 89.7 L27.1 84.5 L20.3 85.8 L21.1 79.0 L19.3 76.1 L13.3 75.3 L11.6 68.6 L10.1 64.2 L5.1 60.9 L8.2 54.7 L3.7 51.3 L3.7 44.6 L6.6 40.7 L8.4 33.6 L14.6 28.7 L19.3 23.7 L22.7 20.5 L24.5 12.3 L30.8 7.7 L38.6 7.2 L45.8 4.2 L50.8 2.2 L55.2 8.8 L59.0 7.2 L64.0 4.6 L68.7 12.7 L73.1 12.3 L76.5 14.4 L79.9 20.5 L87.2 20.9 L86.5 27.7 L93.1 32.4 L94.3 39.8 L95.3 44.9 Z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.35%22 stroke-width=%223.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M97.4 50.0 L96.5 57.8 L93.4 61.0 L91.4 65.7 L87.4 68.0 L85.3 72.4 L81.2 75.4 L83.0 81.6 L78.1 84.0 L72.3 86.6 L70.9 91.3 L65.0 92.7 L59.6 96.8 L54.3 95.9 L49.3 94.6 L43.5 92.0 L39.8 92.6 L33.5 91.6 L28.6 89.7 L27.1 84.5 L20.3 85.8 L21.1 79.0 L19.3 76.1 L13.3 75.3 L11.6 68.6 L10.1 64.2 L5.1 60.9 L8.2 54.7 L3.7 51.3 L3.7 44.6 L6.6 40.7 L8.4 33.6 L14.6 28.7 L19.3 23.7 L22.7 20.5 L24.5 12.3 L30.8 7.7 L38.6 7.2 L45.8 4.2 L50.8 2.2 L55.2 8.8 L59.0 7.2 L64.0 4.6 L68.7 12.7 L73.1 12.3 L76.5 14.4 L79.9 20.5 L87.2 20.9 L86.5 27.7 L93.1 32.4 L94.3 39.8 L95.3 44.9 Z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.1%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  /* Strips of 15 runes (240×14 and its 90° turn) and of lightning (200×22). */
+  --scw-rune-tile: 240px;
+  --scw-rune-h: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%2214%22 viewBox=%220 0 240 14%22%3E%3Cpath transform=%22translate(3 0)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(19 0)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(35 0)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(51 0)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(67 0)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(83 0)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(99 0)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(115 0)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(131 0)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(147 0)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(163 0)%22 d=%22M7 1L3 6l4 2-4 5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(179 0)%22 d=%22M5 13V1M5 1L1 5M5 1l4 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(195 0)%22 d=%22M3 1v12M3 1l5 3-5 3 5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(211 0)%22 d=%22M2 13V1M8 13V1M2 1l6 6M8 1L2 7%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(227 0)%22 d=%22M5 1L1 7l4 6 4-6z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  --scw-rune-v: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%22240%22 viewBox=%220 0 14 240%22%3E%3Cpath transform=%22translate(14 3) rotate(90)%22 d=%22M3 1v12M3 4l5-3M3 8l5-3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 19) rotate(90)%22 d=%22M2 13V1l6 4v8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 35) rotate(90)%22 d=%22M3 1v12M3 4l4 3-4 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 51) rotate(90)%22 d=%22M3 13V1l5 3-5 3 5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 67) rotate(90)%22 d=%22M8 1L3 7l5 6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 83) rotate(90)%22 d=%22M2 1l6 12M8 1L2 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 99) rotate(90)%22 d=%22M3 13V1l5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 115) rotate(90)%22 d=%22M2 1v12M8 1v12M2 5l6 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 131) rotate(90)%22 d=%22M5 1v12M5 4l3-3M5 10l-3 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 147) rotate(90)%22 d=%22M5 13V1M5 6L1 2M5 6l4-4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 163) rotate(90)%22 d=%22M7 1L3 6l4 2-4 5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 179) rotate(90)%22 d=%22M5 13V1M5 1L1 5M5 1l4 4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 195) rotate(90)%22 d=%22M3 1v12M3 1l5 3-5 3 5 3-5 3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 211) rotate(90)%22 d=%22M2 13V1M8 13V1M2 1l6 6M8 1L2 7%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Cpath transform=%22translate(14 227) rotate(90)%22 d=%22M5 1L1 7l4 6 4-6z%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.35%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  --scw-arc-h: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%2222%22 viewBox=%220 0 200 22%22%3E%3Cpath d=%22M0.0 11.0 L12.9 5.4 L29.8 4.2 L43.1 8.9 L53.6 11.1 L67.7 9.9 L82.3 4.5 L99.4 16.2 L111.3 6.6 L129.6 18.2 L143.5 9.3 L161.0 3.7 L174.3 7.6 L182.9 4.9 L200.0 11.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.35%22 stroke-width=%224%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M0.0 11.0 L12.9 5.4 L29.8 4.2 L43.1 8.9 L53.6 11.1 L67.7 9.9 L82.3 4.5 L99.4 16.2 L111.3 6.6 L129.6 18.2 L143.5 9.3 L161.0 3.7 L174.3 7.6 L182.9 4.9 L200.0 11.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.4%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  --scw-arc-v: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2222%22 height=%22200%22 viewBox=%220 0 22 200%22%3E%3Cpath d=%22M11.0 0.0 L5.4 12.9 L4.2 29.8 L8.9 43.1 L11.1 53.6 L9.9 67.7 L4.5 82.3 L16.2 99.4 L6.6 111.3 L18.2 129.6 L9.3 143.5 L3.7 161.0 L7.6 174.3 L4.9 182.9 L11.0 200.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%22.35%22 stroke-width=%224%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M11.0 0.0 L5.4 12.9 L4.2 29.8 L8.9 43.1 L11.1 53.6 L9.9 67.7 L4.5 82.3 L16.2 99.4 L6.6 111.3 L18.2 129.6 L9.3 143.5 L3.7 161.0 L7.6 174.3 L4.9 182.9 L11.0 200.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.4%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
 }
 
 /* The acting art keeps its overlays to itself, under its badges. */
@@ -30,20 +47,25 @@
   z-index: 3;
 }
 
-/* ---------- the layer behind the acting slot ---------- */
+/* ---------- the layers ---------- */
 .sc-combat-wheel .scw-afx {
   position: absolute;
   z-index: 0;
   pointer-events: none;
   --scw-afx-r: var(--scw-radius);
 }
+.sc-combat-wheel .scw-afx[data-shape="round"] { --scw-afx-r: 50%; }
 /* On the wheel the neighbouring slices and the hub would hide whatever sits
-   behind the acting slice: the layer opens up (no stacking of its own) so its
-   light — glow, halo, rays, waves, burst — lies over them like a spotlight,
-   while the aura and the flame, which fill the middle, stay behind. */
-.sc-combat-wheel .scw-afx[data-shape="round"] { --scw-afx-r: 50%; z-index: auto; }
-.sc-combat-wheel .scw-afx[data-shape="round"] > :is(.scw-afx-glow, .scw-afx-halo, .scw-afx-rays, .scw-afx-waves, .scw-afx-burst) { z-index: 6; }
-.sc-combat-wheel .scw-afx[data-shape="round"] > :is(.scw-afx-aura, .scw-afx-flame) { z-index: 0; }
+   behind the acting slice: its layer opens up (no stacking of its own) so its
+   light lies over them like a spotlight, while what fills the middle stays behind. */
+.sc-combat-wheel .scw-afx--acting[data-shape="round"] { z-index: auto; }
+.sc-combat-wheel .scw-afx--acting[data-shape="round"] > :is(.scw-afx-glow, .scw-afx-halo, .scw-afx-tongues, .scw-afx-rays, .scw-afx-storm, .scw-afx-runes, .scw-afx-rings, .scw-afx-waves, .scw-afx-burst, .scw-afx-bolt) { z-index: 6; }
+.sc-combat-wheel .scw-afx--acting[data-shape="round"] > :is(.scw-afx-aura, .scw-afx-flame, .scw-afx-void) { z-index: 0; }
+/* The wheel's disc is centred on the anchor: only its half past the bar shows. */
+.sc-combat-wheel .scw-afx--widget[data-side="up"] { clip-path: polygon(-50% -50%, 150% -50%, 150% 50%, -50% 50%); }
+.sc-combat-wheel .scw-afx--widget[data-side="down"] { clip-path: polygon(-50% 50%, 150% 50%, 150% 150%, -50% 150%); }
+.sc-combat-wheel .scw-afx--widget[data-side="left"] { clip-path: polygon(-50% -50%, 50% -50%, 50% 150%, -50% 150%); }
+.sc-combat-wheel .scw-afx--widget[data-side="right"] { clip-path: polygon(50% -50%, 150% -50%, 150% 150%, 50% 150%); }
 .sc-combat-wheel.is-grid .scw-afx { display: none; }
 .sc-combat-wheel .scw-afx > i {
   position: absolute;
@@ -56,34 +78,37 @@
   display: block;
 }
 
-/* Glow: a tight bright ring of light and a wide soft one. Static here; it breathes below. */
-.sc-combat-wheel:is([data-scw-acting-fx="pulse"], [data-scw-acting-fx="halo"], [data-scw-acting-fx="shine"], [data-scw-acting-fx="rays"]) .scw-afx-glow {
+/* Glow: a tight bright ring of light and a wide soft one. It breathes under
+   Pulse and quietly supports the other outlines. */
+.sc-combat-wheel .scw-afx:is([data-fx="pulse"], [data-fx="halo"], [data-fx="shine"], [data-fx="rays"], [data-fx="storm"], [data-fx="runes"], [data-fx="flames"], [data-fx="inferno"]) > .scw-afx-glow {
   display: block;
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--scw-fx-c) 70%, white),
-    0 0 22px 8px color-mix(in srgb, var(--scw-fx-c) 90%, transparent),
-    0 0 60px 22px color-mix(in srgb, var(--scw-fx-c) 55%, transparent);
+    0 0 0 calc(2px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 70%, white),
+    0 0 calc(24px * var(--scw-fx-boost)) calc(9px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 90%, transparent),
+    0 0 calc(64px * var(--scw-fx-boost)) calc(24px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 55%, transparent);
   opacity: var(--scw-fx-strength);
 }
-/* Under the halo, the rays and the shine the glow only supports them. */
-.sc-combat-wheel:is([data-scw-acting-fx="halo"], [data-scw-acting-fx="shine"], [data-scw-acting-fx="rays"]) .scw-afx-glow {
-  opacity: calc(var(--scw-fx-strength) * 0.55);
+.sc-combat-wheel .scw-afx:not([data-fx="pulse"]) > .scw-afx-glow { opacity: calc(var(--scw-fx-strength) * 0.55); }
+.sc-combat-wheel .scw-afx[data-fx="inferno"] > .scw-afx-glow {
+  box-shadow:
+    0 0 calc(16px * var(--scw-fx-boost)) calc(4px * var(--scw-fx-boost)) color-mix(in srgb, color-mix(in srgb, var(--scw-fx-c) 60%, #ffb347) 85%, transparent),
+    0 calc(-10px * var(--scw-fx-boost)) calc(44px * var(--scw-fx-boost)) calc(14px * var(--scw-fx-boost)) color-mix(in srgb, color-mix(in srgb, var(--scw-fx-c) 60%, #ff7a2a) 45%, transparent);
 }
 
-/* Halo: a ring just outside the portrait, a band of light running round it. */
-.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo {
+/* Halo: a ring just outside the outline, a band of light running round it. */
+.sc-combat-wheel .scw-afx[data-fx="halo"] > .scw-afx-halo {
   display: block;
-  inset: -8px;
+  inset: calc(-8px * var(--scw-fx-boost));
   overflow: hidden;
-  padding: 5px;
+  padding: calc(5px * var(--scw-fx-boost));
   border-radius: calc(var(--scw-afx-r) + 8px);
   opacity: var(--scw-fx-strength);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx[data-shape="round"] .scw-afx-halo { border-radius: 50%; }
-.sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo::before {
+.sc-combat-wheel .scw-afx[data-shape="round"][data-fx="halo"] > .scw-afx-halo { border-radius: 50%; }
+.sc-combat-wheel .scw-afx[data-fx="halo"] > .scw-afx-halo::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -101,74 +126,253 @@
   );
 }
 
-/* Aura: three blobs of energy behind the portrait, never the same outline twice. */
-.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura {
+/* Aura (energy): three blobs of energy behind the portrait, never the same outline twice. */
+.sc-combat-wheel .scw-afx[data-fx="aura"] > .scw-afx-aura {
   display: block;
-  inset: -22%;
+  inset: calc(-22% * var(--scw-fx-boost));
   border-radius: 50%;
   opacity: var(--scw-fx-strength);
 }
-.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(1) {
+.sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(1) {
   inset: 10%;
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 60%, white) 0%, var(--scw-fx-c) 34%, color-mix(in srgb, var(--scw-fx-c) 35%, transparent) 56%, transparent 70%);
 }
-.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(2) {
+.sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(2) {
   inset: 2% 4% -2%;
   border-radius: 46% 54% 38% 62% / 62% 44% 56% 38%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 70%, transparent) 30%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 75%, transparent) 30%, transparent 70%);
   filter: blur(3px);
 }
-.sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(3) {
+.sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(3) {
   inset: -4% -2% 0;
   border-radius: 58% 42% 55% 45% / 42% 60% 40% 58%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 45%, transparent) 35%, transparent 72%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 55%, transparent) 35%, transparent 72%);
   filter: blur(5px);
 }
 
-/* Flame: a hot core and two tongues rising behind the portrait, the acting colour warmed. */
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame {
+/* Flicker (fire): a hot core and two tongues rising behind the portrait, the acting colour warmed. */
+.sc-combat-wheel .scw-afx[data-fx="flicker"] > .scw-afx-flame {
   display: block;
-  inset: -60% -22% 6%;
+  inset: calc(-60% * var(--scw-fx-boost)) calc(-22% * var(--scw-fx-boost)) 6%;
   border-radius: 0;
   opacity: var(--scw-fx-strength);
 }
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b {
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b {
   inset: 0;
   transform-origin: 50% 100%;
 }
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(1) {
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(1) {
   background: radial-gradient(ellipse 52% 100% at 50% 100%, color-mix(in srgb, var(--scw-fx-c) 25%, #fff6d0) 0 28%, color-mix(in srgb, var(--scw-fx-c) 55%, #ffb347) 50%, color-mix(in srgb, var(--scw-fx-c) 45%, #ff7a2a) 68%, transparent 100%);
 }
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2),
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) {
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(2),
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(3) {
   background: radial-gradient(ellipse 34% 90% at 50% 100%, color-mix(in srgb, var(--scw-fx-c) 55%, #ff7a2a) 0 35%, color-mix(in srgb, var(--scw-fx-c) 45%, transparent) 60%, transparent 100%);
   filter: blur(2px);
 }
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2) { --scw-lean: -12deg; left: -18%; }
-.sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) { --scw-lean: 14deg; right: -18%; }
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(2) { --scw-lean: -12deg; left: -18%; }
+.sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(3) { --scw-lean: 14deg; right: -18%; }
 
-/* Rays: two fans of thin rays turning against each other, shimmering where they cross. */
-.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays {
+/* Flames and inferno: tongues of energy (fire) rooted all along the outline,
+   pointing out and leaning up, each flickering at its own pace (fx-flames.js).
+   They light what they cross (screen) instead of painting over it, so on the
+   wheel they may lie over the neighbouring slices. */
+.sc-combat-wheel .scw-afx:is([data-fx="flames"], [data-fx="inferno"]) > .scw-afx-tongues {
   display: block;
-  inset: -45%;
+  border-radius: 0;
+  mix-blend-mode: screen;
+}
+.sc-combat-wheel .scw-afx-ff {
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: var(--len);
+  height: var(--w);
+  margin-top: calc(var(--w) / -2);
+  margin-left: -8px;
+  transform-origin: 8px 50%;
+  transform: rotate(var(--n));
+  border-radius: 50%;
+  background: radial-gradient(ellipse 100% 50% at 8px 50%,
+    color-mix(in srgb, var(--scw-fx-c) 40%, white) 0%,
+    color-mix(in srgb, var(--scw-fx-c) 85%, transparent) 22%,
+    color-mix(in srgb, var(--scw-fx-c) 35%, transparent) 58%,
+    transparent 100%);
+  opacity: calc(var(--scw-fx-strength) * 0.7);
+}
+.sc-combat-wheel .scw-afx[data-fx="inferno"] .scw-afx-ff {
+  background: radial-gradient(ellipse 100% 50% at 8px 50%,
+    color-mix(in srgb, var(--scw-fx-c) 20%, #fff6d0) 0%,
+    color-mix(in srgb, var(--scw-fx-c) 40%, #ffb347) 24%,
+    color-mix(in srgb, color-mix(in srgb, var(--scw-fx-c) 45%, #ff6a1a) 45%, transparent) 60%,
+    transparent 100%);
+}
+
+/* Void: a dark core, a glowing rim of the colour turning slowly, and a wisp of darkness turning the other way. */
+.sc-combat-wheel .scw-afx[data-fx="void"] > .scw-afx-void {
+  display: block;
+  inset: calc(-24% * var(--scw-fx-boost));
+  border-radius: 50%;
+  opacity: var(--scw-fx-strength);
+}
+.sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(1) {
+  inset: 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--scw-fx-c) 15%, #050308) 0 42%, color-mix(in srgb, var(--scw-fx-c) 35%, rgb(5 3 8 / 0.7)) 56%, transparent 70%);
+}
+.sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(2) {
+  inset: 2%;
+  border-radius: 46% 54% 40% 60% / 58% 42% 60% 40%;
+  background: radial-gradient(closest-side, transparent 66%, color-mix(in srgb, var(--scw-fx-c) 85%, transparent) 80%, transparent 100%);
+  filter: blur(1.5px);
+}
+.sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(3) {
+  inset: -8%;
+  border-radius: 58% 42% 55% 45% / 42% 60% 40% 58%;
+  background: radial-gradient(closest-side, rgb(5 3 8 / 0.75) 40%, rgb(5 3 8 / 0.35) 70%, transparent 100%);
+  filter: blur(4px);
+}
+
+/* Rays (corona): two fans of thin rays turning against each other, shimmering where they cross. */
+.sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays {
+  display: block;
+  inset: calc(-45% * var(--scw-fx-boost));
   border-radius: 50%;
   opacity: var(--scw-fx-strength);
   -webkit-mask: radial-gradient(closest-side, transparent 38%, #000 50%, transparent 100%);
   mask: radial-gradient(closest-side, transparent 38%, #000 50%, transparent 100%);
 }
-.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before,
-.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+.sc-combat-wheel .scw-afx--widget[data-fx="rays"] > .scw-afx-rays {
+  inset: calc(-14% * var(--scw-fx-boost));
+  -webkit-mask: radial-gradient(closest-side, transparent 68%, #000 76%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent 68%, #000 76%, transparent 100%);
+}
+.sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::before,
+.sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
 }
-.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before {
+.sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::before {
   background: repeating-conic-gradient(from 0deg, var(--scw-fx-c) 0 2deg, transparent 2.5deg 11deg);
 }
-.sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+.sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::after {
   background: repeating-conic-gradient(from 5deg, color-mix(in srgb, var(--scw-fx-c) 45%, white) 0 1deg, transparent 1.5deg 17deg);
+}
+
+/* Storm: lightning flashing for an instant at a new spot, out of step. Round
+   outlines get two jagged rings; cards a band of it on each edge. */
+.sc-combat-wheel .scw-afx[data-fx="storm"] > .scw-afx-storm {
+  display: block;
+  border-radius: 0;
+}
+.sc-combat-wheel .scw-afx[data-shape="round"][data-fx="storm"] > .scw-afx-storm { inset: calc(-30% * var(--scw-fx-boost)); }
+.sc-combat-wheel .scw-afx--widget[data-shape="round"][data-fx="storm"] > .scw-afx-storm { inset: calc(-6% * var(--scw-fx-boost)); }
+.sc-combat-wheel .scw-afx[data-shape="round"] > .scw-afx-storm b { display: none; }
+.sc-combat-wheel .scw-afx[data-shape="round"] > :is(.scw-afx-storm, .scw-afx-bolt)::before,
+.sc-combat-wheel .scw-afx[data-shape="round"] > .scw-afx-storm::after {
+  content: "";
+  position: absolute;
+  inset: 4%;
+  background: color-mix(in srgb, var(--scw-fx-c) 55%, white);
+  -webkit-mask: var(--scw-storm-a) center / contain no-repeat;
+  mask: var(--scw-storm-a) center / contain no-repeat;
+  opacity: 0;
+}
+.sc-combat-wheel .scw-afx[data-shape="round"] > .scw-afx-storm::after {
+  inset: 0;
+  -webkit-mask: var(--scw-storm-b) center / contain no-repeat;
+  mask: var(--scw-storm-b) center / contain no-repeat;
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b { overflow: hidden; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(odd) { left: -8px; right: -8px; height: 22px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(even) { top: -8px; bottom: -8px; width: 22px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(1) { top: -11px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(2) { right: -11px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(3) { bottom: -11px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(4) { left: -11px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: color-mix(in srgb, var(--scw-fx-c) 55%, white);
+  opacity: 0;
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(odd)::before {
+  width: calc(100% + 200px);
+  height: 100%;
+  -webkit-mask: var(--scw-arc-h) repeat-x left center / 200px 22px;
+  mask: var(--scw-arc-h) repeat-x left center / 200px 22px;
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-storm b:nth-child(even)::before {
+  width: 100%;
+  height: calc(100% + 200px);
+  -webkit-mask: var(--scw-arc-v) repeat-y center top / 22px 200px;
+  mask: var(--scw-arc-v) repeat-y center top / 22px 200px;
+}
+
+/* Runes: a ring of runes turning around a round outline; around a card, a
+   channel between two rails where runes flow clockwise along every edge. */
+.sc-combat-wheel .scw-afx[data-fx="runes"] > .scw-afx-runes {
+  display: block;
+  border-radius: 0;
+  opacity: var(--scw-fx-strength);
+}
+.sc-combat-wheel .scw-afx[data-shape="round"][data-fx="runes"] > .scw-afx-runes { inset: calc(-26% * var(--scw-fx-boost)); }
+.sc-combat-wheel .scw-afx--widget[data-shape="round"][data-fx="runes"] > .scw-afx-runes { inset: calc(-5% * var(--scw-fx-boost)); }
+.sc-combat-wheel .scw-afx[data-shape="round"] > .scw-afx-runes b { display: none; }
+.sc-combat-wheel .scw-afx[data-shape="round"] > .scw-afx-runes::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--scw-fx-c);
+  -webkit-mask: var(--scw-rune-ring) center / contain no-repeat;
+  mask: var(--scw-rune-ring) center / contain no-repeat;
+}
+.sc-combat-wheel .scw-afx--widget[data-shape="round"] > .scw-afx-runes::before {
+  -webkit-mask-image: var(--scw-rune-ring-fine);
+  mask-image: var(--scw-rune-ring-fine);
+}
+.sc-combat-wheel .scw-afx[data-shape="card"][data-fx="runes"] > .scw-afx-runes {
+  inset: -24px;
+  border: 1px solid color-mix(in srgb, var(--scw-fx-c) 55%, transparent);
+  border-radius: calc(var(--scw-radius) + 22px);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--scw-fx-c) 80%, transparent));
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes::after {
+  content: "";
+  position: absolute;
+  inset: 19px;
+  border: 1px solid color-mix(in srgb, var(--scw-fx-c) 40%, transparent);
+  border-radius: calc(var(--scw-radius) + 3px);
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b { overflow: hidden; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(odd) { left: 20px; right: 20px; height: 14px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(even) { top: 20px; bottom: 20px; width: 14px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(1) { top: 3px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(2) { right: 3px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(3) { bottom: 3px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(4) { left: 3px; }
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--scw-fx-c);
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(odd)::before {
+  width: calc(100% + var(--scw-rune-tile));
+  height: 100%;
+  -webkit-mask: var(--scw-rune-h) repeat-x left center / var(--scw-rune-tile) 14px;
+  mask: var(--scw-rune-h) repeat-x left center / var(--scw-rune-tile) 14px;
+}
+.sc-combat-wheel .scw-afx[data-shape="card"] > .scw-afx-runes b:nth-child(even)::before {
+  width: 100%;
+  height: calc(100% + var(--scw-rune-tile));
+  -webkit-mask: var(--scw-rune-v) repeat-y center top / 14px var(--scw-rune-tile);
+  mask: var(--scw-rune-v) repeat-y center top / 14px var(--scw-rune-tile);
 }
 
 /* Shine: a diagonal sweep of light over the art, inside its own shape. */
@@ -183,10 +387,96 @@
   pointer-events: none;
 }
 
+/* ---------- continuous waves around the acting portrait ---------- */
+/* Three rings (two for most styles) leave the outline, grow and fade. The
+   style sets their line, glow and rhythm, as in the Rarity Colors. */
+.sc-combat-wheel .scw-afx:not([data-waves="none"]) > .scw-afx-rings {
+  display: block;
+  overflow: visible;
+  --wave-from: 0.94;
+  --wave-to: calc(1.3 + 0.25 * var(--scw-fx-boost));
+}
+.sc-combat-wheel .scw-afx-rings > b {
+  inset: 0;
+  box-sizing: border-box;
+  border: calc(var(--wave-line, 2px) * var(--scw-fx-boost)) var(--wave-border, solid) color-mix(in srgb, var(--scw-fx-c) 75%, white);
+  border-radius: var(--scw-afx-r);
+  box-shadow: 0 0 calc(var(--wave-glow, 12px) * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 70%, transparent);
+  opacity: 0;
+}
+.sc-combat-wheel .scw-afx:is([data-waves="energy"], [data-waves="arcane"], [data-waves="mist"], [data-waves="shockwave"], [data-waves="sonar"], [data-waves="prism"], [data-waves="burst"]) > .scw-afx-rings > b:nth-child(3) { display: none; }
+.sc-combat-wheel .scw-afx[data-waves="energy"] > .scw-afx-rings > b { --wave-line: 2px; --wave-glow: 12px; }
+.sc-combat-wheel .scw-afx[data-waves="energy"] > .scw-afx-rings > b:nth-child(2) { --wave-t: 7.7s; --wave-delay: -2.9s; }
+.sc-combat-wheel .scw-afx[data-waves="ripples"] > .scw-afx-rings > b { --wave-line: 1px; --wave-glow: 6px; --wave-t: 5s; --wave-delay: -1s; }
+.sc-combat-wheel .scw-afx[data-waves="ripples"] > .scw-afx-rings > b:nth-child(2) { --wave-delay: -0.65s; --wave-o: 0.7; }
+.sc-combat-wheel .scw-afx[data-waves="ripples"] > .scw-afx-rings > b:nth-child(3) { --wave-delay: -0.3s; --wave-o: 0.45; }
+.sc-combat-wheel .scw-afx[data-waves="shockwave"] > .scw-afx-rings > b {
+  --wave-anim: scw-afx-ring-fast;
+  --wave-t: 6s;
+  --wave-line: 3px;
+  box-shadow:
+    0 0 18px 2px color-mix(in srgb, var(--scw-fx-c) 75%, transparent),
+    inset 0 0 14px color-mix(in srgb, var(--scw-fx-c) 55%, transparent);
+}
+.sc-combat-wheel .scw-afx[data-waves="shockwave"] > .scw-afx-rings > b:nth-child(2) {
+  --wave-delay: 0.14s;
+  --wave-line: 1px;
+  --wave-o: 0.55;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--scw-fx-c) 60%, transparent);
+}
+.sc-combat-wheel .scw-afx[data-waves="arcane"] > .scw-afx-rings > b { --wave-border: dotted; --wave-line: 2.5px; --wave-glow: 8px; --wave-t: 6.4s; --wave-spin: 90deg; }
+.sc-combat-wheel .scw-afx[data-waves="arcane"] > .scw-afx-rings > b:nth-child(2) { --wave-t: 8.6s; --wave-delay: -3.3s; --wave-spin: -90deg; }
+.sc-combat-wheel .scw-afx[data-waves="mist"] > .scw-afx-rings > b {
+  --wave-anim: scw-afx-ring-slow;
+  --wave-t: 7.5s;
+  --wave-o: 0.85;
+  border: 0;
+  box-shadow:
+    0 0 22px 8px color-mix(in srgb, var(--scw-fx-c) 50%, transparent),
+    inset 0 0 16px 6px color-mix(in srgb, var(--scw-fx-c) 40%, transparent);
+}
+.sc-combat-wheel .scw-afx[data-waves="mist"] > .scw-afx-rings > b:nth-child(2) { --wave-t: 10s; --wave-delay: -4s; }
+.sc-combat-wheel .scw-afx[data-waves="sonar"] > .scw-afx-rings > b {
+  --wave-line: 1.5px;
+  --wave-glow: 8px;
+  --wave-t: 4.6s;
+  background: color-mix(in srgb, var(--scw-fx-c) 22%, transparent);
+}
+.sc-combat-wheel .scw-afx[data-waves="sonar"] > .scw-afx-rings > b:nth-child(2) { --wave-delay: -2.3s; }
+.sc-combat-wheel .scw-afx[data-waves="prism"] > .scw-afx-rings > b {
+  --wave-t: 6s;
+  --wave-spin: 60deg;
+  border: 0;
+  padding: 2.5px;
+  box-shadow: none;
+  background: conic-gradient(from var(--wave-rot, 0deg),
+    var(--scw-fx-c),
+    color-mix(in srgb, var(--scw-fx-c) 30%, #ff5fd2),
+    color-mix(in srgb, var(--scw-fx-c) 30%, #5fe0ff),
+    color-mix(in srgb, var(--scw-fx-c) 30%, #fff27a),
+    var(--scw-fx-c));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.sc-combat-wheel .scw-afx[data-waves="prism"] > .scw-afx-rings > b:nth-child(2) { --wave-t: 8.4s; --wave-delay: -3.4s; }
+.sc-combat-wheel .scw-afx[data-waves="burst"] > .scw-afx-rings > b {
+  --wave-anim: scw-afx-ring-fast;
+  --wave-t: 5.4s;
+  inset: -12%;
+  border: 0;
+  box-shadow: none;
+  background: repeating-conic-gradient(from var(--wave-rot, 0deg), color-mix(in srgb, var(--scw-fx-c) 70%, white) 0 1deg, transparent 1.5deg 8deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 62%, #000 86%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 62%, #000 86%, transparent 100%);
+}
+.sc-combat-wheel .scw-afx[data-waves="burst"] > .scw-afx-rings > b:nth-child(2) { --wave-rot: 4deg; --wave-delay: 0.18s; --wave-o: 0.5; }
+
 /* ---------- turn change: once, on the new acting portrait ---------- */
-/* Waves: three rings leave the portrait and fade, a beat apart. */
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves { display: block; overflow: visible; }
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b {
+/* Ripple: three rings leave the portrait and fade, a beat apart. Shockwave:
+   one thick, bright ring bursting far out, a thin echo behind. */
+.sc-combat-wheel.scw-turn-fx-run:is([data-scw-turn-fx="ripple"], [data-scw-turn-fx="shockwave"]) .scw-afx--acting > .scw-afx-waves { display: block; overflow: visible; }
+.sc-combat-wheel.scw-turn-fx-run:is([data-scw-turn-fx="ripple"], [data-scw-turn-fx="shockwave"]) .scw-afx--acting > .scw-afx-waves b {
   inset: 0;
   border: 2px solid color-mix(in srgb, var(--scw-fx-c) 70%, white);
   border-radius: var(--scw-afx-r);
@@ -195,13 +485,21 @@
     inset 0 0 10px color-mix(in srgb, var(--scw-fx-c) 45%, transparent);
   opacity: 0;
 }
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(2) { border-width: 1.5px; }
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(3) { border-width: 1px; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx--acting > .scw-afx-waves b:nth-child(2) { border-width: 1.5px; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx--acting > .scw-afx-waves b:nth-child(3) { border-width: 1px; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="shockwave"] .scw-afx--acting > .scw-afx-waves b:nth-child(1) {
+  border-width: calc(4px * var(--scw-fx-boost));
+  box-shadow:
+    0 0 calc(22px * var(--scw-fx-boost)) calc(4px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 80%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--scw-fx-c) 60%, transparent);
+}
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="shockwave"] .scw-afx--acting > .scw-afx-waves b:nth-child(2) { border-width: 1px; }
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="shockwave"] .scw-afx--acting > .scw-afx-waves b:nth-child(3) { display: none; }
 
 /* Burst: specks of light flying out from the portrait. */
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx-burst {
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx--acting > .scw-afx-burst {
   display: block;
-  inset: -30%;
+  inset: calc(-30% * var(--scw-fx-boost));
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--scw-fx-c) 40%, white) 0 2.5px, transparent 4px),
@@ -216,7 +514,23 @@
   opacity: 0;
 }
 
-/* Flash: the art lights up and fades back. */
+/* Lightning: the jagged ring strikes three times around the portrait. */
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="lightning"] .scw-afx--acting > .scw-afx-bolt {
+  display: block;
+  inset: calc(-30% * var(--scw-fx-boost));
+  border-radius: 0;
+}
+.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="lightning"] .scw-afx--acting[data-shape="card"] > .scw-afx-bolt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--scw-fx-c) 45%, white);
+  -webkit-mask: var(--scw-storm-a) center / 100% 100% no-repeat;
+  mask: var(--scw-storm-a) center / 100% 100% no-repeat;
+  opacity: 0;
+}
+
+/* Flash: the art lights up and fades back… */
 .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-slot.is-active .scw-initials::after {
   content: "";
   position: absolute;
@@ -227,68 +541,119 @@
   opacity: 0;
   pointer-events: none;
 }
-/* …and a burst of the glow around it. */
-.sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-afx-glow {
+/* …and, like the shockwave and the lightning, a burst of the glow around it. */
+.sc-combat-wheel.scw-turn-fx-run:is([data-scw-turn-fx="flash"], [data-scw-turn-fx="shockwave"], [data-scw-turn-fx="lightning"]) .scw-afx--acting > .scw-afx-glow {
   display: block;
   box-shadow:
-    0 0 18px 6px color-mix(in srgb, var(--scw-fx-c) 85%, white),
-    0 0 52px 18px color-mix(in srgb, var(--scw-fx-c) 45%, transparent);
+    0 0 calc(20px * var(--scw-fx-boost)) calc(7px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 85%, white),
+    0 0 calc(56px * var(--scw-fx-boost)) calc(20px * var(--scw-fx-boost)) color-mix(in srgb, var(--scw-fx-c) 45%, transparent);
 }
 
 /* ---------- motion, only when the system allows it ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .sc-combat-wheel:not(.is-grid) .scw-afx > i,
   .sc-combat-wheel:not(.is-grid) .scw-afx b,
-  .sc-combat-wheel:not(.is-grid) .scw-afx-halo::before,
-  .sc-combat-wheel:not(.is-grid) .scw-afx-rays::before,
-  .sc-combat-wheel:not(.is-grid) .scw-afx-rays::after { will-change: transform, opacity; }
+  .sc-combat-wheel:not(.is-grid) .scw-afx > i::before,
+  .sc-combat-wheel:not(.is-grid) .scw-afx > i::after { will-change: transform, opacity; }
 
-  .sc-combat-wheel[data-scw-acting-fx="pulse"] .scw-afx-glow {
+  .sc-combat-wheel .scw-afx[data-fx="pulse"] > .scw-afx-glow {
     animation: scw-afx-breathe calc(2.8s * var(--scw-fx-speed)) ease-in-out infinite alternate;
   }
-  .sc-combat-wheel[data-scw-acting-fx="halo"] .scw-afx-halo::before {
+  .sc-combat-wheel .scw-afx[data-fx="halo"] > .scw-afx-halo::before {
     animation: scw-afx-spin calc(5s * var(--scw-fx-speed)) linear infinite;
   }
-  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(1) {
+  .sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(1) {
     animation: scw-afx-core calc(2.6s * var(--scw-fx-speed)) ease-in-out infinite alternate;
   }
-  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(2) {
+  .sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(2) {
     animation: scw-afx-blob-a calc(3.4s * var(--scw-fx-speed)) ease-in-out infinite;
   }
-  .sc-combat-wheel[data-scw-acting-fx="aura"] .scw-afx-aura b:nth-child(3) {
+  .sc-combat-wheel .scw-afx[data-fx="aura"] .scw-afx-aura b:nth-child(3) {
     animation: scw-afx-blob-b calc(5.3s * var(--scw-fx-speed)) ease-in-out infinite;
   }
-  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(1) {
+  .sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(1) {
     animation: scw-afx-fire-core calc(0.9s * var(--scw-fx-speed)) ease-in-out infinite alternate;
   }
-  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(2) {
+  .sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(2) {
     animation: scw-afx-tongue calc(1.3s * var(--scw-fx-speed)) ease-in-out infinite alternate;
   }
-  .sc-combat-wheel[data-scw-acting-fx="flicker"] .scw-afx-flame b:nth-child(3) {
+  .sc-combat-wheel .scw-afx[data-fx="flicker"] .scw-afx-flame b:nth-child(3) {
     animation: scw-afx-tongue calc(1.05s * var(--scw-fx-speed)) ease-in-out -0.5s infinite alternate;
   }
-  .sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::before {
+  .sc-combat-wheel .scw-afx[data-fx="flames"] .scw-afx-ff {
+    animation: scw-afx-flame calc(var(--t) * var(--scw-fx-speed)) ease-in-out var(--delay) infinite alternate;
+  }
+  .sc-combat-wheel .scw-afx[data-fx="inferno"] .scw-afx-ff {
+    animation: scw-afx-fire-lick calc(var(--t) * var(--scw-fx-speed)) ease-in-out var(--delay) infinite alternate;
+  }
+  .sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(1) {
+    animation: scw-afx-core calc(4s * var(--scw-fx-speed)) ease-in-out infinite alternate;
+  }
+  .sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(2) {
+    animation: scw-afx-blob-a calc(9s * var(--scw-fx-speed)) ease-in-out infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-fx="void"] .scw-afx-void b:nth-child(3) {
+    animation: scw-afx-blob-b calc(13s * var(--scw-fx-speed)) ease-in-out infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::before {
     animation: scw-afx-spin calc(26s * var(--scw-fx-speed)) linear infinite;
   }
-  .sc-combat-wheel[data-scw-acting-fx="rays"] .scw-afx-rays::after {
+  .sc-combat-wheel .scw-afx[data-fx="rays"] > .scw-afx-rays::after {
     animation: scw-afx-spin calc(34s * var(--scw-fx-speed)) linear infinite reverse;
   }
+  .sc-combat-wheel .scw-afx[data-shape="round"][data-fx="storm"] > .scw-afx-storm::before {
+    animation: scw-afx-crackle calc(1.9s * var(--scw-fx-speed)) steps(1) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="round"][data-fx="storm"] > .scw-afx-storm::after {
+    animation: scw-afx-crackle calc(2.6s * var(--scw-fx-speed)) steps(1) calc(-1.1s * var(--scw-fx-speed)) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="storm"] > .scw-afx-storm b:nth-child(1)::before {
+    animation: scw-afx-arc-x calc(1.9s * var(--scw-fx-speed)) steps(1) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="storm"] > .scw-afx-storm b:nth-child(2)::before {
+    animation: scw-afx-arc-y calc(2.3s * var(--scw-fx-speed)) steps(1) calc(-0.7s * var(--scw-fx-speed)) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="storm"] > .scw-afx-storm b:nth-child(3)::before {
+    animation: scw-afx-arc-x calc(2.1s * var(--scw-fx-speed)) steps(1) calc(-1.3s * var(--scw-fx-speed)) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="storm"] > .scw-afx-storm b:nth-child(4)::before {
+    animation: scw-afx-arc-y calc(2.6s * var(--scw-fx-speed)) steps(1) calc(-0.4s * var(--scw-fx-speed)) infinite;
+  }
+  .sc-combat-wheel .scw-afx[data-shape="round"][data-fx="runes"] > .scw-afx-runes::before {
+    animation: scw-afx-spin calc(36s * var(--scw-fx-speed)) linear infinite;
+  }
+  /* Clockwise: top →, right ↓, bottom ←, left ↑. */
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="runes"] > .scw-afx-runes b:nth-child(1)::before { animation: scw-afx-runes-x-fwd calc(16s * var(--scw-fx-speed)) linear infinite; }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="runes"] > .scw-afx-runes b:nth-child(2)::before { animation: scw-afx-runes-y-fwd calc(16s * var(--scw-fx-speed)) linear infinite; }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="runes"] > .scw-afx-runes b:nth-child(3)::before { animation: scw-afx-runes-x-back calc(16s * var(--scw-fx-speed)) linear infinite; }
+  .sc-combat-wheel .scw-afx[data-shape="card"][data-fx="runes"] > .scw-afx-runes b:nth-child(4)::before { animation: scw-afx-runes-y-back calc(16s * var(--scw-fx-speed)) linear infinite; }
   .sc-combat-wheel:not(.is-grid)[data-scw-acting-fx="shine"] .scw-slot.is-active .scw-portrait::before {
     animation: scw-afx-sheen calc(4.5s * var(--scw-fx-speed)) ease-in-out 0.4s infinite;
   }
+  .sc-combat-wheel .scw-afx:not([data-waves="none"]) > .scw-afx-rings > b {
+    animation:
+      var(--wave-anim, scw-afx-ring) calc(var(--wave-t, 5.2s) * var(--scw-fx-speed)) ease-out calc(var(--wave-delay, 0s) * var(--scw-fx-speed)) infinite;
+  }
 
-  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b {
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx--acting > .scw-afx-waves b {
     animation: scw-afx-wave 1000ms cubic-bezier(0.2, 0.6, 0.35, 1) both;
   }
-  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(2) { animation-delay: 140ms; }
-  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx-waves b:nth-child(3) { animation-delay: 280ms; }
-  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx-burst {
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx--acting > .scw-afx-waves b:nth-child(2) { animation-delay: 140ms; }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="ripple"] .scw-afx--acting > .scw-afx-waves b:nth-child(3) { animation-delay: 280ms; }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="shockwave"] .scw-afx--acting > .scw-afx-waves b {
+    animation: scw-afx-shock 800ms cubic-bezier(0.1, 0.7, 0.3, 1) both;
+  }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="shockwave"] .scw-afx--acting > .scw-afx-waves b:nth-child(2) { animation-delay: 120ms; }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="burst"] .scw-afx--acting > .scw-afx-burst {
     animation: scw-afx-burst 900ms cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  }
+  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="lightning"] .scw-afx--acting > .scw-afx-bolt::before {
+    animation: scw-afx-strike 1000ms steps(1) both;
   }
   .sc-combat-wheel.scw-turn-fx-run:not(.is-grid)[data-scw-turn-fx="flash"] .scw-slot.is-active .scw-initials::after {
     animation: scw-afx-flash 700ms ease-out;
   }
-  .sc-combat-wheel.scw-turn-fx-run[data-scw-turn-fx="flash"] .scw-afx-glow {
+  .sc-combat-wheel.scw-turn-fx-run:is([data-scw-turn-fx="flash"], [data-scw-turn-fx="shockwave"], [data-scw-turn-fx="lightning"]) .scw-afx--acting > .scw-afx-glow {
     animation: scw-afx-flash 900ms ease-out both;
   }
   /* Pop: the art swells a little and settles. `scale` leaves the portrait's
@@ -298,25 +663,28 @@
   }
 
   @keyframes scw-afx-breathe {
-    from { opacity: calc(var(--scw-fx-strength) * 0.5); }
+    from { opacity: calc(var(--scw-fx-strength) * 0.45); }
     to { opacity: var(--scw-fx-strength); }
   }
   @keyframes scw-afx-spin {
     to { rotate: 1turn; }
   }
   @keyframes scw-afx-core {
-    from { transform: scale(0.9); opacity: 0.55; }
-    to { transform: scale(1.06); opacity: 1; }
+    from { transform: scale(0.9); opacity: 0.6; }
+    to { transform: scale(1.08); opacity: 1; }
   }
   @keyframes scw-afx-blob-a {
-    0% { transform: rotate(0deg) scale(1, 1); opacity: 0.65; }
-    50% { transform: rotate(180deg) scale(1.08, 0.94); opacity: 1; }
-    100% { transform: rotate(360deg) scale(1, 1); opacity: 0.65; }
+    0% { transform: rotate(0deg) scale(1, 1.04); opacity: 0.8; }
+    23% { transform: rotate(84deg) scale(1.08, 0.94); opacity: 1; }
+    51% { transform: rotate(176deg) scale(0.95, 1.12); opacity: 0.65; }
+    77% { transform: rotate(268deg) scale(1.06, 0.98); opacity: 0.95; }
+    100% { transform: rotate(360deg) scale(1, 1.04); opacity: 0.8; }
   }
   @keyframes scw-afx-blob-b {
-    0% { transform: rotate(0deg) scale(0.95, 1.12); opacity: 0.8; }
-    50% { transform: rotate(-180deg) scale(1.06, 0.96); opacity: 0.55; }
-    100% { transform: rotate(-360deg) scale(0.95, 1.12); opacity: 0.8; }
+    0% { transform: rotate(0deg) scale(1.04, 1); opacity: 0.6; }
+    31% { transform: rotate(-118deg) scale(0.94, 1.1); opacity: 0.9; }
+    64% { transform: rotate(-232deg) scale(1.1, 0.96); opacity: 0.5; }
+    100% { transform: rotate(-360deg) scale(1.04, 1); opacity: 0.6; }
   }
   @keyframes scw-afx-fire-core {
     from { transform: scale(0.94, 0.9); }
@@ -327,19 +695,108 @@
     55% { transform: rotate(calc(var(--scw-lean) * -0.5)) scale(1, 1.05); opacity: 1; }
     100% { transform: rotate(var(--scw-lean)) scale(0.9, 0.9); opacity: 0.7; }
   }
+  @keyframes scw-afx-flame {
+    0% { transform: rotate(var(--n)) scale(0.5, 0.85); opacity: calc(var(--scw-fx-strength) * 0.35); }
+    45% { transform: rotate(var(--n2)) scale(1.05, 1); opacity: var(--scw-fx-strength); }
+    100% { transform: rotate(var(--n)) scale(0.75, 0.92); opacity: calc(var(--scw-fx-strength) * 0.6); }
+  }
+  @keyframes scw-afx-fire-lick {
+    0% { transform: rotate(var(--n)) scale(0.55, 0.8); opacity: calc(var(--scw-fx-strength) * 0.4); }
+    35% { transform: rotate(var(--n2)) scale(1.1, 0.9); opacity: var(--scw-fx-strength); }
+    65% { transform: rotate(var(--n)) scale(0.8, 1); opacity: calc(var(--scw-fx-strength) * 0.65); }
+    100% { transform: rotate(var(--n2)) scale(1, 0.85); opacity: calc(var(--scw-fx-strength) * 0.9); }
+  }
+  @keyframes scw-afx-crackle {
+    0% { transform: rotate(0deg); opacity: 0; }
+    4% { transform: rotate(40deg); opacity: var(--scw-fx-strength); }
+    8% { opacity: calc(var(--scw-fx-strength) * 0.25); }
+    11% { transform: rotate(160deg); opacity: var(--scw-fx-strength); }
+    16% { opacity: 0; }
+    50% { transform: rotate(250deg); opacity: calc(var(--scw-fx-strength) * 0.85); }
+    55% { opacity: 0; }
+    71% { transform: rotate(310deg); opacity: calc(var(--scw-fx-strength) * 0.6); }
+    74%, 100% { opacity: 0; }
+  }
+  @keyframes scw-afx-arc-x {
+    0% { transform: translateX(0); opacity: 0; }
+    5% { transform: translateX(-60px); opacity: var(--scw-fx-strength); }
+    9% { opacity: calc(var(--scw-fx-strength) * 0.25); }
+    12% { transform: translateX(-140px); opacity: var(--scw-fx-strength); }
+    17% { opacity: 0; }
+    48% { transform: translateX(-100px); opacity: calc(var(--scw-fx-strength) * 0.85); }
+    53% { opacity: 0; }
+    70% { transform: translateX(-20px); opacity: calc(var(--scw-fx-strength) * 0.6); }
+    73%, 100% { opacity: 0; }
+  }
+  @keyframes scw-afx-arc-y {
+    0% { transform: translateY(0); opacity: 0; }
+    5% { transform: translateY(-60px); opacity: var(--scw-fx-strength); }
+    9% { opacity: calc(var(--scw-fx-strength) * 0.25); }
+    12% { transform: translateY(-140px); opacity: var(--scw-fx-strength); }
+    17% { opacity: 0; }
+    48% { transform: translateY(-100px); opacity: calc(var(--scw-fx-strength) * 0.85); }
+    53% { opacity: 0; }
+    70% { transform: translateY(-20px); opacity: calc(var(--scw-fx-strength) * 0.6); }
+    73%, 100% { opacity: 0; }
+  }
+  @keyframes scw-afx-strike {
+    0% { transform: rotate(0deg); opacity: 0; }
+    6% { transform: rotate(30deg); opacity: 1; }
+    14% { opacity: 0.2; }
+    22% { transform: rotate(150deg); opacity: 1; }
+    32% { opacity: 0; }
+    46% { transform: rotate(250deg); opacity: 0.9; }
+    60%, 100% { opacity: 0; }
+  }
+  @keyframes scw-afx-runes-x-fwd {
+    from { transform: translateX(calc(var(--scw-rune-tile) * -1)); }
+    to { transform: translateX(0); }
+  }
+  @keyframes scw-afx-runes-x-back {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(var(--scw-rune-tile) * -1)); }
+  }
+  @keyframes scw-afx-runes-y-fwd {
+    from { transform: translateY(calc(var(--scw-rune-tile) * -1)); }
+    to { transform: translateY(0); }
+  }
+  @keyframes scw-afx-runes-y-back {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(var(--scw-rune-tile) * -1)); }
+  }
   @keyframes scw-afx-sheen {
     0% { opacity: var(--scw-fx-strength); transform: translateX(-70%); }
     35%, 100% { opacity: var(--scw-fx-strength); transform: translateX(70%); }
   }
+  @keyframes scw-afx-ring {
+    0% { transform: rotate(var(--wave-rot, 0deg)) scale(var(--wave-from)); opacity: 0; }
+    6% { opacity: calc(var(--scw-fx-strength) * var(--wave-o, 1) * 1.15); }
+    45%, 100% { transform: rotate(calc(var(--wave-rot, 0deg) + var(--wave-spin, 0deg))) scale(var(--wave-to)); opacity: 0; }
+  }
+  @keyframes scw-afx-ring-fast {
+    0% { transform: scale(var(--wave-from)); opacity: 0; }
+    3% { opacity: calc(var(--scw-fx-strength) * var(--wave-o, 1) * 1.2); }
+    24%, 100% { transform: scale(var(--wave-to)); opacity: 0; }
+  }
+  @keyframes scw-afx-ring-slow {
+    0% { transform: rotate(var(--wave-rot, 0deg)) scale(var(--wave-from)); opacity: 0; }
+    18% { opacity: calc(var(--scw-fx-strength) * var(--wave-o, 1) * 1.15); }
+    62%, 100% { transform: rotate(var(--wave-rot, 0deg)) scale(var(--wave-to)); opacity: 0; }
+  }
   @keyframes scw-afx-wave {
     0% { transform: scale(1); opacity: 0; }
     10% { opacity: var(--scw-fx-strength); }
-    100% { transform: scale(1.55); opacity: 0; }
+    100% { transform: scale(calc(1.4 + 0.15 * var(--scw-fx-boost))); opacity: 0; }
+  }
+  @keyframes scw-afx-shock {
+    0% { transform: scale(0.95); opacity: 0; }
+    6% { opacity: calc(var(--scw-fx-strength) * 1.2); }
+    100% { transform: scale(calc(1.8 + 0.4 * var(--scw-fx-boost))); opacity: 0; }
   }
   @keyframes scw-afx-burst {
     0% { transform: scale(0.45); opacity: 0; }
     15% { opacity: calc(var(--scw-fx-strength) * 1.3); }
-    100% { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(1.7); opacity: 0; }
   }
   @keyframes scw-afx-flash {
     0% { opacity: 0; }

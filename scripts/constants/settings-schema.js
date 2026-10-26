@@ -4,7 +4,7 @@ import { FOLLOW_SYSTEM, THEMES } from "../helpers/themes.js";
 import { ORIENTATIONS } from "../helpers/orientation.js";
 import { MAX_REACH, MAX_SPACING, MIN_REACH, MIN_SPACING } from "../helpers/track-geometry.js";
 import { VENAERYS_ID } from "../helpers/venaerys-phases.js";
-import { PARTICLE_INTENSITIES, PARTICLE_SPEEDS, PARTICLE_TYPES } from "../helpers/particle-presets.js";
+import { PARTICLE_INTENSITIES, PARTICLE_MOTIONS, PARTICLE_SPEEDS, PARTICLE_TYPES } from "../helpers/particle-presets.js";
 import { STYLE_CHOICES } from "../helpers/theme-style.js";
 
 /**
@@ -74,6 +74,8 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.trackReach, scope: "user", type: "number", range: { min: MIN_REACH, max: MAX_REACH, step: 1 }, default: 3, section: "appearance", react: "layout", group: "size", panel: "layout", visibleWhen: { key: SETTINGS.view, notIn: ["wheel"] } },
   { key: SETTINGS.trackSpacing, scope: "user", type: "number", range: { min: MIN_SPACING, max: MAX_SPACING, step: 1 }, default: 8, section: "appearance", react: "layout", advanced: true, group: "size", panel: "layout", visibleWhen: { key: SETTINGS.view, notIn: ["wheel"] } },
   { key: SETTINGS.portraitShape, scope: "user", type: "choice", choices: ["sector", "square"], default: "sector", section: "appearance", react: "layout", group: "portrait", panel: "portraits", visibleWhen: { key: SETTINGS.view, in: ["wheel"] } },
+  // RF-117: the token's art or the character's; "table" keeps what the GM set for the world.
+  { key: SETTINGS.portraitImage, scope: "user", type: "choice", choices: ["table", "token", "actor"], default: "table", section: "appearance", react: "data", group: "portrait", panel: "portraits" },
   { key: SETTINGS.sliceGap, scope: "user", type: "number", range: { min: 0, max: 3, step: 0.1 }, default: 0.8, section: "appearance", react: "layout", advanced: true, group: "portrait", panel: "portraits", visibleWhen: { key: SETTINGS.view, in: ["wheel"] } },
   { key: SETTINGS.scale, scope: "user", type: "number", range: { min: 70, max: 150, step: 5 }, default: 100, section: "appearance", react: "layout", group: "size", panel: "layout" },
   { key: SETTINGS.theme, scope: "user", type: "choice", choices: [FOLLOW_SYSTEM, ...THEMES], default: THEMES[0], section: "appearance", react: "data", panel: "theme" },
@@ -93,8 +95,11 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.phaseStripFrame, scope: "user", type: "choice", choices: ["round", "square", "tiles", "none"], default: "round", section: "appearance", react: "data", group: "strip", panel: "phases" },
   { key: SETTINGS.phaseStripSize, scope: "user", type: "choice", choices: Object.keys(PHASE_STRIP_SIZES), default: "medium", section: "appearance", react: "data", advanced: true, group: "strip", panel: "phases" },
   { key: SETTINGS.phaseStripNames, scope: "user", type: "boolean", default: true, section: "appearance", react: "data", advanced: true, group: "strip", panel: "phases" },
-  { key: SETTINGS.actingEffect, scope: "user", type: "choice", choices: ["none", "pulse", "halo", "aura", "flicker", "rays", "shine"], default: "pulse", section: "appearance", react: "data", group: "acting", panel: "effects" },
-  { key: SETTINGS.turnEffect, scope: "user", type: "choice", choices: ["none", "ripple", "burst", "flash", "pop"], default: "ripple", section: "appearance", react: "data", group: "acting", panel: "effects" },
+  // RF-116: the auras, waves and frames of the SC Item Rarity Colors, around the acting portrait and the whole widget.
+  { key: SETTINGS.actingEffect, scope: "user", type: "choice", choices: ["none", "pulse", "halo", "aura", "flicker", "flames", "inferno", "void", "rays", "storm", "runes", "shine"], default: "pulse", section: "appearance", react: "data", group: "acting", panel: "effects" },
+  { key: SETTINGS.actingWaves, scope: "user", type: "choice", choices: ["none", "energy", "ripples", "shockwave", "arcane", "mist", "sonar", "prism", "burst"], default: "none", section: "appearance", react: "data", group: "acting", panel: "effects" },
+  { key: SETTINGS.turnEffect, scope: "user", type: "choice", choices: ["none", "ripple", "burst", "flash", "pop", "shockwave", "lightning"], default: "ripple", section: "appearance", react: "data", group: "acting", panel: "effects" },
+  { key: SETTINGS.widgetEffect, scope: "user", type: "choice", choices: ["none", "pulse", "halo", "flames", "inferno", "rays", "storm", "runes"], default: "none", section: "appearance", react: "data", group: "widget", panel: "effects" },
   { key: SETTINGS.particleIntensity, scope: "user", type: "choice", choices: Object.keys(PARTICLE_INTENSITIES), default: "normal", section: "appearance", react: "data", group: "acting", panel: "effects" },
   { key: SETTINGS.particleSpeed, scope: "user", type: "choice", choices: Object.keys(PARTICLE_SPEEDS), default: "normal", section: "appearance", react: "data", advanced: true, group: "acting", panel: "effects" },
   { key: SETTINGS.colorAccent, scope: "user", type: "color", default: "", section: "appearance", react: "data", group: "palette", panel: "visual" },
@@ -115,6 +120,7 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.styleNames, scope: "user", type: "choice", choices: STYLE_CHOICES.names, default: "theme", section: "appearance", react: "data", advanced: true, group: "text", panel: "visual" },
   { key: SETTINGS.styleButtons, scope: "user", type: "choice", choices: STYLE_CHOICES.buttons, default: "theme", section: "appearance", react: "data", advanced: true, group: "panels", panel: "visual" },
   { key: SETTINGS.particleType, scope: "user", type: "choice", choices: PARTICLE_TYPES, default: "none", section: "appearance", react: "data", group: "particles", panel: "effects" },
+  { key: SETTINGS.particleMotion, scope: "user", type: "choice", choices: PARTICLE_MOTIONS, default: "auto", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: { key: SETTINGS.particleType, notIn: ["none"] } },
   { key: SETTINGS.particlePlacement, scope: "user", type: "choice", choices: ["acting", "widget"], default: "acting", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: { key: SETTINGS.particleType, notIn: ["none"] } },
   { key: SETTINGS.particleColor, scope: "user", type: "choice", choices: ["theme", "side", "custom"], default: "theme", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: { key: SETTINGS.particleType, notIn: ["none"] } },
   { key: SETTINGS.particleCustomColor, scope: "user", type: "color", default: "#ffc56b", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: [{ key: SETTINGS.particleType, notIn: ["none"] }, { key: SETTINGS.particleColor, in: ["custom"] }] },
@@ -129,6 +135,9 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.openOnStart, scope: "client", type: "boolean", default: true, section: "behavior", react: null },
   { key: SETTINGS.hideNativeTracker, scope: "client", type: "boolean", default: false, section: "behavior", react: "data" },
   { key: SETTINGS.clickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "pan", section: "behavior", react: null },
+  // RF-31: like the core tracker, a double click opens the sheet unless told otherwise; the right click does nothing by default.
+  { key: SETTINGS.doubleClickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "sheet", section: "behavior", react: null },
+  { key: SETTINGS.rightClickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "none", section: "behavior", react: null },
   { key: SETTINGS.cameraFollows, scope: "client", type: "boolean", default: false, section: "behavior", react: null },
   { key: SETTINGS.cameraPan, scope: "client", type: "choice", choices: ["fast", "smooth", "slow"], default: "smooth", section: "behavior", react: null },
 
@@ -171,9 +180,10 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.tableLook, scope: "world", type: "object", default: {}, section: null, react: "layout" },
   { key: SETTINGS.tableLookMode, scope: "world", type: "choice", choices: ["optional", "forced", "off"], default: "optional", section: null, react: "layout" },
   { key: SETTINGS.useTableLook, scope: "user", type: "boolean", default: true, section: null, react: "layout" },
-  // RF-108: the GM's saved combat styles, the one combats use by default, and whether starting one asks.
+  // RF-108: the GM's saved styles.
   { key: SETTINGS.savedStyles, scope: "world", type: "array", default: () => [], section: null, react: "layout" },
-  { key: SETTINGS.combatStyleDefault, scope: "world", type: "text", default: "", section: null, react: "layout" },
+  // Retired (D-32): combats no longer have a style of their own. Still registered so stored values survive.
+  { key: SETTINGS.combatStyleDefault, scope: "world", type: "text", default: "", section: null, react: null },
   { key: SETTINGS.combatStylePrompt, scope: "world", type: "boolean", default: false, section: null, react: null },
   { key: SETTINGS.editorAdvanced, scope: "client", type: "boolean", default: false, section: null, react: null },
   { key: SETTINGS.appearanceMigrated, scope: "user", type: "boolean", default: false, section: null, react: null },

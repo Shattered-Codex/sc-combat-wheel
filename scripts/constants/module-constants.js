@@ -13,7 +13,6 @@ export const STYLESHEETS = Object.freeze([
   "styles/settings.css",
 ]);
 /** RF-108: the combat style a combat was given, under the module's flags (`flags.sc-combat-wheel.style`). */
-export const COMBAT_STYLE_FLAG = "style";
 
 export const SETTINGS = Object.freeze({
   openOnStart: "openOnStart",
@@ -24,6 +23,8 @@ export const SETTINGS = Object.freeze({
   widgetState: "widgetState",
   portraitSource: "portraitSource",
   clickAction: "clickAction",
+  doubleClickAction: "doubleClickAction",
+  rightClickAction: "rightClickAction",
   cameraFollows: "cameraFollows",
   hpForPlayers: "hpForPlayers",
   defeatedMode: "defeatedMode",
@@ -32,6 +33,7 @@ export const SETTINGS = Object.freeze({
   secondsPerRound: "secondsPerRound",
   animationSpeed: "animationSpeed",
   portraitShape: "portraitShape",
+  portraitImage: "portraitImage",
   sliceGap: "sliceGap",
   scale: "scale",
   restOpacity: "restOpacity",
@@ -97,6 +99,7 @@ export const SETTINGS = Object.freeze({
   useTableLook: "useTableLook",
   appearanceMigrated: "appearanceMigrated",
   particleType: "particleType",
+  particleMotion: "particleMotion",
   particlePlacement: "particlePlacement",
   particleSpeed: "particleSpeed",
   particleIntensity: "particleIntensity",
@@ -112,7 +115,9 @@ export const SETTINGS = Object.freeze({
   barVisibility: "barVisibility",
   barHidden: "barHidden",
   actingEffect: "actingEffect",
+  actingWaves: "actingWaves",
   turnEffect: "turnEffect",
+  widgetEffect: "widgetEffect",
   soundTurnBack: "soundTurnBack",
   soundTurnBackFile: "soundTurnBackFile",
   soundCombatEnd: "soundCombatEnd",
@@ -203,7 +208,7 @@ export const SPLIT_POD = Object.freeze({ gap: 6, width: 42, cell: 32 });
 /** What the bar can show (RF-99), in bar order; `barHidden` lists the ones a user turned off. */
 export const BAR_ITEMS = Object.freeze([
   "grab", "previous", "endTurn", "round", "roll", "virtual", "grid", "details",
-  "lock", "direction", "appearance", "settings", "endCombat",
+  "lock", "direction", "appearance", "style", "settings", "endCombat",
 ]);
 
 /** The style tweaks (RF-98): setting key by tweak of theme-style.js. */

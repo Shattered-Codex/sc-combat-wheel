@@ -783,7 +783,9 @@
       "ConsequenceFailed": "\"{name}\": the {kind} consequence failed. See the console for details.",
       "AppearanceSaved": "Initiative Wheel appearance saved.",
       "PhaseNextUp": "Your phase is next: {name}. Get ready.",
-      "PositionReset": "The wheel is back in its default place."
+      "PositionReset": "The wheel is back in its default place.",
+      "LookImported": "Look “{name}” loaded. Save to use it.",
+      "LookImportFailed": "That file is not a Combat Wheel look."
     },
     "Slice": {
       "RollOne": "Roll initiative",
@@ -1143,7 +1145,11 @@
       "ContrastAccent": "The accent barely stands out from the panels ({ratio}:1, at least 3:1 is needed).",
       "ContrastFix": "Pick other colours, or make a palette from one colour above.",
       "ThemesHint": "Point at a theme to see it in the preview; click to choose it.",
-      "CloseThemes": "Close the themes"
+      "CloseThemes": "Close the themes",
+      "Import": "Import",
+      "ImportHint": "Load a look from a .json file into the editor. Save to use it.",
+      "Export": "Export",
+      "ExportHint": "Save what is on screen as a .json file, to take to another world or share."
     },
     "Virtual": {
       "Name": "Name",
@@ -1223,9 +1229,10 @@
     "Sharing": {
       "Mode": {
         "Name": "Table look",
-        "Hint": "Your saved look is the table look. Players choose: they follow it until they make their own. Everyone uses mine: players cannot change it. Everyone uses their own: nobody follows it.",
+        "Hint": "Your saved look is the table look. Players choose: they follow it until they make their own. Lock some options: a padlock by each option; what you lock, everyone uses as you set it, and players do not see it; the rest each one picks. Everyone uses mine: players cannot change anything. Everyone uses their own: nobody follows.",
         "Choices": {
           "optional": "Players choose",
+          "partial": "Lock some options",
           "forced": "Everyone uses mine",
           "off": "Everyone uses their own"
         }
@@ -1237,7 +1244,11 @@
       },
       "FollowingNotice": "You are using the GM's look. Change anything to make your own.",
       "ForcedNotice": "The GM chose the look for the whole table.",
-      "OffNotice": "Each player uses their own look at this table."
+      "OffNotice": "Each player uses their own look at this table.",
+      "LockNotice": "Click an option's padlock to have the whole table use your value for it; players will not see it. The options left open, each player picks. Saved with the look.",
+      "PartialNotice": "The GM set some options for the whole table; they do not show here. The rest is yours to choose.",
+      "Lock": "Lock for the whole table",
+      "Unlock": "Unlock for the players"
     },
     "CoreCombat": {
       "NoTheme": "None",

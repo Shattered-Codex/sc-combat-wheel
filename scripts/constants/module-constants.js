@@ -96,6 +96,7 @@ export const SETTINGS = Object.freeze({
   colorActive: "colorActive",
   tableLook: "tableLook",
   tableLookMode: "tableLookMode",
+  lockedLook: "lockedLook",
   useTableLook: "useTableLook",
   appearanceMigrated: "appearanceMigrated",
   particleType: "particleType",

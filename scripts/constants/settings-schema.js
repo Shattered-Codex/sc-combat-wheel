@@ -178,7 +178,9 @@ export const SETTINGS_SCHEMA = Object.freeze([
 
   // The table look (RF-91): the GM's saved look, published for players to follow
   { key: SETTINGS.tableLook, scope: "world", type: "object", default: {}, section: null, react: "layout" },
-  { key: SETTINGS.tableLookMode, scope: "world", type: "choice", choices: ["optional", "forced", "off"], default: "optional", section: null, react: "layout" },
+  { key: SETTINGS.tableLookMode, scope: "world", type: "choice", choices: ["optional", "partial", "forced", "off"], default: "optional", section: null, react: "layout" },
+  // RF-119: under "partial", the options the GM keeps for the whole table (appearance setting keys).
+  { key: SETTINGS.lockedLook, scope: "world", type: "array", default: () => [], section: null, react: "layout" },
   { key: SETTINGS.useTableLook, scope: "user", type: "boolean", default: true, section: null, react: "layout" },
   // RF-108: the GM's saved styles.
   { key: SETTINGS.savedStyles, scope: "world", type: "array", default: () => [], section: null, react: "layout" },

@@ -783,7 +783,9 @@
       "ConsequenceFailed": "\"{name}\": a consequência {kind} falhou. Veja o console para detalhes.",
       "AppearanceSaved": "Aparência da Roda de Iniciativa salva.",
       "PhaseNextUp": "Sua fase é a próxima: {name}. Prepare-se.",
-      "PositionReset": "A roda voltou para o lugar padrão."
+      "PositionReset": "A roda voltou para o lugar padrão.",
+      "LookImported": "Visual “{name}” carregado. Salve para usar.",
+      "LookImportFailed": "Esse arquivo não é um visual da Roda de Combate."
     },
     "Slice": {
       "RollOne": "Rolar iniciativa",
@@ -1143,7 +1145,11 @@
       "ContrastAccent": "O destaque quase não se separa dos painéis ({ratio}:1; o mínimo é 3:1).",
       "ContrastFix": "Escolha outras cores, ou gere uma paleta a partir de uma cor acima.",
       "ThemesHint": "Aponte para um tema para vê-lo na prévia; clique para escolher.",
-      "CloseThemes": "Fechar os temas"
+      "CloseThemes": "Fechar os temas",
+      "Import": "Importar",
+      "ImportHint": "Carrega no editor um visual de um arquivo .json. Salve para usar.",
+      "Export": "Exportar",
+      "ExportHint": "Salva o que está na tela num arquivo .json, para levar a outro mundo ou compartilhar."
     },
     "Virtual": {
       "Name": "Nome",
@@ -1223,9 +1229,10 @@
     "Sharing": {
       "Mode": {
         "Name": "Visual da mesa",
-        "Hint": "O seu visual salvo é o visual da mesa. Jogadores escolhem: seguem até criar o próprio. Todos usam o meu: os jogadores não podem mudar. Cada um usa o próprio: ninguém segue.",
+        "Hint": "O seu visual salvo é o visual da mesa. Jogadores escolhem: seguem até criar o próprio. Trancar algumas opções: um cadeado em cada opção; o que você trancar todos usam como você definiu, e os jogadores nem veem; o resto cada um escolhe. Todos usam o meu: os jogadores não podem mudar. Cada um usa o próprio: ninguém segue.",
         "Choices": {
           "optional": "Jogadores escolhem",
+          "partial": "Trancar algumas opções",
           "forced": "Todos usam o meu",
           "off": "Cada um usa o próprio"
         }
@@ -1237,7 +1244,11 @@
       },
       "FollowingNotice": "Você está usando o visual do Mestre. Mude qualquer coisa para criar o seu.",
       "ForcedNotice": "O Mestre escolheu o visual da mesa toda.",
-      "OffNotice": "Nesta mesa, cada jogador usa o próprio visual."
+      "OffNotice": "Nesta mesa, cada jogador usa o próprio visual.",
+      "LockNotice": "Clique no cadeado de uma opção para a mesa toda usar o seu valor nela; os jogadores não vão vê-la. As opções abertas, cada jogador escolhe. Fica salvo com o visual.",
+      "PartialNotice": "O Mestre definiu algumas opções para a mesa toda; elas não aparecem aqui. O resto é você quem escolhe.",
+      "Lock": "Trancar para a mesa toda",
+      "Unlock": "Destrancar para os jogadores"
     },
     "CoreCombat": {
       "NoTheme": "Nenhum",

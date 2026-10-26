@@ -14,7 +14,8 @@ import { contrastRatio, paletteFromColor, parseCssColor } from "../helpers/palet
 import { isPortraitRatioOk, portraitRatio, presetFromSettings } from "../helpers/wheel-geometry.js";
 import { SAMPLE_COMBATANTS, samplePhase, sampleWheelModel } from "../helpers/sample-combat.js";
 import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
-import { currentStyleId, getSetting, ownAppearance, savedStyles, setSetting, styleLook, withTableLook } from "../hooks/register-settings.js";
+import { currentStyleId, getSetting, lockedKeys, ownAppearance, savedStyles, setSetting, styleLook, withLockedValues, withTableLook } from "../hooks/register-settings.js";
+import { lookFile, lookFileName, readLookFile } from "../helpers/look-file.js";
 import { upsertStyle } from "../helpers/combat-styles.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
 import ScreenBanner from "../services/ScreenBanner.js";
@@ -53,7 +54,7 @@ const COLOR_ROLES = Object.freeze(Object.fromEntries(Object.entries(COLOR_SETTIN
 const SCOPE_ICONS = Object.freeze({ user: "fa-solid fa-user", client: "fa-solid fa-display" });
 /** Sections that open with a line of explanation. */
 const PANEL_HINTS = new Set(["visual", "effects", "sounds"]);
-const TABLE_LOOK_MODES = Object.freeze(["optional", "forced", "off"]);
+const TABLE_LOOK_MODES = Object.freeze(["optional", "partial", "forced", "off"]);
 /** A few short choices read better as one row of buttons than as a menu: up to this many letters, counting padding. */
 const SEGMENTED_BUDGET = 40;
 const SEGMENTED_MAX_CHOICES = 4;
@@ -92,6 +93,9 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       applyPreset: CombatWheelAppearanceApp.#onApplyPreset,
       applySavedStyle: CombatWheelAppearanceApp.#onApplySavedStyle,
       saveStyle: CombatWheelAppearanceApp.#onSaveStyle,
+      toggleLookLock: CombatWheelAppearanceApp.#onToggleLookLock,
+      exportLook: CombatWheelAppearanceApp.#onExportLook,
+      importLook: CombatWheelAppearanceApp.#onImportLook,
       deleteSavedStyle: CombatWheelAppearanceApp.#onDeleteSavedStyle,
       testSound: CombatWheelAppearanceApp.#onTestSound,
       testSequence: CombatWheelAppearanceApp.#onTestSequence,
@@ -113,7 +117,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   #sounds = null;
   /** The pending steps of "test the sequence", cleared on close: they read `#sounds`. */
   #sequenceTimers = [];
-  /** RF-91, unsaved: the GM's table look mode, or whether a player follows the table look. */
+  /** RF-91, unsaved: the GM's table look mode and locked options (RF-119), or whether a player follows the table look. */
   #sharing = null;
   #saved = false;
   #panel = APPEARANCE_PANELS[0].id;
@@ -152,12 +156,15 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   async _prepareContext() {
     this.#sharing ??= CombatWheelAppearanceApp.#savedSharing();
     this.#draft ??= this.#following() ? withTableLook(ownAppearance()) : ownAppearance();
+    this.#enforceLocks();
     this.#sounds ??= CombatWheelAppearanceApp.#savedSounds();
     const systemId = game.system.id;
     if (this.#source === "combat" && !this.#combatModel()) this.#source = "sample";
     const draft = this.#draft;
     const view = draft[SETTINGS.view];
-    const panels = CombatWheelAppearanceApp.#panels();
+    const hidden = this.#hiddenKeys();
+    // RF-119: a tab whose every option the GM keeps for the table is not a player's to open.
+    const panels = CombatWheelAppearanceApp.#panels().filter((panel) => panel.id === SOUNDS_PANEL || ENTRIES.some((entry) => entry.panel === panel.id && !hidden.has(entry.key)));
     if (!panels.some((panel) => panel.id === this.#panel)) this.#panel = panels[0].id;
     const activeScope = panels.find((panel) => panel.id === this.#panel).scope;
     return {
@@ -209,10 +216,12 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         isLayout: panel.id === "layout",
         isVisual: panel.id === "visual",
         isSounds: panel.id === SOUNDS_PANEL,
-        groups: panel.id === SOUNDS_PANEL ? [] : CombatWheelAppearanceApp.#groupsOf(panel.id, draft),
+        groups: panel.id === SOUNDS_PANEL ? [] : this.#groupsOf(panel.id, draft),
       })),
       sounds: this.#soundsContext(),
       styles: this.#stylesContext(),
+      viewLock: this.#lockContext(SETTINGS.view),
+      themeLock: this.#lockContext(SETTINGS.theme),
     };
   }
 
@@ -282,7 +291,39 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   /* -------------------------------------------- */
 
   static #savedSharing() {
-    return { mode: getSetting(SETTINGS.tableLookMode), follow: Boolean(getSetting(SETTINGS.useTableLook)) };
+    return {
+      mode: getSetting(SETTINGS.tableLookMode),
+      follow: Boolean(getSetting(SETTINGS.useTableLook)),
+      locks: new Set((getSetting(SETTINGS.lockedLook) ?? []).filter((key) => ENTRY_KEYS.has(key))),
+    };
+  }
+
+  /** RF-119: the GM picks, option by option, what the whole table uses under "partial". */
+  #lockable() {
+    return game.user.isGM && this.#sharing.mode === "partial";
+  }
+
+  /** RF-119: the options the GM keeps for the table, which a player neither sees nor changes. */
+  #hiddenKeys() {
+    return lockedKeys();
+  }
+
+  /** A player's draft always holds the table's values of the locked options, so the preview is the truth. */
+  #enforceLocks() {
+    const hidden = this.#hiddenKeys();
+    if (hidden.size && this.#draft) this.#draft = withLockedValues(this.#draft, hidden);
+  }
+
+  /** The padlock of one option, and whether a player sees the option at all. */
+  #lockContext(key) {
+    const locked = this.#sharing.locks.has(key);
+    return {
+      key,
+      hidden: this.#hiddenKeys().has(key),
+      lockable: this.#lockable(),
+      locked,
+      label: t(locked ? "Sharing.Unlock" : "Sharing.Lock"),
+    };
   }
 
   /** Whether this player's editor shows the table look rather than their own. */
@@ -304,18 +345,22 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         isGM: true,
         tooltip: `${t("Sharing.Mode.Hint")} ${t("Sharing.Publish")}`,
         modes: TABLE_LOOK_MODES.map((value) => ({ value, label: t(`Sharing.Mode.Choices.${value}`), selected: value === mode })),
+        lockNotice: mode === "partial" ? t("Sharing.LockNotice") : "",
       };
     }
+    const notices = { forced: "Sharing.ForcedNotice", partial: "Sharing.PartialNotice" };
     return {
       canChoose: mode === "optional",
       follow,
-      notice: t(mode === "forced" ? "Sharing.ForcedNotice" : "Sharing.OffNotice"),
+      notice: t(notices[mode] ?? "Sharing.OffNotice"),
     };
   }
 
   #sharingDirty() {
     const saved = CombatWheelAppearanceApp.#savedSharing();
-    return game.user.isGM ? this.#sharing.mode !== saved.mode : this.#sharing.follow !== saved.follow;
+    if (!game.user.isGM) return this.#sharing.follow !== saved.follow;
+    const { locks } = this.#sharing;
+    return this.#sharing.mode !== saved.mode || locks.size !== saved.locks.size || [...locks].some((key) => !saved.locks.has(key));
   }
 
   /* -------------------------------------------- */
@@ -344,10 +389,15 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     return letters <= SEGMENTED_BUDGET;
   }
 
-  /** A section's rows under their small headings, groups in order of first appearance (RF-99). */
-  static #groupsOf(panelId, draft) {
+  /**
+   * A section's rows under their small headings, groups in order of first
+   * appearance (RF-99). A player does not get the options the GM keeps for the
+   * table; the GM gets a padlock on each under "partial" (RF-119).
+   */
+  #groupsOf(panelId, draft) {
+    const hidden = this.#hiddenKeys();
     const groups = new Map();
-    for (const entry of ENTRIES.filter((candidate) => candidate.panel === panelId)) {
+    for (const entry of ENTRIES.filter((candidate) => candidate.panel === panelId && !hidden.has(candidate.key))) {
       const id = entry.group ?? panelId;
       if (!groups.has(id)) groups.set(id, { id, label: t(`Appearance.Groups.${id}`), fields: [] });
       const field = SettingFieldView.of(entry, draft[entry.key]);
@@ -356,6 +406,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         segmented: CombatWheelAppearanceApp.#isSegmented(field),
         stacked: field.isNumber || field.isChoice,
         shown: CombatWheelAppearanceApp.#rowShown(entry, draft),
+        lock: this.#lockContext(entry.key),
       });
     }
     return [...groups.values()];
@@ -495,12 +546,14 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }
     if (typeof data.coreCombatTheme === "string") this.#sounds.coreTheme = data.coreCombatTheme;
     if (game.user.isGM && TABLE_LOOK_MODES.includes(data.tableLookMode)) this.#sharing.mode = data.tableLookMode;
+    this.#enforceLocks();
   }
 
-  /** Own look values that differ from the saved ones; a follower keeps none of their own. */
+  /** Own look values that differ from the saved ones; a follower keeps none of their own, nor anyone the GM's locked ones. */
   #dirtyKeys() {
     if (!this.#draft || this.#following()) return [];
-    return ENTRIES.filter((entry) => !CombatWheelAppearanceApp.#sameValue(this.#draft[entry.key], getSetting(entry.key))).map((entry) => entry.key);
+    const hidden = this.#hiddenKeys();
+    return ENTRIES.filter((entry) => !hidden.has(entry.key) && !CombatWheelAppearanceApp.#sameValue(this.#draft[entry.key], getSetting(entry.key))).map((entry) => entry.key);
   }
 
   /** A list setting is rebuilt from its checkboxes on every read: same items, same value. */
@@ -552,6 +605,11 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     const color = target.dataset?.colorPicker ?? target.dataset?.colorText ?? target.dataset?.colorToggle;
     if (color) this.#syncColor(color, target);
     if (target.matches?.("[data-follow-toggle]") && event.type === "change") return this.#setFollow(target.checked);
+    // RF-119: the padlocks come and go with the "partial" mode.
+    if (target.name === "tableLookMode" && event.type === "change") {
+      this.#captureDraft();
+      return this.render();
+    }
     const name = target.name?.split(".")[0] || color;
     if (ENTRY_KEYS.has(name) && this.#following() && !this.#locked()) this.#setFollow(false, { render: false });
     this.#scheduleRefresh();
@@ -952,6 +1010,55 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.render();
   }
 
+  /** RF-119: locks or frees one option for the whole table; saved with the rest. */
+  static #onToggleLookLock(event, target) {
+    const key = target.dataset.lockKey;
+    if (!this.#lockable() || !ENTRY_KEYS.has(key)) return;
+    const { locks } = this.#sharing;
+    if (locks.has(key)) locks.delete(key);
+    else locks.add(key);
+    const locked = locks.has(key);
+    for (const button of this.element.querySelectorAll(`[data-lock-key="${key}"]`)) {
+      button.classList.toggle("is-locked", locked);
+      button.setAttribute("aria-pressed", String(locked));
+      button.dataset.tooltip = t(locked ? "Sharing.Unlock" : "Sharing.Lock");
+      const icon = button.querySelector("i");
+      icon?.classList.toggle("fa-lock", locked);
+      icon?.classList.toggle("fa-lock-open", !locked);
+    }
+    this.#syncStatus();
+  }
+
+  /** RF-120: what is on screen, saved or not, as a file. */
+  static #onExportLook() {
+    this.#captureDraft();
+    const theme = this.#draft[SETTINGS.theme];
+    const name = t(`Settings.theme.Choices.${theme}`);
+    const save = foundry.utils.saveDataToFile ?? globalThis.saveDataToFile;
+    save(JSON.stringify(lookFile(this.#draft, { name }), null, 2), "text/json", lookFileName(name, theme));
+  }
+
+  /** RF-120: a look file into the draft, over the defaults; "Save" still decides. */
+  static #onImportLook() {
+    if (this.#locked()) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const look = readLookFile(await file.text());
+      if (!look) return ui.notifications.warn(`${I18N_ROOT}.Notifications.LookImportFailed`, { localize: true });
+      this.#captureDraft();
+      this.#draft = styleLook(look.values);
+      if (!game.user.isGM) this.#sharing.follow = false;
+      this.#galleryOpen = false;
+      this.render();
+      ui.notifications.info(f("Notifications.LookImported", { name: look.name || file.name }));
+    });
+    input.click();
+  }
+
   static async #onDeleteSavedStyle(event, target) {
     if (!game.user.isGM) return;
     const style = savedStyles().find((candidate) => candidate.id === target.dataset.styleId);
@@ -1059,6 +1166,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     const saved = CombatWheelAppearanceApp.#savedSharing();
     if (game.user.isGM) {
       if (this.#sharing.mode !== saved.mode) writes.push(setSetting(SETTINGS.tableLookMode, this.#sharing.mode));
+      if (this.#sharingDirty()) writes.push(setSetting(SETTINGS.lockedLook, [...this.#sharing.locks]));
       writes.push(setSetting(SETTINGS.tableLook, { ...this.#draft }));
     } else if (this.#sharing.follow !== saved.follow) {
       writes.push(setSetting(SETTINGS.useTableLook, this.#sharing.follow));

@@ -85,6 +85,24 @@ function followsTableLook() {
   return mode === "optional" && Boolean(getSetting(SETTINGS.useTableLook));
 }
 
+/**
+ * RF-119: the options the GM keeps for the whole table — under "partial", the
+ * ones they locked. Players draw these with the table look's values and do
+ * not see them in their editor; the GM always edits everything.
+ */
+export function lockedKeys() {
+  if (game.user.isGM || getSetting(SETTINGS.tableLookMode) !== "partial") return new Set();
+  const keys = new Set(APPEARANCE_ENTRIES.map((entry) => entry.key));
+  return new Set((getSetting(SETTINGS.lockedLook) ?? []).filter((key) => keys.has(key)));
+}
+
+/** RF-119: the table look's values of `keys` over `base` (a key the table look lacks keeps the base's). */
+export function withLockedValues(base, keys = lockedKeys()) {
+  if (!keys.size) return base;
+  const table = getSetting(SETTINGS.tableLook) ?? {};
+  return withLook(base, Object.fromEntries(Object.entries(upgradeLook(table) ?? {}).filter(([key]) => keys.has(key))));
+}
+
 /** The GM's published look over `base`: a key it lacks, or holds a stale value for, keeps the base's. */
 export function withTableLook(base) {
   return withLook(base, getSetting(SETTINGS.tableLook) ?? {});
@@ -135,10 +153,13 @@ export async function saveLook(values) {
   await Promise.all(writes);
 }
 
-/** Every appearance value this user draws with, read once per render: their own, or the table look (RF-91). */
+/**
+ * Every appearance value this user draws with, read once per render: their
+ * own, the table look (RF-91), or their own with the GM's locked options (RF-119).
+ */
 export function appearanceValues() {
   const own = ownAppearance();
-  return followsTableLook() ? withTableLook(own) : own;
+  return followsTableLook() ? withTableLook(own) : withLockedValues(own);
 }
 
 /**
@@ -204,7 +225,9 @@ const PORTRAIT_CHOICES = Object.freeze(["token", "actor"]);
  */
 export function portraitSource(portraitImage) {
   let choice = portraitImage ?? getSetting(SETTINGS.portraitImage);
-  if (portraitImage === undefined && followsTableLook()) choice = getSetting(SETTINGS.tableLook)?.portraitImage ?? choice;
+  if (portraitImage === undefined && (followsTableLook() || lockedKeys().has(SETTINGS.portraitImage))) {
+    choice = getSetting(SETTINGS.tableLook)?.portraitImage ?? choice;
+  }
   return PORTRAIT_CHOICES.includes(choice) ? choice : getSetting(SETTINGS.portraitSource);
 }
 

@@ -1622,6 +1622,41 @@
 }
 
 /* RF-99: the bar's items as a grid of checkboxes, not a long list. */
+/* RF-119: the GM's padlock on an option, under "Lock some options": open by
+   default, the accent once the whole table uses the GM's value. */
+.sc-combat-wheel-settings .scw-field__lock {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--scw-cfg-radius);
+  background: none;
+  color: var(--scw-cfg-text-mute);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sc-combat-wheel-settings .scw-field__lock:hover { color: var(--scw-cfg-text); border-color: var(--scw-cfg-border); }
+.sc-combat-wheel-settings .scw-field__lock.is-locked {
+  color: var(--scw-cfg-accent);
+  border-color: color-mix(in srgb, var(--scw-cfg-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--scw-cfg-accent) 12%, transparent);
+}
+.sc-combat-wheel-settings .scw-appearance__label .scw-field__lock { letter-spacing: 0; }
+.sc-combat-wheel-settings .scw-field-chips__lock {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+  color: var(--scw-cfg-text);
+  font-size: 12.5px;
+}
+
 .sc-combat-wheel-settings .scw-field-chips {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

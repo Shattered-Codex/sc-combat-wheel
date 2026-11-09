@@ -7,6 +7,7 @@
 # SC - Combat Wheel
 
 [![Download Hub](https://img.shields.io/badge/Download%20Hub-Shattered%20Codex-1f6feb?style=for-the-badge)](https://app.shattered-codex.com/)
+[![GitHub downloads](https://img.shields.io/github/downloads/Shattered-Codex/sc-combat-wheel/sc-combat-wheel.zip?style=for-the-badge&label=GitHub%20downloads&displayAssetName=false)](https://github.com/Shattered-Codex/sc-combat-wheel/releases)
 [![Wiki](https://img.shields.io/badge/Wiki-Shattered%20Codex-1f6feb?logo=bookstack&logoColor=white&style=for-the-badge)](https://wiki.shattered-codex.com/)
 [![Support on Patreon](https://img.shields.io/badge/Patreon-Shattered%20Codex-FF424D?logo=patreon&logoColor=white&style=for-the-badge)](https://www.patreon.com/c/shatteredcodex?utm_source=sc-combat-wheel&utm_medium=github&utm_campaign=support_readme)
 [![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/6mWCQEJEwG)
@@ -26,7 +27,7 @@ The module follows Foundry's existing combat order. Picking a portrait to inspec
 - **No required companion module**. Integrations listed below are optional.
 - **English and Brazilian Portuguese** interface translations.
 
-Combat Wheel is a premium Shattered Codex module. Eligible Patreon tiers are **The First Forgers** and **The Gem-Smith**. Visit [Shattered Codex on Patreon](https://www.patreon.com/c/shatteredcodex?utm_source=sc-combat-wheel&utm_medium=github&utm_campaign=support_readme) for membership information and use the [Download Hub](https://app.shattered-codex.com/) to obtain your installation manifest.
+Combat Wheel is available through the Shattered Codex Download Hub. Eligible Patreon tiers are **The First Forgers**, **The Gem-Smith**, and **Free**. Visit [Shattered Codex on Patreon](https://www.patreon.com/c/shatteredcodex?utm_source=sc-combat-wheel&utm_medium=github&utm_campaign=support_readme) for membership information and use the [Download Hub](https://app.shattered-codex.com/) to obtain your installation manifest.
 
 ## Installation
 
@@ -36,7 +37,7 @@ Combat Wheel is a premium Shattered Codex module. Eligible Patreon tiers are **T
 4. Paste the manifest URL and install the module.
 5. Launch your world and enable **SC - Combat Wheel** in **Manage Modules**.
 
-See the [premium module installation guide](https://wiki.shattered-codex.com/guides/download-hub) for the Download Hub workflow and help with download authorization.
+See the [module installation guide](https://wiki.shattered-codex.com/guides/download-hub) for the Download Hub workflow and help with download authorization.
 
 ## Quick Start
 

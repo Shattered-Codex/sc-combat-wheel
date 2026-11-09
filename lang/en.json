@@ -817,6 +817,14 @@
           "strong": "Strong"
         }
       },
+      "announceShareCard": {
+        "Name": "Show my card to the table",
+        "Hint": "On your character's turn everyone sees the announcement with your picture, frame, border, format, entrance, colour, effect and particles. Where it shows, its size and how long it stays are each viewer's. For the GM, this is the default of the players who follow the table look."
+      },
+      "announcePlayerCards": {
+        "Name": "See each player's card",
+        "Hint": "On a player's character's turn, the card that player shares. Off: every announcement uses your own look."
+      },
       "actingWaves": {
         "Name": "Waves around the acting portrait",
         "Hint": "Rings that keep leaving the acting portrait, as in the SC Item Rarity Colors. They add to the effect above.",
@@ -1268,7 +1276,8 @@
         "announceWhen": "When",
         "announceContent": "What it shows",
         "announceLook": "How it looks",
-        "announceFx": "Effects"
+        "announceFx": "Effects",
+        "announceShare": "Players' cards"
       },
       "CloseGallery": "Close ready-made looks",
       "TurnLabel": "Round {round} · {turn}",

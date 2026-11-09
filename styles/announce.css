@@ -6,7 +6,8 @@
    data-scw-announce-style | -position | -size | -entrance; the card carries
    --scw-announce-c (its colour) and --scw-announce-size (a portrait's size).
    It shows under Foundry's windows in play, over everything in the editor's
-   test. Under reduced motion it only fades. */
+   test. Under reduced motion it only fades. The card takes no pointer: a
+   press on it dismisses it (TurnAnnouncer) and still reaches what is under it. */
 
 .scw-announce-host.sc-combat-wheel {
   position: fixed;
@@ -44,8 +45,6 @@
   color: var(--scw-text);
   font-family: var(--scw-font-body);
   text-align: center;
-  pointer-events: auto;
-  cursor: pointer;
   opacity: 0;
   transition: opacity 150ms ease;
 }

@@ -38,6 +38,7 @@ function sampleViewModel(entry, name) {
     img: entry.img,
     tokenImg: entry.img,
     artImg: entry.img,
+    cardUserId: null,
     imgPosition: "50% 20%",
     initials: initialsOf(name),
     initiative: entry.initiative,

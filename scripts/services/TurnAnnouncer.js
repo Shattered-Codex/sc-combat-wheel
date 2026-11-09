@@ -2,6 +2,8 @@ import { I18N_ROOT, SETTINGS } from "../constants/module-constants.js";
 import { activeTheme, appearanceValues, getSetting } from "../hooks/register-settings.js";
 import { FX_BOOST, INTENSITY_AMOUNTS, PARTICLE_INTENSITIES } from "../helpers/particle-presets.js";
 import { announceModeFor, announcementFor, nextUpFor } from "../helpers/turn-announcement.js";
+import { withCard } from "../helpers/announce-card.js";
+import AnnouncementCards from "./AnnouncementCards.js";
 import WheelAppearance from "../applications/WheelAppearance.js";
 import WheelFxLayer from "../applications/WheelFxLayer.js";
 import WheelParticles from "../applications/WheelParticles.js";
@@ -24,10 +26,12 @@ const TALL_RATIO = 0.75;
  * Venaerys's Initiative the phase with all its members — with the look's
  * effect and particles around each portrait. Each client draws its own after
  * a real turn change (TurnSideEffects), wheel open or not; nothing goes over
- * the network. One at a time: a new turn replaces it, a click dismisses it.
+ * the network. One at a time: a new turn replaces it, a click on it dismisses
+ * it — and still reaches the token or the canvas under it, so the GM is never
+ * held up by the card after advancing the turn.
  */
 export default class TurnAnnouncer {
-  /** What is on screen: the card, its effect layers, the timer, and the editor's backdrop if any. */
+  /** What is on screen: the card, its effect layers, the timer, its combat, its click watcher, and the editor's backdrop if any. */
   static #current = null;
   static #host = null;
 
@@ -40,13 +44,26 @@ export default class TurnAnnouncer {
   static onTurnChanged(model, look = appearanceValues()) {
     const isGM = game.user.isGM;
     if (announceModeFor(look[SETTINGS.announceMode], isGM) === "off") return false;
-    const options = { isGM, mode: look[SETTINGS.announceMode], image: look[SETTINGS.announceImage] };
-    const turn = announcementFor(model, options);
-    const next = look[SETTINGS.announceNextUp] && getSetting(SETTINGS.nextUpNotice) ? nextUpFor(model, options) : null;
-    if (turn) TurnAnnouncer.show(turn, look, { nextUp: Boolean(next) });
-    else if (next) TurnAnnouncer.show(next, look, { minor: true });
+    const mode = look[SETTINGS.announceMode];
+    const cardLook = TurnAnnouncer.#cardLookFor(model, look);
+    const turn = announcementFor(model, { isGM, mode, image: cardLook[SETTINGS.announceImage] });
+    const next = look[SETTINGS.announceNextUp] && getSetting(SETTINGS.nextUpNotice) ? nextUpFor(model, { isGM, image: look[SETTINGS.announceImage] }) : null;
+    const combatId = model?.combatId ?? null;
+    if (turn) TurnAnnouncer.show(turn, cardLook, { nextUp: Boolean(next), combatId });
+    else if (next) TurnAnnouncer.show(next, look, { minor: true, combatId });
     else TurnAnnouncer.dismiss();
     return Boolean(next);
+  }
+
+  /**
+   * RF-123: on another player's character's turn, the card that player shares
+   * over this user's look — unless this user keeps their own for everyone. A
+   * phase has many owners, so it is always drawn with this user's look.
+   */
+  static #cardLookFor(model, look) {
+    const userId = model?.phased ? null : model?.current?.cardUserId;
+    if (!userId || userId === game.user.id || !look[SETTINGS.announcePlayerCards]) return look;
+    return withCard(look, AnnouncementCards.cardOf(userId));
   }
 
   /**
@@ -56,8 +73,9 @@ export default class TurnAnnouncer {
    * @param {boolean} [options.minor]    "you are up next" on its own: smaller and shorter
    * @param {boolean} [options.nextUp]   adds "you are up next" under someone else's turn
    * @param {boolean} [options.preview]  the editor's test: over a darkened screen, above every window
+   * @param {string}  [options.combatId] the combat it is about, so its deletion takes it down
    */
-  static show(announcement, look = appearanceValues(), { minor = false, nextUp = false, preview = false } = {}) {
+  static show(announcement, look = appearanceValues(), { minor = false, nextUp = false, preview = false, combatId = null } = {}) {
     TurnAnnouncer.dismiss({ instant: true });
     const seconds = minor ? Math.min(MINOR_SECONDS, look[SETTINGS.announceSeconds]) : look[SETTINGS.announceSeconds];
     const backdrop = preview ? TurnAnnouncer.#backdrop() : null;
@@ -71,10 +89,22 @@ export default class TurnAnnouncer {
       card.classList.add("is-shown");
       backdrop?.classList.add("is-shown");
     });
-    card.addEventListener("click", () => TurnAnnouncer.dismiss());
+    // The editor's test closes on a click on its backdrop; in play the card takes no pointer, so a press on it is watched for instead.
     backdrop?.addEventListener("click", () => TurnAnnouncer.dismiss());
+    const onPointerDown = backdrop ? null : (event) => TurnAnnouncer.#isOver(card, event) && TurnAnnouncer.dismiss();
+    if (onPointerDown) document.addEventListener("pointerdown", onPointerDown, { capture: true, passive: true });
     const timer = setTimeout(() => TurnAnnouncer.dismiss(), seconds * 1000);
-    TurnAnnouncer.#current = { card, layers, timer, backdrop };
+    TurnAnnouncer.#current = { card, layers, timer, backdrop, combatId, onPointerDown };
+  }
+
+  /** The combat is gone (deleted, or ended): what was said about it goes too. */
+  static dismissCombat(combatId) {
+    if (combatId && TurnAnnouncer.#current?.combatId === combatId) TurnAnnouncer.dismiss();
+  }
+
+  static #isOver(card, { clientX, clientY }) {
+    const box = card.getBoundingClientRect();
+    return clientX >= box.left && clientX <= box.right && clientY >= box.top && clientY <= box.bottom;
   }
 
   /**
@@ -103,6 +133,7 @@ export default class TurnAnnouncer {
     if (!current) return;
     TurnAnnouncer.#current = null;
     clearTimeout(current.timer);
+    if (current.onPointerDown) document.removeEventListener("pointerdown", current.onPointerDown, { capture: true });
     current.card.classList.remove("is-shown");
     current.backdrop?.classList.remove("is-shown");
     const remove = () => {

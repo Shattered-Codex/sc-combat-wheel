@@ -15,9 +15,10 @@ const APPEARANCE_ENTRIES = SETTINGS_SCHEMA.filter((entry) => entry.section === "
  * Registers every setting from SETTINGS_SCHEMA (SPEC §7). None shows in the core
  * menu: they live in the module's own settings screen (RF-70), opened by
  * `SettingsMenu`, and the appearance editor (RF-73), opened by `AppearanceMenu`.
- * `onLayoutChange` rebuilds the wheel; `onDataChange` re-projects the combat.
+ * `onLayoutChange` rebuilds the wheel; `onDataChange` re-projects the combat;
+ * `onLookChange` follows anything that changes the look this user draws with.
  */
-export function registerSettings({ onLayoutChange, onDataChange, SettingsMenu, AppearanceMenu }) {
+export function registerSettings({ onLayoutChange, onDataChange, onLookChange, SettingsMenu, AppearanceMenu }) {
   const reactions = {
     layout: onLayoutChange,
     data: onDataChange,
@@ -26,7 +27,10 @@ export function registerSettings({ onLayoutChange, onDataChange, SettingsMenu, A
       warnOnPortraitRatio();
     },
   };
+  const lookSources = new Set([SETTINGS.tableLook, SETTINGS.tableLookMode, SETTINGS.lockedLook, SETTINGS.useTableLook]);
   for (const entry of SETTINGS_SCHEMA) {
+    const reaction = reactions[entry.react];
+    const shapesLook = onLookChange && (entry.section === "appearance" || lookSources.has(entry.key));
     game.settings.register(MODULE_ID, entry.key, {
       name: `${I18N_ROOT}.Settings.${entry.key}.Name`,
       hint: `${I18N_ROOT}.Settings.${entry.key}.Hint`,
@@ -34,7 +38,12 @@ export function registerSettings({ onLayoutChange, onDataChange, SettingsMenu, A
       config: false,
       type: TYPES[entry.type],
       default: settingDefault(entry),
-      onChange: reactions[entry.react],
+      onChange: shapesLook
+        ? (value) => {
+            reaction?.(value);
+            onLookChange();
+          }
+        : reaction,
     });
   }
   if (SettingsMenu) {

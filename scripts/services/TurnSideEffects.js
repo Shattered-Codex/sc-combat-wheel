@@ -1,4 +1,4 @@
-import { I18N_ROOT, SETTINGS } from "../constants/module-constants.js";
+import { I18N_ROOT, MODULE_ID, SETTINGS } from "../constants/module-constants.js";
 import { getSetting } from "../hooks/register-settings.js";
 import { soundEventFor } from "../helpers/turn-events.js";
 import SoundPlayer from "./SoundPlayer.js";
@@ -34,11 +34,26 @@ export default class TurnSideEffects {
     TurnSideEffects.#playSound(soundEventFor(previous, model, { isGM: game.user.isGM, turnBack }));
     if (!model?.current || model.activeHidden) return TurnAnnouncer.dismiss();
     if (getSetting(SETTINGS.cameraFollows)) TokenInteractions.panToCombatant(combat, model.current.id);
-    if (!TurnAnnouncer.onTurnChanged(model)) TurnSideEffects.#notifyNextUp(model);
+    if (!TurnSideEffects.#announce(model)) TurnSideEffects.#notifyNextUp(model);
   }
 
-  /** RF-101: a combat that had started is over (deleted) — its closing sound, on every client. */
+  /**
+   * The announcement is only a picture: whatever goes wrong drawing it (a
+   * player's card included, RF-123) must not stop the rest of the turn —
+   * the wheel's refresh and the automations that follow.
+   */
+  static #announce(model) {
+    try {
+      return TurnAnnouncer.onTurnChanged(model);
+    } catch (error) {
+      console.error(`${MODULE_ID} | turn announcement failed`, error);
+      return false;
+    }
+  }
+
+  /** RF-101: a combat that had started is over (deleted) — its closing sound, on every client, and its announcement gone. */
   static onCombatEnded(combat) {
+    TurnAnnouncer.dismissCombat(combat?.id);
     if ((combat?.round ?? 0) > 0) TurnSideEffects.#playSound("combatEnd");
   }
 

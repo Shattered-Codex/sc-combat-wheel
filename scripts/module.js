@@ -4,6 +4,7 @@ import { registerTrackerMenu } from "./hooks/register-tracker-menu.js";
 import { migrateBrowserAppearance, registerSettings } from "./hooks/register-settings.js";
 import CombatWheelAppearanceApp from "./applications/CombatWheelAppearanceApp.js";
 import CombatWheelSettingsApp from "./applications/CombatWheelSettingsApp.js";
+import AnnouncementCards from "./services/AnnouncementCards.js";
 import CombatWatcher from "./services/CombatWatcher.js";
 import StylePicker from "./services/StylePicker.js";
 import StyleLoader from "./services/StyleLoader.js";
@@ -15,6 +16,7 @@ Hooks.once("init", () => {
   registerSettings({
     onLayoutChange: () => watcher.relayout(),
     onDataChange: () => watcher.scheduleRefresh(),
+    onLookChange: () => AnnouncementCards.scheduleSync(),
     SettingsMenu: CombatWheelSettingsApp,
     AppearanceMenu: CombatWheelAppearanceApp,
   });
@@ -39,6 +41,7 @@ Hooks.once("ready", () => {
     },
   };
   watcher.start();
+  void AnnouncementCards.sync();
   migrateBrowserAppearance().catch((error) => console.error(`${MODULE_ID} | appearance migration failed`, error));
 });
 

@@ -817,6 +817,14 @@
           "strong": "Forte"
         }
       },
+      "announceShareCard": {
+        "Name": "Mostrar meu cartão para a mesa",
+        "Hint": "Na vez do seu personagem, todos veem o aviso com a sua imagem, moldura, borda, formato, entrada, cor, efeito e partículas. Onde aparece, o tamanho e quanto tempo fica são de cada um. Para o Mestre, é o padrão dos jogadores que seguem o visual da mesa."
+      },
+      "announcePlayerCards": {
+        "Name": "Ver o cartão de cada jogador",
+        "Hint": "Na vez do personagem de um jogador, o cartão que ele compartilha. Desligado: todo aviso usa o seu próprio visual."
+      },
       "actingWaves": {
         "Name": "Ondas em quem age",
         "Hint": "Anéis que não param de sair do retrato de quem age, como no SC Item Rarity Colors. Somam-se ao efeito acima.",
@@ -1268,7 +1276,8 @@
         "announceWhen": "Quando",
         "announceContent": "O que mostra",
         "announceLook": "Como fica",
-        "announceFx": "Efeitos"
+        "announceFx": "Efeitos",
+        "announceShare": "Cartões dos jogadores"
       },
       "CloseGallery": "Fechar estilos prontos",
       "TurnLabel": "Rodada {round} · {turn}",

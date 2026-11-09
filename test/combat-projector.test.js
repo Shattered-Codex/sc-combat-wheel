@@ -234,6 +234,15 @@ describe("CombatantAdapter", () => {
     assert.equal(CombatantAdapter.portraitFor(stranger, "flag", undefined, { revealActor: false }).src, "tokens/a.webp");
   });
 
+  it("names the player whose announcement card a turn shows (RF-123)", () => {
+    const owners = [{ id: "u1", name: "Ana", character: { id: "other" } }, { id: "u2", name: "Bia", character: { id: "hero" } }];
+    const hero = combatant("a", { players: owners, actor: { id: "hero", img: "actors/a.webp", flags: {}, temporaryEffects: [] } });
+    assert.equal(CombatantAdapter.toViewModel(hero, { ...player, round: 1 }).cardUserId, "u2", "the player whose character it is");
+    const shared = combatant("b", { players: owners });
+    assert.equal(CombatantAdapter.toViewModel(shared, { ...player, round: 1 }).cardUserId, "u1", "else its first owner");
+    assert.equal(CombatantAdapter.toViewModel(combatant("c"), { ...player, round: 1 }).cardUserId, null, "an NPC has none");
+  });
+
   it("never falls back from a video token to art the player may not see (RF-117)", () => {
     const isVideo = (src) => src.endsWith(".webm");
     const stranger = combatant("a");

@@ -388,6 +388,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
    * the browser's own menu away only when it has something instead.
    */
   #runSliceAction(settingKey, combatantId, event) {
+    // A click set to open the menu has already opened it twice: the double click starts clean.
+    if (settingKey === SETTINGS.doubleClickAction) SliceMenu.close();
     const action = getSetting(settingKey);
     if (action === "none") return;
     if (action !== "menu") {
@@ -422,7 +424,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     const label = (key) => game.i18n.localize(`SC_COMBAT_WHEEL.SliceMenu.${key}`);
     const token = TokenInteractions.placeableFor(combat, combatantId);
     const items = [];
-    if (token) items.push({ icon: "fa-crosshairs", label: label("Pan"), run: () => TokenInteractions.click(combat, combatantId, "pan") });
+    if (token && TokenInteractions.isVisible(token)) items.push({ icon: "fa-crosshairs", label: label("Pan"), run: () => TokenInteractions.click(combat, combatantId, "pan") });
     if (token?.isOwner) items.push({ icon: "fa-hand-pointer", label: label("Select"), run: () => TokenInteractions.click(combat, combatantId, "select") });
     if (combatant.actor?.testUserPermission(game.user, "LIMITED")) {
       items.push({ icon: "fa-id-card", label: label("Sheet"), run: () => TokenInteractions.click(combat, combatantId, "sheet") });

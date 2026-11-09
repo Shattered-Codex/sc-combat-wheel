@@ -8,7 +8,9 @@ const EDGE = 8;
  * RF-122: the menu a right click opens on a slice or a phase member — what
  * this user may do with that combatant — in the wheel's theme. It lives on
  * the page, not in the widget, so no slice or clip cuts it. One at a time; a
- * click outside, Escape, the mouse wheel or picking an item closes it.
+ * click outside, Escape, Tab, the mouse wheel or picking an item closes it.
+ * The arrows, Home and End move between the items; Escape and a pick give the
+ * keyboard back to the portrait it was opened on.
  */
 export default class SliceMenu {
   static #open = null;
@@ -34,6 +36,8 @@ export default class SliceMenu {
     menu.className = "scw-roll-menu";
     menu.setAttribute("role", "menu");
     menu.setAttribute("aria-label", title);
+    // Focusable itself, so a click on its title is not read as focus leaving it.
+    menu.tabIndex = -1;
     const kicker = document.createElement("span");
     kicker.className = "scw-details-kicker";
     kicker.textContent = title;
@@ -58,6 +62,7 @@ export default class SliceMenu {
       button.append(icon, label);
       button.addEventListener("click", () => {
         SliceMenu.close();
+        returnFocus?.focus({ preventScroll: true });
         void item.run();
       });
       menu.append(button);
@@ -70,13 +75,25 @@ export default class SliceMenu {
     const onPointer = (event) => {
       if (!menu.contains(event.target)) SliceMenu.close();
     };
+    const buttons = [...menu.querySelectorAll("button")];
     const onKey = (event) => {
-      if (event.key !== "Escape") return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        SliceMenu.close();
+        returnFocus?.focus({ preventScroll: true });
+        return;
+      }
+      const index = buttons.indexOf(document.activeElement);
+      const target = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: buttons.length - 1 }[event.key];
+      if (target === undefined) return;
       event.preventDefault();
-      event.stopPropagation();
-      SliceMenu.close();
-      returnFocus?.focus();
+      buttons[(target + buttons.length) % buttons.length].focus();
     };
+    // Tab, or anything else that takes the focus away, closes it.
+    menu.addEventListener("focusout", (event) => {
+      if (!menu.contains(event.relatedTarget)) SliceMenu.close();
+    });
     const onWheel = () => SliceMenu.close();
     document.addEventListener("pointerdown", onPointer, true);
     document.addEventListener("keydown", onKey, true);
@@ -89,7 +106,7 @@ export default class SliceMenu {
         window.removeEventListener("wheel", onWheel);
       },
     };
-    menu.querySelector("button")?.focus();
+    buttons[0]?.focus();
     return true;
   }
 

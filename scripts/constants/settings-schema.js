@@ -143,6 +143,9 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.announceEffect, scope: "user", type: "choice", choices: ["none", "pulse", "halo", "aura", "flicker", "flames", "inferno", "void", "rays", "storm", "runes"], default: "flames", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
   { key: SETTINGS.announceParticles, scope: "user", type: "choice", choices: PARTICLE_TYPES, default: "sparks", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
   { key: SETTINGS.announceIntensity, scope: "user", type: "choice", choices: Object.keys(PARTICLE_INTENSITIES), default: "normal", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  // RF-123: a player's card for the table, shown to everyone on their character's turn; anyone may keep their own look instead.
+  { key: SETTINGS.announceShareCard, scope: "user", type: "boolean", default: false, section: "appearance", react: null, group: "announceShare", panel: "announce" },
+  { key: SETTINGS.announcePlayerCards, scope: "user", type: "boolean", default: true, section: "appearance", react: null, group: "announceShare", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
   { key: SETTINGS.animationSpeed, scope: "user", type: "choice", choices: ["slow", "normal", "fast", "off"], default: "normal", section: "appearance", react: null, group: "motion", panel: "effects" },
   // RF-106: the on-screen message of a virtual position, read when it shows.
   { key: SETTINGS.bannerStyle, scope: "user", type: "choice", choices: ["card", "strip", "toast"], default: "card", section: "appearance", react: null, group: "banner", panel: "visual" },
@@ -211,7 +214,9 @@ export const SETTINGS_SCHEMA = Object.freeze([
 
   // Written elsewhere
   { key: SETTINGS.virtualTemplates, scope: "world", type: "array", default: [], section: null, react: "data" },
+  // RF-124: where each user left the wheel, on any browser; the old per-browser value is only read until they save their own.
   { key: SETTINGS.widgetState, scope: "client", type: "object", default: { position: null, locked: false, expanded: false }, section: null, react: null },
+  { key: SETTINGS.userWidgetState, scope: "user", type: "object", default: {}, section: null, react: null },
 ]);
 
 /** The setting's default value; function defaults read Foundry's config, so they resolve late. */

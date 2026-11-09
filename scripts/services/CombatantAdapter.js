@@ -50,6 +50,7 @@ export default class CombatantAdapter {
     const tokenHidden = Boolean(token?.hidden);
     const invisible = Boolean(combatant.actor?.statuses?.has?.("invisible"));
     const dead = isDeadForViewer({ defeated }, hp);
+    const players = Array.from(combatant.players ?? []);
 
     return {
       id: combatant.id,
@@ -75,7 +76,9 @@ export default class CombatantAdapter {
       alive: !dead,
       isOwner,
       hasPlayerOwner: Boolean(combatant.hasPlayerOwner),
-      players: Array.from(combatant.players ?? [], (user) => user.name),
+      players: players.map((user) => user.name),
+      // RF-123: whose announcement card this combatant's turn shows — the player whose character it is, or its first owner.
+      cardUserId: CombatantAdapter.#cardUserOf(players, combatant.actor?.id),
       hp,
       hpTotal: isGM ? health : null,
       healthTone: hp.mode === "none" || hp.mode === "hidden" ? null : healthTone(hp.pct),
@@ -109,6 +112,11 @@ export default class CombatantAdapter {
     src ??= combatant.img ?? null;
     if (src && isVideo(src)) src = revealActor && actorImg && !isVideo(actorImg) ? actorImg : null;
     return { src, position: position ?? DEFAULT_IMAGE_POSITION };
+  }
+
+  static #cardUserOf(players, actorId) {
+    const main = (actorId && players.find((user) => user.character?.id === actorId)) || players[0];
+    return main?.id ?? null;
   }
 
   /**

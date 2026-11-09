@@ -11,15 +11,19 @@ const EDGE_MARGIN = 8;
 
 /**
  * Where the wheel's anchor (the middle of the bar's arc-side edge) sits on screen.
- * Stored as a fraction of the viewport so it survives resolution changes (SPEC §7).
+ * Stored as a fraction of the viewport so it survives resolution changes (SPEC §7),
+ * per user (RF-124): each player finds the wheel where they left it, on any browser.
  */
 export default class WidgetPosition {
   static state() {
-    return { position: null, locked: false, expanded: false, ...getSetting(SETTINGS.widgetState) };
+    const own = getSetting(SETTINGS.userWidgetState) ?? {};
+    // Before RF-124 the place was this browser's: it stands until this user saves their own, and the first save carries it over.
+    const legacy = Object.keys(own).length ? {} : getSetting(SETTINGS.widgetState) ?? {};
+    return { position: null, locked: false, expanded: false, ...legacy, ...own };
   }
 
   static save(patch) {
-    return setSetting(SETTINGS.widgetState, { ...WidgetPosition.state(), ...patch });
+    return setSetting(SETTINGS.userWidgetState, { ...WidgetPosition.state(), ...patch });
   }
 
   /** Forgets where the wheel was dragged, so it opens in its default place again (lock and details stay). */

@@ -30,7 +30,7 @@ export default class TokenInteractions {
 
   /** RF-109: glides there at the user's pace (longer the farther it is); straight there under reduced motion. */
   static pan(token) {
-    if (!TokenInteractions.#isVisible(token)) return;
+    if (!TokenInteractions.isVisible(token)) return;
     const { x, y } = token.center;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return canvas.pan({ x, y });
     const from = canvas.stage.pivot;
@@ -46,7 +46,7 @@ export default class TokenInteractions {
   /** Mirrors the core tracker's hover: highlight without stealing control. */
   static hoverIn(combat, combatantId, event) {
     const token = TokenInteractions.placeableFor(combat, combatantId);
-    if (!token || !TokenInteractions.#isVisible(token)) return;
+    if (!token || !TokenInteractions.isVisible(token)) return;
     if (!token.controlled) token._onHoverIn(event, { hoverOutOthers: true });
     TokenInteractions.#highlighted = token;
   }
@@ -56,7 +56,8 @@ export default class TokenInteractions {
     TokenInteractions.#highlighted = null;
   }
 
-  static #isVisible(token) {
+  /** Whether this user sees the token on the canvas: the camera never goes where they could not look. */
+  static isVisible(token) {
     return token.isVisible ?? token.visible;
   }
 }

@@ -102,7 +102,12 @@ function followsTableLook() {
  * not see them in their editor; the GM always edits everything.
  */
 export function lockedKeys() {
-  if (game.user.isGM || getSetting(SETTINGS.tableLookMode) !== "partial") return new Set();
+  return game.user.isGM ? new Set() : tableLockedKeys();
+}
+
+/** RF-119: the options locked for the table, whoever asks (a player's shared card never overrides them, RF-123). */
+export function tableLockedKeys() {
+  if (getSetting(SETTINGS.tableLookMode) !== "partial") return new Set();
   const keys = new Set(APPEARANCE_ENTRIES.map((entry) => entry.key));
   return new Set((getSetting(SETTINGS.lockedLook) ?? []).filter((key) => keys.has(key)));
 }

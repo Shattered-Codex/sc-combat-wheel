@@ -1,6 +1,6 @@
-import { MODULE_ID } from "../constants/module-constants.js";
-import { appearanceValues } from "../hooks/register-settings.js";
-import { cardOf } from "../helpers/announce-card.js";
+import { MODULE_ID, SETTINGS } from "../constants/module-constants.js";
+import { appearanceValues, getSetting, tableLockedKeys, withLockedValues } from "../hooks/register-settings.js";
+import { cardOf, withCard } from "../helpers/announce-card.js";
 
 const FLAG = "announceCard";
 /** A save in the editor changes many settings at once: one write for all of them. */
@@ -32,6 +32,19 @@ export default class AnnouncementCards {
     } catch (error) {
       console.warn(`${MODULE_ID} | could not share the announcement card`, error);
     }
+  }
+
+  /**
+   * A viewer's look with the card `userId` shares, as far as the table allows
+   * it now — whatever the stored card says, since it may predate the GM's
+   * choice or have been written by hand: none while the GM makes everyone use
+   * the table look, and never over an option the GM locked.
+   */
+  static lookWith(userId, look) {
+    const mode = getSetting(SETTINGS.tableLookMode);
+    if (mode === "forced") return look;
+    const drawn = withCard(look, AnnouncementCards.cardOf(userId));
+    return mode === "partial" ? withLockedValues(drawn, tableLockedKeys()) : drawn;
   }
 
   /** The card a player shares, or null. */

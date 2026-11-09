@@ -2,7 +2,6 @@ import { I18N_ROOT, SETTINGS } from "../constants/module-constants.js";
 import { activeTheme, appearanceValues, getSetting } from "../hooks/register-settings.js";
 import { FX_BOOST, INTENSITY_AMOUNTS, PARTICLE_INTENSITIES } from "../helpers/particle-presets.js";
 import { announceModeFor, announcementFor, nextUpFor } from "../helpers/turn-announcement.js";
-import { withCard } from "../helpers/announce-card.js";
 import AnnouncementCards from "./AnnouncementCards.js";
 import WheelAppearance from "../applications/WheelAppearance.js";
 import WheelFxLayer from "../applications/WheelFxLayer.js";
@@ -63,7 +62,7 @@ export default class TurnAnnouncer {
   static #cardLookFor(model, look) {
     const userId = model?.phased ? null : model?.current?.cardUserId;
     if (!userId || userId === game.user.id || !look[SETTINGS.announcePlayerCards]) return look;
-    return withCard(look, AnnouncementCards.cardOf(userId));
+    return AnnouncementCards.lookWith(userId, look);
   }
 
   /**

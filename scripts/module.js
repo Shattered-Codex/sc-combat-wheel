@@ -1,7 +1,7 @@
-import { I18N_ROOT, MODULE_ID } from "./constants/module-constants.js";
+import { I18N_ROOT, MODULE_ID, SETTINGS } from "./constants/module-constants.js";
 import { registerKeybindings } from "./hooks/register-keybindings.js";
 import { registerTrackerMenu } from "./hooks/register-tracker-menu.js";
-import { migrateBrowserAppearance, registerSettings } from "./hooks/register-settings.js";
+import { getSetting, migrateBrowserAppearance, registerSettings } from "./hooks/register-settings.js";
 import CombatWheelAppearanceApp from "./applications/CombatWheelAppearanceApp.js";
 import CombatWheelSettingsApp from "./applications/CombatWheelSettingsApp.js";
 import AnnouncementCards from "./services/AnnouncementCards.js";
@@ -17,6 +17,8 @@ Hooks.once("init", () => {
     onLayoutChange: () => watcher.relayout(),
     onDataChange: () => watcher.scheduleRefresh(),
     onLookChange: () => AnnouncementCards.scheduleSync(),
+    // v13+: a reset render asks every module for its buttons again.
+    onControlsChange: () => ui.controls?.render({ reset: true }),
     SettingsMenu: CombatWheelSettingsApp,
     AppearanceMenu: CombatWheelAppearanceApp,
   });
@@ -55,7 +57,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fa-solid fa-dharmachakra",
     order: Object.keys(tokens.tools).length,
     button: true,
-    visible: true,
+    visible: getSetting(SETTINGS.sceneButtonWheel),
     onChange: () => watcher.toggle(),
   };
   // RF-110: the GM's quick change between saved styles, whatever other modules do to the tracker.
@@ -65,7 +67,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fa-solid fa-swatchbook",
     order: Object.keys(tokens.tools).length,
     button: true,
-    visible: game.user.isGM,
+    visible: game.user.isGM && getSetting(SETTINGS.sceneButtonStyles),
     onChange: () => StylePicker.choose(),
   };
   // RF-105: always on screen, for the GM and players alike, even when other modules rework the tracker's menu.
@@ -75,7 +77,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fa-solid fa-arrows-to-dot",
     order: Object.keys(tokens.tools).length,
     button: true,
-    visible: true,
+    visible: getSetting(SETTINGS.sceneButtonResetPosition),
     onChange: async () => {
       await watcher.resetPosition();
       ui.notifications.info(`${I18N_ROOT}.Notifications.PositionReset`, { localize: true });

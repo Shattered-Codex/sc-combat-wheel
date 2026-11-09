@@ -89,6 +89,18 @@
           "slow": "Lento"
         }
       },
+      "sceneButtonWheel": {
+        "Name": "Botão da roda nos controles de token",
+        "Hint": "Abre e fecha a roda. Sem ele, a roda continua abrindo sozinha quando o combate começa, e pelo atalho de teclado, se você definir um."
+      },
+      "sceneButtonStyles": {
+        "Name": "Botão de estilos nos controles de token",
+        "Hint": "A troca rápida do Mestre entre os estilos salvos. Sem ele, o menu do tracker de combate continua oferecendo a troca."
+      },
+      "sceneButtonResetPosition": {
+        "Name": "Botão de recentralizar nos controles de token",
+        "Hint": "Traz a roda de volta ao lugar padrão. Sem ele, o botão abaixo continua fazendo isso, assim como o menu do tracker de combate (Mestre) e o atalho de teclado, se você definir um."
+      },
       "animationSpeed": {
         "Name": "Velocidade da animação",
         "Hint": "Quão rápido a roda gira. A preferência de movimento reduzido do sistema sempre vence.",

@@ -89,6 +89,18 @@
           "slow": "Slow"
         }
       },
+      "sceneButtonWheel": {
+        "Name": "Wheel button in the token controls",
+        "Hint": "Opens and closes the wheel. Without it, the wheel still opens by itself when a combat starts, and with the keyboard shortcut if you set one."
+      },
+      "sceneButtonStyles": {
+        "Name": "Styles button in the token controls",
+        "Hint": "The GM's quick change between saved styles. Without it, the combat tracker's menu still offers it."
+      },
+      "sceneButtonResetPosition": {
+        "Name": "Re-centre button in the token controls",
+        "Hint": "Brings the wheel back to its default place. Without it, the button below still does, as do the combat tracker's menu (GM) and the keyboard shortcut if you set one."
+      },
       "animationSpeed": {
         "Name": "Animation speed",
         "Hint": "How fast the wheel turns. Reduced-motion system settings always win.",

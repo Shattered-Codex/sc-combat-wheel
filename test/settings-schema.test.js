@@ -212,3 +212,13 @@ describe("slice clicks (RF-31)", () => {
     assert.equal(right.default, "menu", "the slice's menu (RF-122), only on the right click");
   });
 });
+
+describe("scene control buttons (RF-125)", () => {
+  it("lets each browser hide each of the module's buttons, all shown by default", () => {
+    const entries = ["sceneButtonWheel", "sceneButtonStyles", "sceneButtonResetPosition"].map((key) => SETTINGS_SCHEMA.find((entry) => entry.key === key));
+    for (const entry of entries) {
+      assert.deepEqual([entry.scope, entry.type, entry.default, entry.section, entry.react], ["client", "boolean", true, "behavior", "controls"]);
+    }
+    assert.deepEqual(entries.map((entry) => Boolean(entry.gmOnly)), [false, true, false], "only the styles button is the GM's alone");
+  });
+});

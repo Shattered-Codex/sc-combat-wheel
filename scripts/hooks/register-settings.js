@@ -16,12 +16,14 @@ const APPEARANCE_ENTRIES = SETTINGS_SCHEMA.filter((entry) => entry.section === "
  * menu: they live in the module's own settings screen (RF-70), opened by
  * `SettingsMenu`, and the appearance editor (RF-73), opened by `AppearanceMenu`.
  * `onLayoutChange` rebuilds the wheel; `onDataChange` re-projects the combat;
- * `onLookChange` follows anything that changes the look this user draws with.
+ * `onLookChange` follows anything that changes the look this user draws with;
+ * `onControlsChange` redraws the scene controls.
  */
-export function registerSettings({ onLayoutChange, onDataChange, onLookChange, SettingsMenu, AppearanceMenu }) {
+export function registerSettings({ onLayoutChange, onDataChange, onLookChange, onControlsChange, SettingsMenu, AppearanceMenu }) {
   const reactions = {
     layout: onLayoutChange,
     data: onDataChange,
+    controls: onControlsChange,
     custom: () => {
       onLayoutChange();
       warnOnPortraitRatio();

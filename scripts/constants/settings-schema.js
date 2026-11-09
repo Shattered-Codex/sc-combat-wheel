@@ -162,6 +162,10 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.rightClickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "menu", section: "behavior", react: null },
   { key: SETTINGS.cameraFollows, scope: "client", type: "boolean", default: false, section: "behavior", react: null },
   { key: SETTINGS.cameraPan, scope: "client", type: "choice", choices: ["fast", "smooth", "slow"], default: "smooth", section: "behavior", react: null },
+  // RF-125: the module's buttons in the token controls, each one this browser's to show; `gmOnly` rows are not offered to players.
+  { key: SETTINGS.sceneButtonWheel, scope: "client", type: "boolean", default: true, section: "behavior", react: "controls" },
+  { key: SETTINGS.sceneButtonStyles, scope: "client", type: "boolean", default: true, section: "behavior", react: "controls", gmOnly: true },
+  { key: SETTINGS.sceneButtonResetPosition, scope: "client", type: "boolean", default: true, section: "behavior", react: "controls" },
 
   // Sounds (this browser, RF-50 to RF-54)
   { key: SETTINGS.soundVolume, scope: "client", type: "number", range: { min: 0, max: 100, step: 5 }, default: 60, section: "sounds", react: null, panel: "sounds" },

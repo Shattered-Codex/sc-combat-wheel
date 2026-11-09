@@ -16,7 +16,7 @@ export function hexToRgb(hex) {
   return [(value >> 16) & 255, (value >> 8) & 255, value & 255].map((channel) => channel / 255);
 }
 
-export function rgbToHex(rgb) {
+function rgbToHex(rgb) {
   return `#${rgb.map((channel) => Math.round(clamp(channel, 0, 1) * 255).toString(16).padStart(2, "0")).join("")}`;
 }
 

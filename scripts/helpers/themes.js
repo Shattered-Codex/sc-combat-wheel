@@ -19,7 +19,7 @@ export const THEME_GROUPS = Object.freeze(
 export const THEMES = Object.freeze(THEME_GROUPS.flatMap((group) => group.themes));
 
 /** "Follow the game system": the theme each supported system maps to. */
-export const SYSTEM_THEMES = Object.freeze({
+const SYSTEM_THEMES = Object.freeze({
   dnd5e: "dnd5e",
   pf2e: "pf2e",
   daggerheart: "daggerheart",

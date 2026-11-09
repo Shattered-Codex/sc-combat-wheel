@@ -11,7 +11,7 @@
 
 export const PARTICLE_TYPES = Object.freeze([
   "none", "embers", "arcane", "stardust", "frost", "shadow", "fireflies", "petals", "bubbles", "sparks",
-  "snow", "rain", "leaves", "ash", "motes", "confetti", "runes", "wisps",
+  "snow", "rain", "leaves", "ash", "motes", "confetti", "runes", "wisps", "smoke", "glyphs",
 ]);
 
 export const PARTICLE_AMOUNTS = Object.freeze({ few: 8, normal: 14, many: 24 });
@@ -20,7 +20,13 @@ export const PARTICLE_AMOUNTS = Object.freeze({ few: 8, normal: 14, many: 24 });
 export const PARTICLE_SPEEDS = Object.freeze({ slow: 1.6, normal: 1, fast: 0.6 });
 
 /** Scales every particle's peak opacity. */
-export const PARTICLE_INTENSITIES = Object.freeze({ subtle: 0.45, normal: 0.75, strong: 1 });
+export const PARTICLE_INTENSITIES = Object.freeze({ subtle: 0.55, normal: 0.9, strong: 1 });
+
+/**
+ * RF-116: past full opacity, "stronger" means bigger: particles, glows,
+ * flames and rings grow by this much (styles read it as --scw-fx-boost).
+ */
+export const FX_BOOST = Object.freeze({ subtle: 0.85, normal: 1.1, strong: 1.4 });
 
 /** RF-111: one "intensity" setting sets both how many particles there are and how bright they get. */
 export const INTENSITY_AMOUNTS = Object.freeze({ subtle: "few", normal: "normal", strong: "many" });
@@ -47,11 +53,16 @@ export const PARTICLE_PRESETS = Object.freeze({
   confetti: Object.freeze({ shapes: [["confetti", 100]], motion: "fall", endScale: 0.9 }),
   runes: Object.freeze({ shapes: [["rune1", 25], ["rune2", 25], ["rune3", 25], ["rune4", 25]], motion: "orbit", endScale: 0.6 }),
   wisps: Object.freeze({ shapes: [["wisp", 100]], motion: "wave", endScale: 0.5 }),
+  smoke: Object.freeze({ shapes: [["puff", 100]], motion: "float", endScale: 1.8 }),
+  glyphs: Object.freeze({ shapes: [["glyph", 100]], motion: "orbit", endScale: 0.6 }),
 });
 
 // Shapes that turn as they travel, and shapes that point where they go.
-const SPINNING = new Set(["petal", "flake", "star", "diamond", "leaf", "ash", "confetti"]);
+const SPINNING = new Set(["petal", "flake", "star", "diamond", "leaf", "ash", "confetti", "glyph"]);
 const ORIENTED = new Set(["spark", "streak"]);
+
+// Glyphs pick one of the rune strip's 15 signs (--g).
+const GLYPH_COUNT = 15;
 
 // Shapes whose color comes from a palette slot (--k, an integer 0..5) instead of only the tint.
 const PALETTE = new Set(["leaf", "confetti"]);
@@ -115,7 +126,12 @@ const SIZES = Object.freeze({
   rune3: [7, 11],
   rune4: [7, 11],
   wisp: [5, 9],
+  puff: [14, 24],
+  glyph: [9, 13],
 });
+
+/** RF-116: "auto" moves each type its own way; the others move every type alike. */
+export const PARTICLE_MOTIONS = Object.freeze(["auto", ...Object.keys(DURATIONS).filter((motion) => motion !== "rain")]);
 
 // Travel distance comes from the box's shorter side, clamped so a tiny box
 // still shows visible motion and a huge one does not fling particles away.
@@ -259,12 +275,12 @@ function particleRotations(shape, path, rnd) {
   return [0, 0, 0];
 }
 
-function describeParticle(preset, path, rnd) {
+function describeParticle(preset, motion, path, rnd, scale) {
   const { between, pickWeighted } = rnd;
   const shape = pickWeighted(preset.shapes);
-  const duration = between(...DURATIONS[preset.motion]);
+  const duration = between(...DURATIONS[motion]);
   const vars = {
-    "--s": px(between(...SIZES[shape])),
+    "--s": px(between(...SIZES[shape]) * scale),
     "--o": between(0.55, 1).toFixed(2),
     "--t": `${duration.toFixed(2)}s`,
     "--delay": `${(-between(0, duration)).toFixed(2)}s`,
@@ -272,9 +288,10 @@ function describeParticle(preset, path, rnd) {
   };
   [vars["--r0"], vars["--r1"], vars["--r2"]] = particleRotations(shape, path, rnd).map(deg);
   if (PALETTE.has(shape)) vars["--k"] = String(Math.floor(between(0, PALETTE_SIZE)));
+  if (shape === "glyph") vars["--g"] = String(Math.floor(between(0, GLYPH_COUNT)));
   if (path.sway) vars["--w"] = px(path.sway * rnd.sign());
 
-  const motionClass = MOTION_CLASSES[preset.motion] ?? "path";
+  const motionClass = MOTION_CLASSES[motion] ?? "path";
   if (path.spiral) {
     vars["--a"] = deg(path.spiral.a);
     vars["--arc"] = deg(path.spiral.arc);
@@ -289,38 +306,60 @@ function describeParticle(preset, path, rnd) {
   return { className: `scw-fx-pt scw-fx-pm--${motionClass} scw-fx-ps--${shape}`, vars };
 }
 
+/** The largest particle, in px at full size (a smoke puff). */
+const LARGEST_SIZE = Math.max(...Object.values(SIZES).map(([, max]) => max));
+
+/**
+ * How far past its emitter box a particle still shows, in px: the travel
+ * buildParticles gives that box (paths end a little further, faded out), plus
+ * the largest particle. For the appearance editor to fit them in its preview.
+ */
+export function particleReach(box, scale = 1) {
+  const { width, height } = normalizeBox(box);
+  return clamp(Math.min(width, height) * TRAVEL_SCALE * scale, TRAVEL_MIN, TRAVEL_MAX * scale) + LARGEST_SIZE * scale;
+}
+
+/** The motion a type moves with: its own under "auto" (or an unknown value), else the one chosen. */
+export function resolveMotion(type, motion = "auto") {
+  if (motion !== "auto" && motion in DURATIONS) return motion;
+  return PARTICLE_PRESETS[type]?.motion ?? "burst";
+}
+
 /**
  * Describes the particles of one emitter.
  * @param {object} options
  * @param {string} options.type - one of PARTICLE_TYPES
  * @param {string} [options.amount] - a key of PARTICLE_AMOUNTS
+ * @param {string} [options.motion] - one of PARTICLE_MOTIONS
+ * @param {number} [options.scale] - size and reach multiplier (FX_BOOST)
  * @param {{width: number, height: number}} options.box - emitter size in px
  * @param {() => number} [options.random] - source in [0, 1); seed it for stable output
  * @returns {{className: string, vars: Record<string, string>}[]}
  */
-export function buildParticles({ type, amount = "normal", box, random = Math.random } = {}) {
+export function buildParticles({ type, amount = "normal", motion = "auto", scale = 1, box, random = Math.random } = {}) {
   const preset = PARTICLE_PRESETS[type];
   if (!preset) return [];
   const count = PARTICLE_AMOUNTS[amount] ?? PARTICLE_AMOUNTS.normal;
+  const moves = resolveMotion(type, motion);
   const { width, height } = normalizeBox(box);
   const geometry = {
     hw: width / 2,
     hh: height / 2,
-    travel: clamp(Math.min(width, height) * TRAVEL_SCALE, TRAVEL_MIN, TRAVEL_MAX),
+    travel: clamp(Math.min(width, height) * TRAVEL_SCALE * scale, TRAVEL_MIN, TRAVEL_MAX * scale),
   };
   const rnd = randomTools(random);
   const particles = [];
   for (let index = 0; index < count; index += 1) {
-    particles.push(describeParticle(preset, particlePath(preset.motion, geometry, rnd), rnd));
+    particles.push(describeParticle(preset, moves, particlePath(moves, geometry, rnd), rnd, scale));
   }
   return particles;
 }
 
 /** Changes only when buildParticles would need to run again. */
-export function particleSignature({ type, amount = "normal", box } = {}) {
+export function particleSignature({ type, amount = "normal", motion = "auto", scale = 1, box } = {}) {
   if (!PARTICLE_PRESETS[type]) return "none";
   const { width, height } = normalizeBox(box);
   const step = (value) => Math.round(value / SIGNATURE_STEP) * SIGNATURE_STEP;
   const count = PARTICLE_AMOUNTS[amount] ?? PARTICLE_AMOUNTS.normal;
-  return `${type}|${count}|${step(width)}x${step(height)}`;
+  return `${type}|${count}|${resolveMotion(type, motion)}|${scale}|${step(width)}x${step(height)}`;
 }

@@ -3,7 +3,7 @@ import { layoutFor, presetFromSettings } from "./wheel-geometry.js";
 import { trackLayout } from "./track-geometry.js";
 import { isSideOrientation, wheelRotation } from "./orientation.js";
 
-export function isTrackView(view) {
+function isTrackView(view) {
   return VIEWS.includes(view) && view !== "wheel";
 }
 

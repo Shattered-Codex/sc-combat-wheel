@@ -1,4 +1,6 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
+import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
+import { landingSlot, lastReachableSlot } from "../helpers/initiative-order.js";
 import { OVERVIEW_GRID, gridClip, gridLayout, shortestOffset } from "../helpers/wheel-geometry.js";
 import { wheelRotation } from "../helpers/orientation.js";
 import { cardClip, trackPose } from "../helpers/track-geometry.js";
@@ -48,11 +50,13 @@ export default class OverviewLayer {
    * @param {string} options.theme        data-scw-theme of the wheel
    * @param {number} options.viewIndex    ring index on the anchor
    * @param {number} options.viewT        absolute turn on the anchor
-   * @param {object[]} options.templates  virtual position templates (GM)
+   * @param {() => object[]} options.templates  virtual position templates (GM), read when the form opens
+   * @param {() => void} [options.onManageVirtual]  opens the virtual positions' settings (GM)
    * @param {(combatantId: string|null, pickedOn: object) => void} options.onClosed  the picked combatant (or null) and the model it was picked on
    * @param {(combatantId: string, slot: number) => void} [options.onMove]      GM drag
    * @param {(slot: number, data: object) => void} [options.onInsert]         GM "+"
    * @param {(combatantId: string) => void} [options.onRemove]                 GM ×
+   * @param {(combatantId: string, event: MouseEvent) => void} [options.onContextMenu]  right click (or the menu key) on a tile
    */
   open(options) {
     if (this.isOpen || !options.model?.N) return;
@@ -246,7 +250,9 @@ export default class OverviewLayer {
     this.#root.append(...this.#tiles.flatMap((tile) => [tile.element, tile.label]));
     this.#inserts = [];
     if (game.user.isGM && onInsert) {
-      for (let k = 0; k <= model.N; k++) this.#inserts.push(this.#buildInsert(k));
+      // Nothing can sort after those without initiative (Foundry keeps them last): no "+" among them.
+      const reach = lastReachableSlot(OverviewLayer.#initiatives(model));
+      for (let k = 0; k <= reach; k++) this.#inserts.push(this.#buildInsert(k, { beforeUnrolled: k === reach && reach < model.N }));
       this.#root.append(...this.#inserts);
     }
   }
@@ -332,6 +338,11 @@ export default class OverviewLayer {
   /** Click picks, Enter/Space picks, and for the GM a drag moves (RF-33). */
   #bindTile(tile, j) {
     const { element } = tile;
+    element.addEventListener("contextmenu", (event) => {
+      if (this.#phase !== "open" || !this.#context.onContextMenu) return;
+      this.#closePopover();
+      this.#context.onContextMenu(tile.id, event);
+    });
     element.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
@@ -357,7 +368,8 @@ export default class OverviewLayer {
         if (!dragging) return;
         const center = this.#cellCenter(j);
         element.style.transform = `translate(${(center.x - this.#context.anchor.x + dx).toFixed(1)}px, ${(center.y - this.#context.anchor.y + dy).toFixed(1)}px) rotate(0deg) scale(1.06)`;
-        slot = this.#nearestSlot(move.clientX, move.clientY);
+        // Where it would really land: never among those without initiative.
+        slot = landingSlot(OverviewLayer.#initiatives(this.#context.model), this.#nearestSlot(move.clientX, move.clientY), j);
         this.#inserts.forEach((node, k) => node.classList.toggle("is-target", k === slot));
       };
       const onUp = () => {
@@ -392,17 +404,25 @@ export default class OverviewLayer {
     return best;
   }
 
-  /** RF-69: a "+" between two positions opens the quick form for a virtual position. */
-  #buildInsert(k) {
+  static #initiatives(model) {
+    return model.ring.map((vm) => vm.initiative);
+  }
+
+  /**
+   * RF-69: a "+" between two positions opens the quick form for a virtual
+   * position. The last one before those without initiative says why it is the last.
+   */
+  #buildInsert(k, { beforeUnrolled = false } = {}) {
     const point = this.#slotPoint(k);
+    const label = game.i18n.localize(`${I18N_ROOT}.Grid.${beforeUnrolled ? "InsertBeforeUnrolled" : "Insert"}`);
     const button = document.createElement("button");
     button.type = "button";
     button.className = "scw-overview-insert";
     button.style.left = `${point.x}px`;
     button.style.top = `${point.y}px`;
     button.innerHTML = `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
-    button.setAttribute("aria-label", game.i18n.localize(`${I18N_ROOT}.Grid.Insert`));
-    button.dataset.tooltip = game.i18n.localize(`${I18N_ROOT}.Grid.Insert`);
+    button.setAttribute("aria-label", label);
+    button.dataset.tooltip = label;
     button.addEventListener("click", () => this.#openPopover(k, point));
     return button;
   }
@@ -413,26 +433,58 @@ export default class OverviewLayer {
     const form = document.createElement("form");
     form.className = "scw-overview-popover";
     OverviewLayer.#placePopover(form, point);
-    const options = (this.#context.templates ?? [])
+    const templates = this.#context.templates?.() ?? [];
+    const options = templates
       .map((template) => `<option value="${template.id}">${foundry.utils.escapeHTML(template.name)}</option>`)
       .join("");
+    const manage = this.#context.onManageVirtual
+      ? `<button type="button" class="scw-btn scw-btn--ghost scw-overview-popover-manage" data-manage><i class="fa-solid fa-gear" aria-hidden="true"></i></button>`
+      : "";
     form.innerHTML = `
       <span class="scw-details-kicker">${t("Grid.NewVirtual")}</span>
       <input type="text" name="name" required>
       <textarea name="text" rows="3"></textarea>
+      <div class="scw-overview-popover-image">
+        <img alt="" data-image-preview>
+        <file-picker name="img" type="image"></file-picker>
+      </div>
       <select name="templateId"><option value="">${t("Grid.NoTemplate")}</option>${options}</select>
       <div class="scw-overview-popover-actions">
+        ${manage}
         <button type="button" class="scw-btn scw-btn--secondary scw-btn--label" data-cancel>${t("Grid.Cancel")}</button>
         <button type="submit" class="scw-btn scw-btn--primary scw-btn--label">${t("Grid.Add")}</button>
       </div>`;
     form.elements.name.placeholder = t("Grid.TitlePlaceholder");
     form.elements.text.placeholder = t("Grid.MessagePlaceholder");
     form.querySelector("[data-cancel]").addEventListener("click", () => this.#closePopover());
+    const manageButton = form.querySelector("[data-manage]");
+    if (manageButton) {
+      const label = t("Grid.ManageVirtual");
+      manageButton.setAttribute("aria-label", label);
+      manageButton.dataset.tooltip = label;
+      manageButton.addEventListener("click", () => {
+        this.#closePopover();
+        this.#context.onManageVirtual();
+      });
+    }
+    // The picture: one picked here, else the template's, else the default — shown as it will be.
+    const picker = form.querySelector("file-picker");
+    const preview = form.querySelector("[data-image-preview]");
+    picker.setAttribute("placeholder", t("Grid.ImagePlaceholder"));
+    const pickedImage = () => String(picker.value ?? "").trim();
+    const showImage = () => {
+      const template = templates.find((candidate) => candidate.id === form.elements.templateId.value);
+      preview.src = pickedImage() || template?.img || DEFAULT_VIRTUAL_IMAGE;
+    };
+    form.addEventListener("change", showImage);
+    form.addEventListener("input", showImage);
+    showImage();
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = {
         name: form.elements.name.value.trim(),
         text: form.elements.text.value.trim(),
+        img: pickedImage(),
         templateId: form.elements.templateId.value,
       };
       if (!data.name && !data.templateId) return form.elements.name.focus();
@@ -442,6 +494,8 @@ export default class OverviewLayer {
     });
     this.#inserts[slot]?.classList.add("is-target");
     this.#root.append(form);
+    // The picker builds its own field once on the page.
+    picker.querySelector("input")?.setAttribute("placeholder", t("Grid.ImagePlaceholder"));
     this.#popover = form;
     const ring = this.#context.model.ring;
     this.#popoverPlace = { beforeId: ring[slot - 1]?.id ?? null, afterId: ring[slot]?.id ?? null, slot };

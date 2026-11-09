@@ -110,7 +110,8 @@ describe("appearance editor (RF-73)", () => {
   });
 
   it("names every sound event the editor lists in both languages (RF-103)", async () => {
-    const { SOUND_EVENTS } = await import("../scripts/helpers/turn-events.js");
+    const SOUND_EVENTS = SETTINGS_SCHEMA.map((entry) => entry.sound).filter(Boolean);
+    assert.equal(SOUND_EVENTS.length, 7);
     for (const lang of ["en", "pt-BR"]) {
       const root = await catalog(lang);
       for (const event of SOUND_EVENTS) assert.equal(typeof root.Appearance.SoundEvents?.[event], "string", `${lang} ${event}`);
@@ -195,5 +196,29 @@ describe("coerceSetting", () => {
     assert.equal(coerceSetting({ type: "boolean" }, undefined), false);
     assert.equal(coerceSetting({ type: "boolean" }, true), true);
     assert.equal(coerceSetting({ type: "choice", choices: ["a"] }, "b"), null);
+  });
+});
+
+describe("slice clicks (RF-31)", () => {
+  it("offers the same actions for the click, the double click and the right click, each this browser's", () => {
+    const [click, double, right] = ["clickAction", "doubleClickAction", "rightClickAction"].map((key) => SETTINGS_SCHEMA.find((entry) => entry.key === key));
+    for (const entry of [click, double, right]) {
+      assert.deepEqual(entry.choices, ["menu", "pan", "select", "sheet", "none"]);
+      assert.equal(entry.scope, "client");
+      assert.equal(entry.section, "behavior");
+    }
+    assert.equal(click.default, "pan");
+    assert.equal(double.default, "sheet", "as the core tracker");
+    assert.equal(right.default, "menu", "the slice's menu (RF-122), only on the right click");
+  });
+});
+
+describe("scene control buttons (RF-125)", () => {
+  it("lets each browser hide each of the module's buttons, all shown by default", () => {
+    const entries = ["sceneButtonWheel", "sceneButtonStyles", "sceneButtonResetPosition"].map((key) => SETTINGS_SCHEMA.find((entry) => entry.key === key));
+    for (const entry of entries) {
+      assert.deepEqual([entry.scope, entry.type, entry.default, entry.section, entry.react], ["client", "boolean", true, "behavior", "controls"]);
+    }
+    assert.deepEqual(entries.map((entry) => Boolean(entry.gmOnly)), [false, true, false], "only the styles button is the GM's alone");
   });
 });

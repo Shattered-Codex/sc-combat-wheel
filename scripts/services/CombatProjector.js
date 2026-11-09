@@ -31,13 +31,18 @@ export default class CombatProjector {
     });
 
     const N = ring.length;
-    const { currentIndex, effectiveRound, activeHidden } = CombatProjector.#locateTurn({
+    const located = CombatProjector.#locateTurn({
       turn,
       round,
       started,
       turnCount: turns.length,
       ringIndexByTurn,
     });
+    const { effectiveRound, activeHidden } = located;
+    // Before the start nobody acts: a player's wheel rests on their own combatant, to roll for it.
+    const ownIndex = started || isGM ? -1 : CombatProjector.#ownFocus(ring);
+    const focusOwn = ownIndex >= 0;
+    const currentIndex = focusOwn ? ownIndex : located.currentIndex;
     const current = N ? ring[currentIndex] : null;
     // Virtual positions have a fixed initiative and are nobody's roll (RF-66).
     const rollable = ring.filter((vm) => !vm.virtual);
@@ -53,6 +58,7 @@ export default class CombatProjector {
       currentIndex,
       current,
       activeHidden,
+      focusOwn,
       T: N ? (effectiveRound - 1) * N + currentIndex : 0,
       turnLabel: N ? `${currentIndex + 1}/${N}` : "0/0",
       nextUp: N > 1 ? ring[(currentIndex + 1) % N] : null,
@@ -82,6 +88,12 @@ export default class CombatProjector {
       }
     }
     return { currentIndex: 0, effectiveRound: effectiveRound + 1, activeHidden: started };
+  }
+
+  /** The user's first combatant still to roll, else their first one; -1 when they own none. */
+  static #ownFocus(ring) {
+    const pending = ring.findIndex((vm) => vm.isOwner && !vm.virtual && !vm.hasInitiative);
+    return pending >= 0 ? pending : ring.findIndex((vm) => vm.isOwner && !vm.virtual);
   }
 
   /** SPEC §5.3, over real combatants only. Hit point sums only reach the GM. Shared with PhaseProjector. */

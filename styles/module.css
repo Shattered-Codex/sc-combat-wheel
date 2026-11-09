@@ -2,7 +2,7 @@
  * SC - Combat Wheel. The root is a zero-size anchor placed at the middle of the
  * bar's arc-side edge; every part is positioned from it (ARCHITECTURE §4).
  * Geometry arrives as custom properties set by CombatWheelApp:
- * --scw-R, --scw-Rm, --scw-S, --scw-hub-r, --scw-bar-w, --scw-bar-h-*.
+ * --scw-Rm, --scw-S, --scw-hub-r, --scw-half, --scw-bar-w, --scw-bar-h-*.
  */
 
 /* ---------- root: undo Foundry's .application window chrome (the id outranks it) ---------- */
@@ -535,6 +535,17 @@
 .sc-combat-wheel.scw-up .scw-roll-menu { bottom: calc(100% + 6px); }
 .sc-combat-wheel.scw-down .scw-roll-menu { top: calc(100% + 6px); }
 .sc-combat-wheel .scw-roll-menu .scw-details-kicker { padding: 4px 6px; }
+
+/* ---------- a slice's menu (RF-122): on the page, at the pointer ---------- */
+/* After the menus' direction rules: its host carries a direction class too. */
+.scw-slice-menu-host.sc-combat-wheel {
+  position: fixed;
+  z-index: var(--z-index-tooltip, 10000);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.sc-combat-wheel.scw-slice-menu-host .scw-roll-menu { top: 0; right: auto; bottom: auto; left: 0; }
 .sc-combat-wheel .scw-menu-item {
   justify-content: flex-start;
   gap: 8px;
@@ -1159,6 +1170,21 @@
   font: inherit;
 }
 .scw-overview .scw-overview-popover-actions { display: flex; justify-content: flex-end; gap: 6px; }
+/* The settings link stands apart, on the left. */
+.scw-overview .scw-overview-popover-manage { margin-right: auto; }
+.scw-overview .scw-overview-popover-image { display: flex; align-items: center; gap: 6px; }
+.scw-overview .scw-overview-popover-image img {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--scw-divider);
+  border-radius: var(--scw-radius-sm);
+  background: color-mix(in srgb, var(--scw-bg) 70%, transparent);
+  object-fit: cover;
+}
+.scw-overview .scw-overview-popover file-picker { display: flex; flex: 1; gap: 4px; min-width: 0; }
+.scw-overview .scw-overview-popover file-picker input { flex: 1; width: auto; min-width: 0; }
+.scw-overview .scw-overview-popover file-picker button { flex: none; }
 
 /* ---------- on-screen message of a virtual position (RF-68) ---------- */
 .scw-banner-host.sc-combat-wheel {
@@ -1231,7 +1257,8 @@
   padding: calc(14px * var(--scw-banner-scale)) 10vw;
   border: none;
   border-radius: 0;
-  background: linear-gradient(90deg, transparent, var(--scw-surface-bg) 22%, var(--scw-surface-bg) 78%, transparent);
+  /* --scw-surface-bg may be a gradient or a picture, which cannot be a stop: the plain surface colour fades out. */
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--scw-surface) 94%, transparent) 22%, color-mix(in srgb, var(--scw-surface) 94%, transparent) 78%, transparent);
   box-shadow: none;
 }
 .scw-banner-host[data-scw-banner-style="strip"] .scw-banner::before,
@@ -1439,6 +1466,9 @@
 .sc-combat-wheel.scw-view-track .scw-hub-clip { display: none; }
 
 .sc-combat-wheel .scw-bar-roll.is-rolling i { animation: scw-spin 850ms linear infinite; }
+/* RF-16: the GM's group rolls keep the bar's button size; how many each one rolls sits in the corner. */
+.sc-combat-wheel .scw-setup-roll { position: relative; }
+.sc-combat-wheel .scw-setup-roll .scw-count { position: absolute; right: 1px; bottom: 1px; font-size: 9px; line-height: 1; }
 
 /* RF-94: initiative on the portrait — top of the slice on the wheel, top-left corner of a card. */
 .sc-combat-wheel .scw-badge-init { display: none; }

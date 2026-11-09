@@ -70,7 +70,7 @@
 .sc-combat-wheel-settings .scw-config__body {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-columns: 212px minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -83,7 +83,7 @@
 .sc-combat-wheel-settings .scw-config__rail {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   overflow-y: auto;
   padding: 8px;
   background: var(--scw-cfg-bg-1);
@@ -94,9 +94,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 10px 4px 4px;
+  margin: 12px 4px 4px;
   color: var(--scw-cfg-text-mute);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -110,17 +110,17 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  min-height: 0;
+  min-height: 38px;
   margin: 0;
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--scw-cfg-radius);
   box-shadow: none;
   color: var(--scw-cfg-text-dim);
-  font: 600 12px/1.2 var(--scw-cfg-font-body);
+  font: 600 13px/1.25 var(--scw-cfg-font-body);
   text-align: left;
   cursor: pointer;
   transition: background 120ms ease-out, color 120ms ease-out, border-color 120ms ease-out;
@@ -143,8 +143,8 @@
 }
 
 .sc-combat-wheel-settings .scw-config__tab i {
-  width: 14px;
-  font-size: 12px;
+  width: 16px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -889,10 +889,15 @@
     #262b26;
 }
 
-/* The widget is fitted between the heading and the turn controls, never under them. */
+/* RF-121: on the turn display tab the announcement takes the wheel's place. */
+.sc-combat-wheel-settings .scw-appearance__stage.is-announcing > .scw-preview { visibility: hidden; }
+
+/* The widget is fitted between the heading and the turn controls, never under
+   them; what its effects reach past the fitted room is cut at the stage. */
 .sc-combat-wheel-settings .scw-appearance__stage {
   position: absolute;
   inset: 36px 0 46px;
+  overflow: hidden;
 }
 
 .sc-combat-wheel-settings .scw-appearance__preview-head {
@@ -1160,23 +1165,6 @@
   margin: 4px 0 0;
 }
 
-.sc-combat-wheel-settings .scw-appearance__combat-styles {
-  display: grid;
-  grid-template-columns: auto minmax(180px, 260px) auto;
-  align-items: center;
-  gap: 6px 12px;
-  justify-content: start;
-}
-
-.sc-combat-wheel-settings .scw-appearance__combat-styles .scw-field__name {
-  flex: none;
-}
-
-.sc-combat-wheel-settings .scw-appearance__combat-styles .scw-appearance__panel-hint {
-  grid-column: 1 / -1;
-  margin: 0;
-}
-
 .sc-combat-wheel-settings .scw-saved-style {
   position: relative;
   display: flex;
@@ -1184,18 +1172,7 @@
 
 .sc-combat-wheel-settings .scw-saved-style > .scw-preset {
   flex: 1;
-  padding-right: 72px;
-}
-
-.sc-combat-wheel-settings .scw-saved-style__use {
-  position: absolute;
-  top: 6px;
-  right: 40px;
-}
-
-.sc-combat-wheel-settings .scw-saved-style__use.is-active {
-  border-color: var(--scw-cfg-accent);
-  color: var(--scw-cfg-accent);
+  padding-right: 40px;
 }
 
 .sc-combat-wheel-settings .scw-saved-style__delete {
@@ -1569,6 +1546,8 @@
   font-size: 12px;
 }
 
+.sc-combat-wheel-settings .scw-field__control input[type="text"].scw-field__text { flex: 1; width: auto; min-width: 0; font: inherit; font-size: 12px; }
+
 .sc-combat-wheel-settings .scw-field__control input[type="text"] {
   width: 84px;
   height: 28px;
@@ -1648,6 +1627,41 @@
 }
 
 /* RF-99: the bar's items as a grid of checkboxes, not a long list. */
+/* RF-119: the GM's padlock on an option, under "Lock some options": open by
+   default, the accent once the whole table uses the GM's value. */
+.sc-combat-wheel-settings .scw-field__lock {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--scw-cfg-radius);
+  background: none;
+  color: var(--scw-cfg-text-mute);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sc-combat-wheel-settings .scw-field__lock:hover { color: var(--scw-cfg-text); border-color: var(--scw-cfg-border); }
+.sc-combat-wheel-settings .scw-field__lock.is-locked {
+  color: var(--scw-cfg-accent);
+  border-color: color-mix(in srgb, var(--scw-cfg-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--scw-cfg-accent) 12%, transparent);
+}
+.sc-combat-wheel-settings .scw-appearance__label .scw-field__lock { letter-spacing: 0; }
+.sc-combat-wheel-settings .scw-field-chips__lock {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+  color: var(--scw-cfg-text);
+  font-size: 12.5px;
+}
+
 .sc-combat-wheel-settings .scw-field-chips {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1794,3 +1808,49 @@
 .sc-combat-wheel-settings .scw-config-row--action .scw-config-row__control {
   width: auto;
 }
+
+/* === Community links (Foundry's settings, the module's section) =========== */
+/* As in SC Item Rarity Colors: outside the module's own windows, so drawn with Foundry's colours. */
+
+.scw-community-links {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, 0.1));
+}
+
+.scw-community-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.6rem 0 0;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.65));
+  font-size: var(--font-size-12, 12px);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.scw-community-links .scw-community-link {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: auto;
+  min-width: 0;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.scw-community-links .scw-community-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The icon's colour is the link's brand; its name says the same in words. */
+.scw-community-links .scw-community-link--wiki i { color: #3cba54; }
+.scw-community-links .scw-community-link--patreon i { color: #ff6b5a; }
+.scw-community-links .scw-community-link--discord i { color: #7d8cf5; }
+.scw-community-links .scw-community-link:hover i { filter: brightness(1.25); }

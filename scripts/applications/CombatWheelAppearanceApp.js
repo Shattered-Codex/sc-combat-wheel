@@ -14,11 +14,13 @@ import { contrastRatio, paletteFromColor, parseCssColor } from "../helpers/palet
 import { isPortraitRatioOk, portraitRatio, presetFromSettings } from "../helpers/wheel-geometry.js";
 import { SAMPLE_COMBATANTS, samplePhase, sampleWheelModel } from "../helpers/sample-combat.js";
 import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
-import { combatStyle, getSetting, ownAppearance, savedStyles, setSetting, withLook, withTableLook } from "../hooks/register-settings.js";
+import { currentStyleId, getSetting, lockedKeys, ownAppearance, savedStyles, setSetting, styleLook, withLockedValues, withTableLook } from "../hooks/register-settings.js";
+import { lookFile, lookFileName, readLookFile } from "../helpers/look-file.js";
 import { upsertStyle } from "../helpers/combat-styles.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
 import ScreenBanner from "../services/ScreenBanner.js";
-import CombatStylePicker from "../services/CombatStylePicker.js";
+import TurnAnnouncer from "../services/TurnAnnouncer.js";
+import { announcementFor } from "../helpers/turn-announcement.js";
 import TurnSideEffects from "../services/TurnSideEffects.js";
 import { isVenaerysActive, projectCombat } from "../services/project-combat.js";
 import AppearancePreview from "./AppearancePreview.js";
@@ -53,8 +55,8 @@ const TEST_SEQUENCE_GAP_MS = 1100;
 const COLOR_ROLES = Object.freeze(Object.fromEntries(Object.entries(COLOR_SETTINGS).map(([role, key]) => [key, role])));
 const SCOPE_ICONS = Object.freeze({ user: "fa-solid fa-user", client: "fa-solid fa-display" });
 /** Sections that open with a line of explanation. */
-const PANEL_HINTS = new Set(["visual", "effects", "sounds"]);
-const TABLE_LOOK_MODES = Object.freeze(["optional", "forced", "off"]);
+const PANEL_HINTS = new Set(["visual", "effects", "announce", "sounds"]);
+const TABLE_LOOK_MODES = Object.freeze(["optional", "partial", "forced", "off"]);
 /** A few short choices read better as one row of buttons than as a menu: up to this many letters, counting padding. */
 const SEGMENTED_BUDGET = 40;
 const SEGMENTED_MAX_CHOICES = 4;
@@ -93,12 +95,15 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       applyPreset: CombatWheelAppearanceApp.#onApplyPreset,
       applySavedStyle: CombatWheelAppearanceApp.#onApplySavedStyle,
       saveStyle: CombatWheelAppearanceApp.#onSaveStyle,
+      toggleLookLock: CombatWheelAppearanceApp.#onToggleLookLock,
+      exportLook: CombatWheelAppearanceApp.#onExportLook,
+      importLook: CombatWheelAppearanceApp.#onImportLook,
       deleteSavedStyle: CombatWheelAppearanceApp.#onDeleteSavedStyle,
-      useStyleInCombat: CombatWheelAppearanceApp.#onUseStyleInCombat,
       testSound: CombatWheelAppearanceApp.#onTestSound,
       testSequence: CombatWheelAppearanceApp.#onTestSequence,
       previewCoreTheme: CombatWheelAppearanceApp.#onPreviewCoreTheme,
       testBanner: CombatWheelAppearanceApp.#onTestBanner,
+      testAnnouncement: CombatWheelAppearanceApp.#onTestAnnouncement,
       makePalette: CombatWheelAppearanceApp.#onMakePalette,
       resetPanel: CombatWheelAppearanceApp.#onResetPanel,
       closeEditor: CombatWheelAppearanceApp.#onCloseEditor,
@@ -115,10 +120,8 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   #sounds = null;
   /** The pending steps of "test the sequence", cleared on close: they read `#sounds`. */
   #sequenceTimers = [];
-  /** RF-91, unsaved: the GM's table look mode, or whether a player follows the table look. */
+  /** RF-91, unsaved: the GM's table look mode and locked options (RF-119), or whether a player follows the table look. */
   #sharing = null;
-  /** RF-108, unsaved (GM): the style combats use by default, and whether starting one asks. */
-  #combatStyles = null;
   #saved = false;
   #panel = APPEARANCE_PANELS[0].id;
   /** "sample" turns the made-up encounter; "combat" shows the current one as this user sees it. */
@@ -133,6 +136,9 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   /** Whether turning the sample plays the sound that turn would play. */
   #previewSound = false;
   #preview = null;
+  /** RF-121: the announcement shown in the preview while its tab is open, and what it was drawn from. */
+  #clearAnnouncement = null;
+  #announcementSignature = "";
   #boundRoot = null;
   #frame = null;
 
@@ -156,13 +162,15 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   async _prepareContext() {
     this.#sharing ??= CombatWheelAppearanceApp.#savedSharing();
     this.#draft ??= this.#following() ? withTableLook(ownAppearance()) : ownAppearance();
+    this.#enforceLocks();
     this.#sounds ??= CombatWheelAppearanceApp.#savedSounds();
-    this.#combatStyles ??= CombatWheelAppearanceApp.#savedCombatStyles();
     const systemId = game.system.id;
     if (this.#source === "combat" && !this.#combatModel()) this.#source = "sample";
     const draft = this.#draft;
     const view = draft[SETTINGS.view];
-    const panels = CombatWheelAppearanceApp.#panels();
+    const hidden = this.#hiddenKeys();
+    // RF-119: a tab whose every option the GM keeps for the table is not a player's to open.
+    const panels = CombatWheelAppearanceApp.#panels().filter((panel) => panel.id === SOUNDS_PANEL || ENTRIES.some((entry) => entry.panel === panel.id && !hidden.has(entry.key)));
     if (!panels.some((panel) => panel.id === this.#panel)) this.#panel = panels[0].id;
     const activeScope = panels.find((panel) => panel.id === this.#panel).scope;
     return {
@@ -213,12 +221,14 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         active: panel.id === this.#panel,
         isLayout: panel.id === "layout",
         isVisual: panel.id === "visual",
+        isAnnounce: panel.id === "announce",
         isSounds: panel.id === SOUNDS_PANEL,
-        groups: panel.id === SOUNDS_PANEL ? [] : CombatWheelAppearanceApp.#groupsOf(panel.id, draft),
+        groups: panel.id === SOUNDS_PANEL ? [] : this.#groupsOf(panel.id, draft),
       })),
       sounds: this.#soundsContext(),
       styles: this.#stylesContext(),
-      combatStyleNotice: this.#combatStyleNotice(),
+      viewLock: this.#lockContext(SETTINGS.view),
+      themeLock: this.#lockContext(SETTINGS.theme),
     };
   }
 
@@ -245,6 +255,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       root.addEventListener("focusin", hoverTheme);
     }
     this.#preview?.destroy();
+    this.#dropAnnouncement();
     this.#preview = new AppearancePreview(root.querySelector("[data-preview-stage]"), {
       onFit: (shown, wanted) => this.#showZoom(shown, wanted),
     });
@@ -274,10 +285,10 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.#clearSequence();
     this.#preview?.destroy();
     this.#preview = null;
+    this.#dropAnnouncement();
     this.#draft = null;
     this.#sounds = null;
     this.#sharing = null;
-    this.#combatStyles = null;
     this.#saved = false;
     this.#galleryOpen = false;
     this.#themesOpen = false;
@@ -289,7 +300,39 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   /* -------------------------------------------- */
 
   static #savedSharing() {
-    return { mode: getSetting(SETTINGS.tableLookMode), follow: Boolean(getSetting(SETTINGS.useTableLook)) };
+    return {
+      mode: getSetting(SETTINGS.tableLookMode),
+      follow: Boolean(getSetting(SETTINGS.useTableLook)),
+      locks: new Set((getSetting(SETTINGS.lockedLook) ?? []).filter((key) => ENTRY_KEYS.has(key))),
+    };
+  }
+
+  /** RF-119: the GM picks, option by option, what the whole table uses under "partial". */
+  #lockable() {
+    return game.user.isGM && this.#sharing.mode === "partial";
+  }
+
+  /** RF-119: the options the GM keeps for the table, which a player neither sees nor changes. */
+  #hiddenKeys() {
+    return lockedKeys();
+  }
+
+  /** A player's draft always holds the table's values of the locked options, so the preview is the truth. */
+  #enforceLocks() {
+    const hidden = this.#hiddenKeys();
+    if (hidden.size && this.#draft) this.#draft = withLockedValues(this.#draft, hidden);
+  }
+
+  /** The padlock of one option, and whether a player sees the option at all. */
+  #lockContext(key) {
+    const locked = this.#sharing.locks.has(key);
+    return {
+      key,
+      hidden: this.#hiddenKeys().has(key),
+      lockable: this.#lockable(),
+      locked,
+      label: t(locked ? "Sharing.Unlock" : "Sharing.Lock"),
+    };
   }
 
   /** Whether this player's editor shows the table look rather than their own. */
@@ -311,18 +354,22 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         isGM: true,
         tooltip: `${t("Sharing.Mode.Hint")} ${t("Sharing.Publish")}`,
         modes: TABLE_LOOK_MODES.map((value) => ({ value, label: t(`Sharing.Mode.Choices.${value}`), selected: value === mode })),
+        lockNotice: mode === "partial" ? t("Sharing.LockNotice") : "",
       };
     }
+    const notices = { forced: "Sharing.ForcedNotice", partial: "Sharing.PartialNotice" };
     return {
       canChoose: mode === "optional",
       follow,
-      notice: t(mode === "forced" ? "Sharing.ForcedNotice" : "Sharing.OffNotice"),
+      notice: t(notices[mode] ?? "Sharing.OffNotice"),
     };
   }
 
   #sharingDirty() {
     const saved = CombatWheelAppearanceApp.#savedSharing();
-    return game.user.isGM ? this.#sharing.mode !== saved.mode : this.#sharing.follow !== saved.follow;
+    if (!game.user.isGM) return this.#sharing.follow !== saved.follow;
+    const { locks } = this.#sharing;
+    return this.#sharing.mode !== saved.mode || locks.size !== saved.locks.size || [...locks].some((key) => !saved.locks.has(key));
   }
 
   /* -------------------------------------------- */
@@ -351,10 +398,15 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     return letters <= SEGMENTED_BUDGET;
   }
 
-  /** A section's rows under their small headings, groups in order of first appearance (RF-99). */
-  static #groupsOf(panelId, draft) {
+  /**
+   * A section's rows under their small headings, groups in order of first
+   * appearance (RF-99). A player does not get the options the GM keeps for the
+   * table; the GM gets a padlock on each under "partial" (RF-119).
+   */
+  #groupsOf(panelId, draft) {
+    const hidden = this.#hiddenKeys();
     const groups = new Map();
-    for (const entry of ENTRIES.filter((candidate) => candidate.panel === panelId)) {
+    for (const entry of ENTRIES.filter((candidate) => candidate.panel === panelId && !hidden.has(candidate.key))) {
       const id = entry.group ?? panelId;
       if (!groups.has(id)) groups.set(id, { id, label: t(`Appearance.Groups.${id}`), fields: [] });
       const field = SettingFieldView.of(entry, draft[entry.key]);
@@ -363,6 +415,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         segmented: CombatWheelAppearanceApp.#isSegmented(field),
         stacked: field.isNumber || field.isChoice,
         shown: CombatWheelAppearanceApp.#rowShown(entry, draft),
+        lock: this.#lockContext(entry.key),
       });
     }
     return [...groups.values()];
@@ -401,53 +454,25 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   }
 
   /* -------------------------------------------- */
-  /*  Combat styles (RF-108)                      */
+  /*  Saved styles (RF-108)                       */
   /* -------------------------------------------- */
 
-  static #savedCombatStyles() {
-    return { defaultId: getSetting(SETTINGS.combatStyleDefault) ?? "", prompt: Boolean(getSetting(SETTINGS.combatStylePrompt)) };
-  }
-
-  #combatStylesDirty() {
-    if (!game.user.isGM || !this.#combatStyles) return false;
-    const saved = CombatWheelAppearanceApp.#savedCombatStyles();
-    return this.#combatStyles.defaultId !== saved.defaultId || this.#combatStyles.prompt !== saved.prompt;
-  }
-
-  /** The table's saved styles as gallery cards; the GM also gets the combat defaults. */
+  /** The table's saved styles as gallery cards; the one the saved look is now is marked. */
   #stylesContext() {
     const systemId = game.system.id;
-    const { defaultId, prompt } = this.#combatStyles;
     const styles = savedStyles();
-    const inCombat = combatStyle()?.id ?? null;
+    const current = currentStyleId(styles);
     return {
       isGM: game.user.isGM,
-      // RF-110: with a combat on, the GM can give it any style straight from here.
-      canUseInCombat: game.user.isGM && Boolean(game.combat),
-      useLabel: t("CombatStyles.UseInCombat"),
-      prompt,
       deleteLabel: t("CombatStyles.Delete"),
-      defaults: [{ id: "", name: t("CombatStyles.Usual") }, ...styles].map((style) => ({
-        value: style.id,
-        label: style.name,
-        selected: style.id === defaultId,
-      })),
       list: styles.map((style) => ({
         id: style.id,
         name: style.name,
         swatch: resolveTheme({ chosen: style.values.theme, systemId }),
         view: t(`Settings.view.Choices.${VIEWS.includes(style.values.view) ? style.values.view : VIEWS[0]}`),
-        isDefault: style.id === defaultId,
-        inCombat: style.id === inCombat,
+        isCurrent: style.id === current,
       })),
     };
-  }
-
-  /** While the current combat has a style, the editor says that what it edits is the usual look. */
-  #combatStyleNotice() {
-    const style = combatStyle();
-    if (!style || !(game.user.isGM || this.#following())) return "";
-    return f("CombatStyles.ActiveNotice", { name: style.name });
   }
 
   /* -------------------------------------------- */
@@ -530,16 +555,14 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }
     if (typeof data.coreCombatTheme === "string") this.#sounds.coreTheme = data.coreCombatTheme;
     if (game.user.isGM && TABLE_LOOK_MODES.includes(data.tableLookMode)) this.#sharing.mode = data.tableLookMode;
-    if (game.user.isGM && typeof data.combatStyleDefault === "string") {
-      this.#combatStyles.defaultId = data.combatStyleDefault;
-      this.#combatStyles.prompt = Boolean(data.combatStylePrompt);
-    }
+    this.#enforceLocks();
   }
 
-  /** Own look values that differ from the saved ones; a follower keeps none of their own. */
+  /** Own look values that differ from the saved ones; a follower keeps none of their own, nor anyone the GM's locked ones. */
   #dirtyKeys() {
     if (!this.#draft || this.#following()) return [];
-    return ENTRIES.filter((entry) => !CombatWheelAppearanceApp.#sameValue(this.#draft[entry.key], getSetting(entry.key))).map((entry) => entry.key);
+    const hidden = this.#hiddenKeys();
+    return ENTRIES.filter((entry) => !hidden.has(entry.key) && !CombatWheelAppearanceApp.#sameValue(this.#draft[entry.key], getSetting(entry.key))).map((entry) => entry.key);
   }
 
   /** A list setting is rebuilt from its checkboxes on every read: same items, same value. */
@@ -550,12 +573,12 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
 
   #isDirty() {
     if (!this.#draft) return false;
-    return this.#sharingDirty() || this.#dirtyKeys().length > 0 || this.#soundsDirty() || this.#combatStylesDirty();
+    return this.#sharingDirty() || this.#dirtyKeys().length > 0 || this.#soundsDirty();
   }
 
-  /** The current combat as this user may see it, or null when it shows nobody. */
+  /** The current combat as this user may see it, with the draft's portrait art (RF-117), or null when it shows nobody. */
   #combatModel() {
-    const model = projectCombat(game.combat);
+    const model = projectCombat(game.combat, { portraitImage: this.#draft?.[SETTINGS.portraitImage] });
     return model?.N ? model : null;
   }
 
@@ -591,6 +614,11 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     const color = target.dataset?.colorPicker ?? target.dataset?.colorText ?? target.dataset?.colorToggle;
     if (color) this.#syncColor(color, target);
     if (target.matches?.("[data-follow-toggle]") && event.type === "change") return this.#setFollow(target.checked);
+    // RF-119: the padlocks come and go with the "partial" mode.
+    if (target.name === "tableLookMode" && event.type === "change") {
+      this.#captureDraft();
+      return this.render();
+    }
     const name = target.name?.split(".")[0] || color;
     if (ENTRY_KEYS.has(name) && this.#following() && !this.#locked()) this.#setFollow(false, { render: false });
     this.#scheduleRefresh();
@@ -695,6 +723,8 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }
     for (const badge of root.querySelectorAll("[data-scope-badge]")) badge.hidden = badge.dataset.scopeBadge !== panel.scope;
     root.querySelector("[data-advanced-group]")?.toggleAttribute("hidden", id === SOUNDS_PANEL);
+    // RF-121: the preview shows the announcement while its tab is open, the wheel otherwise.
+    this.#scheduleRefresh();
   }
 
   #scheduleRefresh() {
@@ -757,8 +787,40 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       expanded: this.#expanded && offersDetails,
       phase: this.#previewPhase(model),
     });
+    this.#showAnnouncement(model, { ...values, [SETTINGS.theme]: this.#hoverTheme ?? values[SETTINGS.theme] });
     this.#showContrast();
     this.#syncStatus();
+  }
+
+  /**
+   * RF-121: on the turn display tab, the preview shows the announcement in the
+   * wheel's place, redrawn only when what it is drawn from changes. It follows
+   * the sample's turn: "Your turn!" on a character of the user's, "X's turn"
+   * on anyone else (a virtual position hands over to whoever comes next).
+   */
+  #showAnnouncement(model, values) {
+    const stage = this.element.querySelector("[data-preview-stage]");
+    const announcement = this.#panel === "announce" ? this.#previewAnnouncement(model, values) : null;
+    stage?.classList.toggle("is-announcing", Boolean(announcement));
+    const signature = announcement ? JSON.stringify([announcement, values]) : "";
+    if (signature === this.#announcementSignature) return;
+    this.#dropAnnouncement();
+    this.#announcementSignature = signature;
+    if (announcement && stage) this.#clearAnnouncement = TurnAnnouncer.mount(stage, announcement, values);
+  }
+
+  #previewAnnouncement(model, values) {
+    const options = { isGM: false, mode: "all", image: values[SETTINGS.announceImage] };
+    const phase = model.phased ? model.phase : this.#previewPhase(model);
+    if (phase) return announcementFor({ phased: true, started: true, current: {}, phase }, options);
+    const current = model.current?.virtual ? model.nextUp : model.current;
+    return announcementFor({ ...model, current }, options);
+  }
+
+  #dropAnnouncement() {
+    this.#clearAnnouncement?.();
+    this.#clearAnnouncement = null;
+    this.#announcementSignature = "";
   }
 
   /**
@@ -968,8 +1030,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     const style = savedStyles().find((candidate) => candidate.id === target.dataset.styleId);
     if (!style || this.#locked()) return;
     this.#captureDraft();
-    const defaults = Object.fromEntries(ENTRIES.map((entry) => [entry.key, settingDefault(entry)]));
-    this.#draft = withLook(defaults, style.values);
+    this.#draft = styleLook(style.values);
     if (!game.user.isGM) this.#sharing.follow = false;
     this.#galleryOpen = false;
     this.render();
@@ -992,12 +1053,53 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.render();
   }
 
-  /** RF-110: the current combat takes this style for the whole table, at once (not part of the draft). */
-  static async #onUseStyleInCombat(event, target) {
-    if (!game.user.isGM || !game.combat) return;
+  /** RF-119: locks or frees one option for the whole table; saved with the rest. */
+  static #onToggleLookLock(event, target) {
+    const key = target.dataset.lockKey;
+    if (!this.#lockable() || !ENTRY_KEYS.has(key)) return;
+    const { locks } = this.#sharing;
+    if (locks.has(key)) locks.delete(key);
+    else locks.add(key);
+    const locked = locks.has(key);
+    for (const button of this.element.querySelectorAll(`[data-lock-key="${key}"]`)) {
+      button.classList.toggle("is-locked", locked);
+      button.setAttribute("aria-pressed", String(locked));
+      button.dataset.tooltip = t(locked ? "Sharing.Unlock" : "Sharing.Lock");
+      const icon = button.querySelector("i");
+      icon?.classList.toggle("fa-lock", locked);
+      icon?.classList.toggle("fa-lock-open", !locked);
+    }
+    this.#syncStatus();
+  }
+
+  /** RF-120: what is on screen, saved or not, as a file. */
+  static #onExportLook() {
     this.#captureDraft();
-    await CombatStylePicker.apply(game.combat, target.dataset.styleId);
-    this.render();
+    const theme = this.#draft[SETTINGS.theme];
+    const name = t(`Settings.theme.Choices.${theme}`);
+    const save = foundry.utils.saveDataToFile ?? globalThis.saveDataToFile;
+    save(JSON.stringify(lookFile(this.#draft, { name }), null, 2), "text/json", lookFileName(name, theme));
+  }
+
+  /** RF-120: a look file into the draft, over the defaults; "Save" still decides. */
+  static #onImportLook() {
+    if (this.#locked()) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const look = readLookFile(await file.text());
+      if (!look) return ui.notifications.warn(`${I18N_ROOT}.Notifications.LookImportFailed`, { localize: true });
+      this.#captureDraft();
+      this.#draft = styleLook(look.values);
+      if (!game.user.isGM) this.#sharing.follow = false;
+      this.#galleryOpen = false;
+      this.render();
+      ui.notifications.info(f("Notifications.LookImported", { name: look.name || file.name }));
+    });
+    input.click();
   }
 
   static async #onDeleteSavedStyle(event, target) {
@@ -1012,7 +1114,6 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     if (!confirmed) return;
     this.#captureDraft();
     await setSetting(SETTINGS.savedStyles, savedStyles().filter((candidate) => candidate.id !== style.id));
-    if (this.#combatStyles.defaultId === style.id) this.#combatStyles.defaultId = "";
     this.render();
   }
 
@@ -1078,6 +1179,21 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }, this.#draft, { preview: true });
   }
 
+  /**
+   * RF-121: the announcement as the draft draws it, for the sample's first
+   * character (one's own turn, so the title shows) — or, with Venaerys, a
+   * sample phase and its members.
+   */
+  static #onTestAnnouncement() {
+    this.#captureDraft();
+    const names = CombatWheelAppearanceApp.#sampleNames();
+    const model = isVenaerysActive()
+      ? { phased: true, started: true, current: {}, phase: samplePhase({ ...names, phase: t("Appearance.SamplePhase") }) }
+      : sampleWheelModel({ T: 0, names });
+    const announcement = announcementFor(model, { isGM: false, mode: "all", image: this.#draft[SETTINGS.announceImage] });
+    if (announcement) TurnAnnouncer.show({ ...announcement, own: true }, this.#draft, { preview: true });
+  }
+
   /** The visible tab back to its defaults, in the draft only: "Save" still decides. */
   static #onResetPanel() {
     this.#captureDraft();
@@ -1107,10 +1223,8 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     writes.push(CoreCombatSettings.save({ theme: this.#sounds.coreTheme }));
     const saved = CombatWheelAppearanceApp.#savedSharing();
     if (game.user.isGM) {
-      const styles = this.#combatStyles;
-      if (styles.defaultId !== getSetting(SETTINGS.combatStyleDefault)) writes.push(setSetting(SETTINGS.combatStyleDefault, styles.defaultId));
-      if (styles.prompt !== getSetting(SETTINGS.combatStylePrompt)) writes.push(setSetting(SETTINGS.combatStylePrompt, styles.prompt));
       if (this.#sharing.mode !== saved.mode) writes.push(setSetting(SETTINGS.tableLookMode, this.#sharing.mode));
+      if (this.#sharingDirty()) writes.push(setSetting(SETTINGS.lockedLook, [...this.#sharing.locks]));
       writes.push(setSetting(SETTINGS.tableLook, { ...this.#draft }));
     } else if (this.#sharing.follow !== saved.follow) {
       writes.push(setSetting(SETTINGS.useTableLook, this.#sharing.follow));

@@ -22,6 +22,8 @@ export default class SettingFieldView {
       isText: entry.type === "text",
       name: label("Name"),
       hint: label("Hint"),
+      // A text row may say what an empty value means (RF-121: the default title).
+      placeholder: entry.placeholder ? label("Placeholder") : "",
       value,
       range: entry.range,
       fileType: entry.fileType,

@@ -35,6 +35,7 @@ export default class WheelViewData {
     if (model.activeHidden) return { waiting: true, label: t("Hub.Waiting") };
     const vm = model.current;
     let label = t(model.started ? "Hub.Acting" : "Hub.First");
+    if (model.focusOwn) label = t("Hub.Yours");
     if (vm.virtual) label = t("Hub.Virtual");
     return {
       turn: true,
@@ -49,7 +50,7 @@ export default class WheelViewData {
    * each choice in a small popover) or behind "More" ("menu"); `ui.details`
    * offers the expanding details at all (RF-83); `ui.layout` "split" draws
    * the bar as two columns beside the portraits (RF-104). `ui.menu` is the open
-   * popover: "more", "roll", "virtual", "direction" or null.
+   * popover: "more", "roll", "virtual", "direction", "style" or null.
    */
   static bar(model, ui) {
     const orientation = normalizeOrientation(ui.orientation);
@@ -61,28 +62,35 @@ export default class WheelViewData {
     const split = ui.layout === "split";
     const details = !split && Boolean(ui.details);
     const expanded = details && Boolean(ui.expanded);
-    // Rolling means nothing once everyone rolled; clearing only once someone did.
-    const rollOptions = isGM && model ? WheelViewData.#rollOptions(model) : [];
-    // Where a virtual position goes among phases is still open (D-27): none are offered there.
-    const virtualTemplates = isGM && !phased ? ui.virtualTemplates ?? [] : null;
     // RF-99: the items this user turned off stay out of the bar and of its menu.
     const hidden = new Set(ui.barHidden ?? []);
     const show = Object.fromEntries(BAR_ITEMS.map((item) => [item, !hidden.has(item)]));
+    // Rolling means nothing once everyone rolled; clearing only once someone did.
+    const rollOptions = isGM && model ? WheelViewData.#rollOptions(model) : [];
+    // RF-16: while setting up, the GM rolls each group from the bar itself, and the popover keeps only "Clear".
+    const setupRolls = isGM && model && !model.started && show.roll ? WheelViewData.#setupRolls(model, ui.rolling) : null;
+    const menuRolls = setupRolls ? rollOptions.filter((option) => option.group === "reset") : rollOptions;
+    // RF-110: the GM's quick change between the saved styles, from the bar itself;
+    // with none saved yet it says where to save one, so the option never seems missing.
+    const styleMenu = isGM && show.style;
+    const styles = styleMenu ? ui.savedStyles ?? [] : [];
+    // Where a virtual position goes among phases is still open (D-27): none are offered there.
+    const virtualTemplates = isGM && !phased ? ui.virtualTemplates ?? [] : null;
     const bar = {
       isGM,
       phased,
       show,
       // The rule only separates the tools that follow it.
-      toolRule: ["lock", "direction", "appearance", "settings"].some((item) => show[item]) || (isGM && show.endCombat),
+      toolRule: ["lock", "direction", "appearance", "settings"].some((item) => show[item]) || (isGM && show.endCombat) || styleMenu,
       locked: ui.locked,
       split,
       inline: ui.controls !== "menu",
       details,
       expanded,
       menu,
-      canRoll: show.roll && rollOptions.some((option) => option.group !== "reset"),
       // The inline button opens the menu, which keeps "Clear" once everyone rolled.
-      rollMenu: show.roll && rollOptions.length ? WheelViewData.#rollMenuButton(rollOptions) : null,
+      rollMenu: show.roll && menuRolls.length ? WheelViewData.#rollMenuButton(menuRolls) : null,
+      setupRolls,
       // A player rolls their own from the bar too: the card views may show no hub to ask.
       canRollOwn: show.roll && !isGM && Boolean(model?.pendingOwnIds?.length),
       rolling: Boolean(ui.rolling),
@@ -106,6 +114,9 @@ export default class WheelViewData {
       })),
       roundLabel: model?.started ? f("Bar.Round", { round: model.round }) : t("Bar.Setup"),
       turnLabel: model?.turnLabel ?? "",
+      // Going back means nothing before the first turn.
+      canGoBack: isGM && Boolean(model?.started),
+      endTurnAction: endTurn?.action ?? "endTurn",
       endTurnLabel: endTurn?.label ?? null,
       endTurnIcon: endTurn?.icon ?? "fa-forward-step",
       endTurnDisabled: Boolean(endTurn?.disabled),
@@ -114,7 +125,11 @@ export default class WheelViewData {
       rollOpen: menu === "roll",
       virtualOpen: menu === "virtual",
       directionOpen: menu === "direction",
-      rollOptions,
+      styleOpen: menu === "style",
+      styleMenu,
+      styles,
+      styleLabel: t("CombatStyles.Choose"),
+      rollOptions: menuRolls,
       virtualTemplates,
       peeking: ui.viewIndex !== null && ui.viewIndex !== undefined,
       // The overview reorders initiative, which means nothing between phases.
@@ -133,9 +148,11 @@ export default class WheelViewData {
    * (under Venaerys, the phase); a player only while one of their combatants is
    * acting. Under Venaerys the player's button marks their combatants done, and
    * stays as a disabled "Finished" once nothing of theirs is left to act (RF-81).
+   * Before the start, the GM's button starts the combat (RF-16).
    */
   static #endTurn(model) {
-    if (!model?.started) return null;
+    if (!model) return null;
+    if (!model.started) return game.user.isGM ? { label: t("Bar.StartCombat"), icon: "fa-play", action: "startCombat", disabled: !model.N } : null;
     if (model.phased) {
       if (game.user.isGM) return { label: t("Bar.NextPhase") };
       if (model.canEndOwnTurn) return { label: t(model.phase?.half === "move" ? "Bar.FinishMove" : "Bar.Finish"), icon: "fa-check" };
@@ -248,6 +265,18 @@ export default class WheelViewData {
     const onlyReset = options.every((option) => option.group === "reset");
     const label = t(onlyReset ? "RollMenu.Reset" : "RollMenu.Title");
     return { label, icon: onlyReset ? "fa-rotate-left" : "fa-dice-d20" };
+  }
+
+  /** Every group stays in the bar, disabled when nobody in it is left to roll, so the buttons never shift. */
+  static #setupRolls(model, rolling) {
+    const counts = CombatControls.rollCounts(model);
+    return ROLL_GROUPS.filter(({ group }) => group !== "reset").map(({ group, icon, label }) => ({
+      group,
+      icon,
+      count: counts[group],
+      disabled: Boolean(rolling) || counts[group] === 0,
+      label: f("RollMenu.Group", { group: t(label), count: counts[group] }),
+    }));
   }
 
   static #rollOptions(model) {

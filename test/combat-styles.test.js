@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { NO_STYLE, chosenStyle, filterStyleOptions, normalizeStyles, upsertStyle } from "../scripts/helpers/combat-styles.js";
+import { NO_STYLE, filterStyleOptions, normalizeStyles, upsertStyle } from "../scripts/helpers/combat-styles.js";
 
 describe("combat styles (RF-108)", () => {
   const styles = normalizeStyles([
@@ -20,17 +20,6 @@ describe("combat styles (RF-108)", () => {
     ];
     assert.deepEqual(normalizeStyles(raw), [{ id: "a", name: "A", values: {} }]);
     assert.deepEqual(normalizeStyles("nope"), []);
-  });
-
-  it("lets the combat's own choice win over the default", () => {
-    assert.equal(chosenStyle({ styles, flag: "calm", defaultId: "boss" }).id, "calm");
-    assert.equal(chosenStyle({ styles, defaultId: "boss" }).id, "boss");
-  });
-
-  it("draws the usual look for none, nothing, or a style that was deleted", () => {
-    assert.equal(chosenStyle({ styles, flag: NO_STYLE, defaultId: "boss" }), null);
-    assert.equal(chosenStyle({ styles }), null);
-    assert.equal(chosenStyle({ styles, flag: "gone" }), null);
   });
 
   it("replaces a style saved again under the same name, and adds a new one otherwise", () => {

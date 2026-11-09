@@ -50,7 +50,6 @@ const DERIVATIONS = Object.freeze({
   }),
   background: (hex) => ({
     "--scw-bg": hex,
-    "--scw-panel-bg": mix(hex, 92, "transparent"),
   }),
   surface: (hex) => ({
     "--scw-surface": hex,

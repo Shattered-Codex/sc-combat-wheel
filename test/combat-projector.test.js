@@ -121,6 +121,36 @@ describe("CombatProjector initiative request (RF-15)", () => {
   });
 });
 
+describe("CombatProjector own focus before the start", () => {
+  const turns = [
+    combatant("a", { initiative: 18 }),
+    combatant("b", { initiative: 12, isOwner: true }),
+    combatant("c", { initiative: null, isOwner: true }),
+    combatant("d", { initiative: null }),
+  ];
+  const setup = combat(turns, { round: 0, turn: 0, started: false });
+
+  it("rests a player's wheel on their first combatant still to roll", () => {
+    const model = CombatProjector.project(setup, player);
+    assert.equal(model.current.id, "c");
+    assert.equal(model.focusOwn, true);
+    assert.equal(model.T, 2);
+  });
+
+  it("falls back on their combatant that already rolled", () => {
+    const rolled = combat([combatant("a"), combatant("b", { isOwner: true })], { round: 0, started: false });
+    assert.equal(CombatProjector.project(rolled, player).current.id, "b");
+  });
+
+  it("leaves the GM, a player with nobody, and a started combat on the turn", () => {
+    assert.equal(CombatProjector.project(setup, gm).current.id, "a");
+    assert.equal(CombatProjector.project(setup, gm).focusOwn, false);
+    const strangers = combat([combatant("a"), combatant("d")], { round: 0, started: false });
+    assert.equal(CombatProjector.project(strangers, player).current.id, "a");
+    assert.equal(CombatProjector.project(combat(turns), player).current.id, "a");
+  });
+});
+
 describe("CombatProjector end own turn", () => {
   it("lets the owner of the active combatant end the turn", () => {
     const turns = [combatant("a", { isOwner: true }), combatant("b")];
@@ -189,6 +219,41 @@ describe("CombatantAdapter", () => {
     const isVideo = (src) => src.endsWith(".webm");
     c.token.texture.src = "tokens/a.webm";
     assert.equal(CombatantAdapter.portraitFor(c, "token", isVideo).src, "actors/a.webp");
+  });
+
+  it("shows players a character's own art only when Foundry already shows it to them (RF-117)", () => {
+    const actorSource = { ...player, round: 1, settings: { ...settings, portraitSource: "actor" } };
+    const stranger = combatant("a");
+    stranger.actor.permission = 0;
+    assert.equal(CombatantAdapter.toViewModel(stranger, actorSource).img, "tokens/a.webp", "a disguise stays a disguise");
+    const known = combatant("b");
+    known.actor.permission = 1;
+    assert.equal(CombatantAdapter.toViewModel(known, actorSource).img, "actors/b.webp", "Limited shows the portrait");
+    assert.equal(CombatantAdapter.toViewModel(stranger, { ...actorSource, isGM: true }).img, "actors/a.webp", "the GM sees everything");
+    stranger.actor.flags["sc-combat-wheel"] = { portrait: "art/a.webp" };
+    assert.equal(CombatantAdapter.portraitFor(stranger, "flag", undefined, { revealActor: false }).src, "tokens/a.webp");
+  });
+
+  it("names the player whose announcement card a turn shows (RF-123)", () => {
+    const owners = [{ id: "u1", name: "Ana", character: { id: "other" } }, { id: "u2", name: "Bia", character: { id: "hero" } }];
+    const hero = combatant("a", { players: owners, actor: { id: "hero", img: "actors/a.webp", flags: {}, temporaryEffects: [] } });
+    assert.equal(CombatantAdapter.toViewModel(hero, { ...player, round: 1 }).cardUserId, "u2", "the player whose character it is");
+    const shared = combatant("b", { players: owners });
+    assert.equal(CombatantAdapter.toViewModel(shared, { ...player, round: 1 }).cardUserId, "u1", "else its first owner");
+    assert.equal(CombatantAdapter.toViewModel(combatant("c"), { ...player, round: 1 }).cardUserId, null, "an NPC has none");
+  });
+
+  it("never falls back from a video token to art the player may not see (RF-117)", () => {
+    const isVideo = (src) => src.endsWith(".webm");
+    const stranger = combatant("a");
+    stranger.actor.permission = 0;
+    stranger.token.texture.src = "tokens/a.webm";
+    assert.equal(CombatantAdapter.portraitFor(stranger, "token", isVideo, { revealActor: false }).src, null, "initials, not the disguise's secret");
+    assert.equal(CombatantAdapter.portraitFor(stranger, "token", isVideo, { revealActor: true }).src, "actors/a.webp");
+    const seen = CombatantAdapter.toViewModel(stranger, { ...player, round: 1, isVideo });
+    assert.deepEqual([seen.img, seen.tokenImg, seen.artImg], [null, null, null], "no field of the view model leaks it");
+    const byGM = CombatantAdapter.toViewModel(stranger, { ...gm, round: 1, isVideo });
+    assert.deepEqual([byGM.img, byGM.tokenImg, byGM.artImg], ["actors/a.webp", "actors/a.webp", "actors/a.webp"]);
   });
 });
 

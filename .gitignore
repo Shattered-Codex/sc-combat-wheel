@@ -5,8 +5,9 @@
 AGENTS.md
 CLAUDE.md
 
-# Local project documentation: specs and Design project references (never public)
-docs/
+# Local specs and Design references stay private; README artwork is public.
+/docs/*
+!/docs/images/
 
 # Dependencies, build output, and coverage
 node_modules/

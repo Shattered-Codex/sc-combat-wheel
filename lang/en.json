@@ -6,8 +6,8 @@
     },
     "Settings": {
       "openOnStart": {
-        "Name": "Open when combat starts",
-        "Hint": "Shows the wheel for everyone as soon as the combat begins, and closes it when the combat ends."
+        "Name": "Open automatically",
+        "Hint": "Shows the wheel for everyone as soon as the combat has combatants, so they can roll initiative, and again when it begins. Closes it when the combat ends."
       },
       "hideNativeTracker": {
         "Name": "Hide the native combat tab",
@@ -44,9 +44,32 @@
         }
       },
       "clickAction": {
-        "Name": "Slice click",
-        "Hint": "What clicking a portrait does.",
+        "Name": "Click on a slice",
+        "Hint": "What a left click on a portrait does.",
         "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
+          "pan": "Center the camera on the token",
+          "select": "Select the token",
+          "sheet": "Open the sheet",
+          "none": "Nothing"
+        }
+      },
+      "doubleClickAction": {
+        "Name": "Double click on a slice",
+        "Hint": "What a double click on a portrait does. The single click runs first, as in Foundry's tracker.",
+        "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
+          "pan": "Center the camera on the token",
+          "select": "Select the token",
+          "sheet": "Open the sheet",
+          "none": "Nothing"
+        }
+      },
+      "rightClickAction": {
+        "Name": "Right click on a slice",
+        "Hint": "What a right click on a portrait does. The menu gathers what you may do with that combatant; the GM can also clear its movement and remove it from the combat.",
+        "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
           "pan": "Center the camera on the token",
           "select": "Select the token",
           "sheet": "Open the sheet",
@@ -66,6 +89,18 @@
           "slow": "Slow"
         }
       },
+      "sceneButtonWheel": {
+        "Name": "Wheel button in the token controls",
+        "Hint": "Opens and closes the wheel. Without it, the wheel still opens by itself when a combat starts, and with the keyboard shortcut if you set one."
+      },
+      "sceneButtonStyles": {
+        "Name": "Styles button in the token controls",
+        "Hint": "The GM's quick change between saved styles. Without it, the combat tracker's menu still offers it."
+      },
+      "sceneButtonResetPosition": {
+        "Name": "Re-centre button in the token controls",
+        "Hint": "Brings the wheel back to its default place. Without it, the button below still does, as do the combat tracker's menu (GM) and the keyboard shortcut if you set one."
+      },
       "animationSpeed": {
         "Name": "Animation speed",
         "Hint": "How fast the wheel turns. Reduced-motion system settings always win.",
@@ -78,7 +113,7 @@
       },
       "portraitSource": {
         "Name": "Portrait source",
-        "Hint": "Image shown on each slice.",
+        "Hint": "Image shown on each slice. Each user may pick the token or the character portrait in their own look instead (Appearance → Portraits).",
         "Choices": {
           "token": "Token image",
           "actor": "Actor portrait",
@@ -125,6 +160,15 @@
         "Choices": {
           "sector": "Sector",
           "square": "Rounded square"
+        }
+      },
+      "portraitImage": {
+        "Name": "Portrait image",
+        "Hint": "The token's art or the character's portrait. \"As the table\" keeps what the GM chose for the world. Players only see a character's portrait when Foundry already shows it to them (Limited permission or more); otherwise the token.",
+        "Choices": {
+          "table": "As the table",
+          "token": "Token",
+          "actor": "Character portrait"
         }
       },
       "sliceGap": {
@@ -451,7 +495,27 @@
           "motes": "Golden motes",
           "confetti": "Confetti",
           "runes": "Runes",
-          "wisps": "Wisps"
+          "wisps": "Wisps",
+          "smoke": "Smoke",
+          "glyphs": "Glyphs"
+        }
+      },
+      "particleMotion": {
+        "Name": "Motion",
+        "Hint": "How the particles move. Automatic gives each kind its own.",
+        "Choices": {
+          "auto": "Automatic",
+          "burst": "Burst out",
+          "rise": "Rise",
+          "fall": "Fall",
+          "swirl": "Swirl",
+          "twinkle": "Twinkle",
+          "wander": "Wander",
+          "drift": "Drift and sway",
+          "float": "Float up slowly",
+          "hover": "Hover",
+          "orbit": "Orbit",
+          "wave": "Rise in waves"
         }
       },
       "particlePlacement": {
@@ -473,7 +537,7 @@
       },
       "particleIntensity": {
         "Name": "Effect intensity",
-        "Hint": "How strong every effect is: the acting portrait's, the turn change's and the particles (how many and how bright).",
+        "Hint": "How strong every effect is: the acting portrait's, the widget's, the turn change's and the particles. Stronger is brighter, then bigger: glows, flames, rings and particles grow, and more particles show.",
         "Choices": {
           "subtle": "Subtle",
           "normal": "Normal",
@@ -589,6 +653,7 @@
           "lock": "Lock position",
           "direction": "Direction",
           "appearance": "Appearance",
+          "style": "Switch style (GM)",
           "settings": "Settings",
           "endCombat": "End combat (GM)"
         }
@@ -602,8 +667,189 @@
           "halo": "Halo",
           "aura": "Energy aura",
           "flicker": "Flame",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "void": "Void",
           "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic circle",
           "shine": "Shine"
+        }
+      },
+      "announceMode": {
+        "Name": "Show it",
+        "Hint": "Automatic: on every turn for the GM, on their own for a player. Off turns it off for you.",
+        "Choices": {
+          "auto": "Automatic",
+          "own": "Only on my turn",
+          "all": "On everyone's turn",
+          "off": "Off"
+        }
+      },
+      "announceNextUp": {
+        "Name": "Also when I am next",
+        "Hint": "A small announcement when your turn (or phase) comes next, instead of Foundry's notification. The GM can turn \"next up\" off for the table."
+      },
+      "announceTitle": {
+        "Name": "Title of your turn",
+        "Hint": "What your own turn says. Empty uses the default.",
+        "Placeholder": "Your turn!"
+      },
+      "announceImage": {
+        "Name": "Picture",
+        "Hint": "The character's art (only when Foundry already shows it to you), the token, or no picture.",
+        "Choices": {
+          "actor": "Character art",
+          "token": "Token",
+          "none": "None"
+        }
+      },
+      "announceFrame": {
+        "Name": "Portrait frame",
+        "Hint": "Round, square, a tall rectangle, or free: the whole art, uncut (good for tokens with a transparent background).",
+        "Choices": {
+          "round": "Round",
+          "square": "Square",
+          "tall": "Tall rectangle",
+          "free": "Free"
+        }
+      },
+      "announceBorder": {
+        "Name": "Border",
+        "Hint": "A thick border in the colour, a thin one, only a glow, or none.",
+        "Choices": {
+          "color": "Thick, in the colour",
+          "thin": "Thin",
+          "glow": "Glow only",
+          "none": "None"
+        }
+      },
+      "announceStyle": {
+        "Name": "Shape",
+        "Hint": "A card, a band across the screen, or small by the scene controls.",
+        "Choices": {
+          "card": "Card",
+          "cinematic": "Cinematic band",
+          "corner": "Corner"
+        }
+      },
+      "announcePosition": {
+        "Name": "Place",
+        "Hint": "Where on the screen it appears.",
+        "Choices": {
+          "top": "Top",
+          "center": "Center",
+          "bottom": "Bottom"
+        }
+      },
+      "announceSize": {
+        "Name": "Size",
+        "Hint": "How big the portraits and words are.",
+        "Choices": {
+          "small": "Small",
+          "normal": "Normal",
+          "large": "Large"
+        }
+      },
+      "announceSeconds": {
+        "Name": "Seconds on screen",
+        "Hint": "How long it stays. A click dismisses it sooner."
+      },
+      "announceEntrance": {
+        "Name": "Entrance",
+        "Hint": "How it arrives. Under reduced motion it only fades.",
+        "Choices": {
+          "zoom": "Zoom",
+          "slide": "Slide in",
+          "fade": "Fade"
+        }
+      },
+      "announceColor": {
+        "Name": "Colour",
+        "Hint": "Each combatant's side (friend, foe…), the theme's accent, or your own colour. A phase uses its own colour.",
+        "Choices": {
+          "side": "Side",
+          "theme": "Theme",
+          "custom": "My own"
+        }
+      },
+      "announceCustomColor": {
+        "Name": "Own colour",
+        "Hint": "The colour of the announcement and its effects."
+      },
+      "announceEffect": {
+        "Name": "Effect around the portrait",
+        "Hint": "The same effects as the acting portrait's.",
+        "Choices": {
+          "none": "None",
+          "pulse": "Breathing glow",
+          "halo": "Halo",
+          "aura": "Energy aura",
+          "flicker": "Flame",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "void": "Void",
+          "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic circle"
+        }
+      },
+      "announceParticles": {
+        "Name": "Particles",
+        "Hint": "Particles around the portrait while it shows.",
+        "Choices": {
+          "none": "None",
+          "embers": "Embers",
+          "arcane": "Arcane",
+          "stardust": "Stardust",
+          "frost": "Frost",
+          "shadow": "Shadow",
+          "fireflies": "Fireflies",
+          "petals": "Petals",
+          "bubbles": "Bubbles",
+          "sparks": "Sparks",
+          "snow": "Snow",
+          "rain": "Rain",
+          "leaves": "Falling leaves",
+          "ash": "Ash",
+          "motes": "Golden motes",
+          "confetti": "Confetti",
+          "runes": "Runes",
+          "wisps": "Wisps",
+          "smoke": "Smoke",
+          "glyphs": "Glyphs"
+        }
+      },
+      "announceIntensity": {
+        "Name": "Intensity",
+        "Hint": "How bright and how big the effect and particles are.",
+        "Choices": {
+          "subtle": "Subtle",
+          "normal": "Normal",
+          "strong": "Strong"
+        }
+      },
+      "announceShareCard": {
+        "Name": "Show my card to the table",
+        "Hint": "On your character's turn everyone sees the announcement with your picture, frame, border, format, entrance, colour, effect and particles. Where it shows, its size and how long it stays are each viewer's. For the GM, this is the default of the players who follow the table look."
+      },
+      "announcePlayerCards": {
+        "Name": "See each player's card",
+        "Hint": "On a player's character's turn, the card that player shares. Off: every announcement uses your own look."
+      },
+      "actingWaves": {
+        "Name": "Waves around the acting portrait",
+        "Hint": "Rings that keep leaving the acting portrait, as in the SC Item Rarity Colors. They add to the effect above.",
+        "Choices": {
+          "none": "None",
+          "energy": "Energy",
+          "ripples": "Ripples",
+          "shockwave": "Shockwave",
+          "arcane": "Arcane",
+          "mist": "Mist",
+          "sonar": "Sonar",
+          "prism": "Prism",
+          "burst": "Burst"
         }
       },
       "turnEffect": {
@@ -614,7 +860,23 @@
           "ripple": "Waves",
           "burst": "Burst of light",
           "flash": "Flash",
-          "pop": "Pop"
+          "pop": "Pop",
+          "shockwave": "Shockwave",
+          "lightning": "Lightning"
+        }
+      },
+      "widgetEffect": {
+        "Name": "Effect around the widget",
+        "Hint": "Drawn around the whole wheel (its rim) or the row of cards, all the time.",
+        "Choices": {
+          "none": "None",
+          "pulse": "Breathing glow",
+          "halo": "Halo",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic frame"
         }
       },
       "soundTurnBack": {
@@ -697,7 +959,9 @@
       "ConsequenceFailed": "\"{name}\": the {kind} consequence failed. See the console for details.",
       "AppearanceSaved": "Initiative Wheel appearance saved.",
       "PhaseNextUp": "Your phase is next: {name}. Get ready.",
-      "PositionReset": "The wheel is back in its default place."
+      "PositionReset": "The wheel is back in its default place.",
+      "LookImported": "Look “{name}” loaded. Save to use it.",
+      "LookImportFailed": "That file is not a Combat Wheel look."
     },
     "Slice": {
       "RollOne": "Roll initiative",
@@ -741,6 +1005,7 @@
       "Waiting": "Waiting",
       "Acting": "Acting",
       "First": "First up",
+      "Yours": "Your character",
       "Viewing": "Viewing",
       "Virtual": "Virtual position"
     },
@@ -785,6 +1050,7 @@
       "SeeAll": "See everyone",
       "Settings": "Settings",
       "EndTurn": "End turn",
+      "StartCombat": "Start combat",
       "More": "More",
       "Locked": "Position locked",
       "Appearance": "Appearance",
@@ -805,7 +1071,8 @@
       "Npc": "NPCs only",
       "Pc": "Characters only",
       "Reset": "Clear initiatives",
-      "Kicker": "Initiative"
+      "Kicker": "Initiative",
+      "Group": "Roll initiative: {group} ({count})"
     },
     "Details": {
       "Character": "Character",
@@ -830,12 +1097,15 @@
       "Close": "Close",
       "RemoveVirtual": "Remove this virtual position",
       "Insert": "Add a virtual position here",
+      "InsertBeforeUnrolled": "Add a virtual position here: whoever has not rolled initiative always stays at the end, after it",
       "NewVirtual": "New virtual position",
       "NoTemplate": "No template: just a message on screen",
       "Cancel": "Cancel",
       "Add": "Add",
       "TitlePlaceholder": "Title (e.g. The lair shakes)",
-      "MessagePlaceholder": "Message shown on screen when its turn comes"
+      "MessagePlaceholder": "Message shown on screen when its turn comes",
+      "ImagePlaceholder": "Picture (optional: the template's, or a lightning bolt)",
+      "ManageVirtual": "Set up virtual positions"
     },
     "Sounds": {
       "off": "Off",
@@ -967,11 +1237,11 @@
         "portraits": "Portraits",
         "bar": "Bar",
         "phases": "Phases",
-        "motion": "Motion",
         "effects": "Effects",
         "sharing": "Sharing",
         "sounds": "Sounds",
-        "visual": "Visual"
+        "visual": "Visual",
+        "announce": "Turn display"
       },
       "Names": {
         "knight": "Knight",
@@ -992,7 +1262,8 @@
         "effects": "Particles are drawn by the browser with CSS animations only, and stop when the system asks for reduced motion.",
         "presets": "Pick a complete look to start from, then change anything in the other sections. Nothing is saved until you press Save.",
         "sounds": "These apply to this browser only: ready-made looks and the table look never change them. Turn the preview with Sounds on to hear them in combat order.",
-        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints."
+        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
+        "announce": "A message on screen when a turn comes up — yours, or everyone's — with an effect and particles around the portrait. Under SC Venaerys's Initiative it shows the phase with all its members."
       },
       "Sections": "Sections",
       "ThemeColor": "Theme's",
@@ -1005,6 +1276,7 @@
         "panels": "Panels",
         "sides": "Sides",
         "acting": "Effects",
+        "widget": "Around the widget",
         "text": "Text",
         "particles": "Particles",
         "motion": "Motion",
@@ -1015,7 +1287,12 @@
         "soundEvents": "When to play",
         "banner": "Virtual position message",
         "finish": "Finish",
-        "palette": "Palette"
+        "palette": "Palette",
+        "announceWhen": "When",
+        "announceContent": "What it shows",
+        "announceLook": "How it looks",
+        "announceFx": "Effects",
+        "announceShare": "Players' cards"
       },
       "CloseGallery": "Close ready-made looks",
       "TurnLabel": "Round {round} · {turn}",
@@ -1054,7 +1331,13 @@
       "ContrastAccent": "The accent barely stands out from the panels ({ratio}:1, at least 3:1 is needed).",
       "ContrastFix": "Pick other colours, or make a palette from one colour above.",
       "ThemesHint": "Point at a theme to see it in the preview; click to choose it.",
-      "CloseThemes": "Close the themes"
+      "CloseThemes": "Close the themes",
+      "Import": "Import",
+      "ImportHint": "Load a look from a .json file into the editor. Save to use it.",
+      "Export": "Export",
+      "ExportHint": "Save what is on screen as a .json file, to take to another world or share.",
+      "TestAnnounce": "Test the announcement",
+      "TestAnnounceHint": "Shows the announcement as it will appear, with what is on screen now."
     },
     "Virtual": {
       "Name": "Name",
@@ -1134,9 +1417,10 @@
     "Sharing": {
       "Mode": {
         "Name": "Table look",
-        "Hint": "Your saved look is the table look. Players choose: they follow it until they make their own. Everyone uses mine: players cannot change it. Everyone uses their own: nobody follows it.",
+        "Hint": "Your saved look is the table look. Players choose: they follow it until they make their own. Lock some options: a padlock by each option; what you lock, everyone uses as you set it, and players do not see it; the rest each one picks. Everyone uses mine: players cannot change anything. Everyone uses their own: nobody follows.",
         "Choices": {
           "optional": "Players choose",
+          "partial": "Lock some options",
           "forced": "Everyone uses mine",
           "off": "Everyone uses their own"
         }
@@ -1148,7 +1432,11 @@
       },
       "FollowingNotice": "You are using the GM's look. Change anything to make your own.",
       "ForcedNotice": "The GM chose the look for the whole table.",
-      "OffNotice": "Each player uses their own look at this table."
+      "OffNotice": "Each player uses their own look at this table.",
+      "LockNotice": "Click an option's padlock to have the whole table use your value for it; players will not see it. The options left open, each player picks. Saved with the look.",
+      "PartialNotice": "The GM set some options for the whole table; they do not show here. The rest is yours to choose.",
+      "Lock": "Lock for the whole table",
+      "Unlock": "Unlock for the players"
     },
     "CoreCombat": {
       "NoTheme": "None",
@@ -1228,32 +1516,56 @@
     },
     "CombatStyles": {
       "Gallery": "Styles",
-      "Title": "Table styles",
+      "Title": "Saved styles",
       "Save": "Save current look as a style",
-      "SaveTitle": "Save combat style",
+      "SaveTitle": "Save style",
       "Name": "Name",
       "Saved": "Style “{name}” saved.",
-      "Default": "Default combat style",
-      "DefaultHint": "Every combat uses it unless another is picked for it. The usual look is the table look you publish when you save.",
-      "Prompt": "Ask which style when a combat starts",
-      "Usual": "The usual look",
-      "IsDefault": "Default for combats",
       "Delete": "Delete style",
-      "DeleteText": "Delete the style “{name}”? Combats that used it go back to the usual look.",
-      "EmptyGM": "No saved styles yet. Set up a look and save it here to use it in your combats.",
+      "DeleteText": "Delete the style “{name}”? The current look stays as it is.",
+      "EmptyGM": "No saved styles yet. Set up a look and save it here to switch to it any time.",
       "Empty": "The GM has not saved any styles yet.",
-      "ActiveNotice": "This combat uses the “{name}” style. What you change here is the usual look, shown outside it.",
-      "AskTitle": "Combat style",
-      "AskText": "Which look should the table see in this combat?",
+      "AskTitle": "Switch style",
+      "AskText": "Which saved style should the table see now?",
       "Use": "Use this style",
       "Field": "Style",
-      "UsualMeta": "The table look, as saved",
       "NoMatch": "No style by that name",
-      "Choose": "Combat style…",
-      "UseInCombat": "Use in this combat",
-      "Applied": "This combat now uses “{name}”.",
-      "NoCombat": "There is no combat to give a style to.",
-      "NoStyles": "No saved styles yet: save one in the appearance editor's Styles."
+      "Choose": "Switch style…",
+      "Applied": "The table now uses “{name}”.",
+      "NoStyles": "No saved styles yet: save one in the appearance editor's Styles.",
+      "Current": "Current look"
+    },
+    "Announce": {
+      "YourTurn": "Your turn!",
+      "TurnOf": "{name}'s turn",
+      "YourPhase": "Your phase!",
+      "PhaseNow": "Phase now",
+      "NextUp": "You are up next",
+      "NextUpLine": "You are up next!"
+    },
+    "SliceMenu": {
+      "Pan": "Center the camera",
+      "Select": "Select the token",
+      "Sheet": "Open the sheet",
+      "ClearMovement": "Clear movement",
+      "Remove": "Remove from combat"
+    },
+    "Community": {
+      "Label": "Community links",
+      "wiki": {
+        "Label": "Open wiki",
+        "Tooltip": "Open the Shattered Codex modules wiki."
+      },
+      "patreon": {
+        "Label": "Patreon support",
+        "Tooltip": "Support Shattered Codex development on Patreon."
+      },
+      "discord": {
+        "Label": "Discord",
+        "Tooltip": "Join the Shattered Codex Discord server."
+      },
+      "NoteSupport": "Enjoying this module? Consider joining my Patreon for access to many more modules, and take a look at the wiki.",
+      "NoteFeedback": "Have a suggestion or found a bug? Let me know on the Discord channel."
     }
   }
 }

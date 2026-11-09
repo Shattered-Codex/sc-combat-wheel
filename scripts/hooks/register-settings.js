@@ -1,8 +1,8 @@
-import { COMBAT_STYLE_FLAG, I18N_ROOT, MODULE_ID, SETTINGS } from "../constants/module-constants.js";
+import { I18N_ROOT, MODULE_ID, SETTINGS } from "../constants/module-constants.js";
 import { SETTINGS_SCHEMA, coerceSetting, settingDefault } from "../constants/settings-schema.js";
 import { resolveTheme } from "../helpers/themes.js";
 import { healthSourceFor } from "../helpers/health-source.js";
-import { chosenStyle, normalizeStyles } from "../helpers/combat-styles.js";
+import { normalizeStyles } from "../helpers/combat-styles.js";
 import { upgradeLook } from "../helpers/look-upgrades.js";
 import { isPortraitRatioOk, portraitRatio, presetFromSettings } from "../helpers/wheel-geometry.js";
 
@@ -15,18 +15,24 @@ const APPEARANCE_ENTRIES = SETTINGS_SCHEMA.filter((entry) => entry.section === "
  * Registers every setting from SETTINGS_SCHEMA (SPEC §7). None shows in the core
  * menu: they live in the module's own settings screen (RF-70), opened by
  * `SettingsMenu`, and the appearance editor (RF-73), opened by `AppearanceMenu`.
- * `onLayoutChange` rebuilds the wheel; `onDataChange` re-projects the combat.
+ * `onLayoutChange` rebuilds the wheel; `onDataChange` re-projects the combat;
+ * `onLookChange` follows anything that changes the look this user draws with;
+ * `onControlsChange` redraws the scene controls.
  */
-export function registerSettings({ onLayoutChange, onDataChange, SettingsMenu, AppearanceMenu }) {
+export function registerSettings({ onLayoutChange, onDataChange, onLookChange, onControlsChange, SettingsMenu, AppearanceMenu }) {
   const reactions = {
     layout: onLayoutChange,
     data: onDataChange,
+    controls: onControlsChange,
     custom: () => {
       onLayoutChange();
       warnOnPortraitRatio();
     },
   };
+  const lookSources = new Set([SETTINGS.tableLook, SETTINGS.tableLookMode, SETTINGS.lockedLook, SETTINGS.useTableLook]);
   for (const entry of SETTINGS_SCHEMA) {
+    const reaction = reactions[entry.react];
+    const shapesLook = onLookChange && (entry.section === "appearance" || lookSources.has(entry.key));
     game.settings.register(MODULE_ID, entry.key, {
       name: `${I18N_ROOT}.Settings.${entry.key}.Name`,
       hint: `${I18N_ROOT}.Settings.${entry.key}.Hint`,
@@ -34,7 +40,12 @@ export function registerSettings({ onLayoutChange, onDataChange, SettingsMenu, A
       config: false,
       type: TYPES[entry.type],
       default: settingDefault(entry),
-      onChange: reactions[entry.react],
+      onChange: shapesLook
+        ? (value) => {
+            reaction?.(value);
+            onLookChange();
+          }
+        : reaction,
     });
   }
   if (SettingsMenu) {
@@ -78,11 +89,34 @@ export function ownAppearance() {
  * always draws their own; players follow it when the GM requires it, or when
  * the GM allows it and they chose to.
  */
-export function followsTableLook() {
+function followsTableLook() {
   if (game.user.isGM) return false;
   const mode = getSetting(SETTINGS.tableLookMode);
   if (mode === "forced") return true;
   return mode === "optional" && Boolean(getSetting(SETTINGS.useTableLook));
+}
+
+/**
+ * RF-119: the options the GM keeps for the whole table — under "partial", the
+ * ones they locked. Players draw these with the table look's values and do
+ * not see them in their editor; the GM always edits everything.
+ */
+export function lockedKeys() {
+  return game.user.isGM ? new Set() : tableLockedKeys();
+}
+
+/** RF-119: the options locked for the table, whoever asks (a player's shared card never overrides them, RF-123). */
+export function tableLockedKeys() {
+  if (getSetting(SETTINGS.tableLookMode) !== "partial") return new Set();
+  const keys = new Set(APPEARANCE_ENTRIES.map((entry) => entry.key));
+  return new Set((getSetting(SETTINGS.lockedLook) ?? []).filter((key) => keys.has(key)));
+}
+
+/** RF-119: the table look's values of `keys` over `base` (a key the table look lacks keeps the base's). */
+export function withLockedValues(base, keys = lockedKeys()) {
+  if (!keys.size) return base;
+  const table = getSetting(SETTINGS.tableLook) ?? {};
+  return withLook(base, Object.fromEntries(Object.entries(upgradeLook(table) ?? {}).filter(([key]) => keys.has(key))));
 }
 
 /** The GM's published look over `base`: a key it lacks, or holds a stale value for, keeps the base's. */
@@ -91,7 +125,7 @@ export function withTableLook(base) {
 }
 
 /** `shared` look values over `base`, each checked against its setting; a missing or stale one keeps the base's. */
-export function withLook(base, rawShared) {
+function withLook(base, rawShared) {
   const shared = upgradeLook(rawShared) ?? {};
   const values = { ...base };
   for (const entry of APPEARANCE_ENTRIES) {
@@ -102,30 +136,46 @@ export function withLook(base, rawShared) {
   return values;
 }
 
-/** RF-108: the GM's saved combat styles, cleaned up. */
+/** RF-108: the GM's saved styles, cleaned up, their values read like any look (a merged theme upgraded). */
 export function savedStyles() {
-  return normalizeStyles(getSetting(SETTINGS.savedStyles));
+  return normalizeStyles(getSetting(SETTINGS.savedStyles)).map((style) => ({ ...style, values: upgradeLook(style.values) }));
 }
 
-/** RF-108: the style `combat` draws with (its own choice, else the table's default), or null for the usual look. */
-export function combatStyle(combat = game.combat) {
-  return chosenStyle({
-    styles: savedStyles(),
-    flag: combat?.getFlag(MODULE_ID, COMBAT_STYLE_FLAG),
-    defaultId: getSetting(SETTINGS.combatStyleDefault),
-  });
+/** A saved style as a whole look: its values over the defaults, as the appearance editor loads it. */
+export function styleLook(values) {
+  return withLook(Object.fromEntries(APPEARANCE_ENTRIES.map((entry) => [entry.key, settingDefault(entry)])), values);
+}
+
+/** The saved style this user's look is, if it is one of them. */
+export function currentStyleId(styles = savedStyles()) {
+  const own = ownAppearance();
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  return styles.find((style) => {
+    const look = styleLook(style.values);
+    return APPEARANCE_ENTRIES.every((entry) => same(look[entry.key], own[entry.key]));
+  })?.id ?? null;
 }
 
 /**
- * Every appearance value this user draws with, read once per render. A combat
- * style is the table's look for that combat (RF-108): the GM sees it, and so
- * does each player who sees the table look (RF-91).
+ * RF-110: makes a saved style this user's look, as if loaded and saved in the
+ * editor; the GM's look is also the table look (RF-91). Only what changed is written.
+ */
+export async function saveLook(values) {
+  const look = styleLook(values);
+  const writes = APPEARANCE_ENTRIES.filter((entry) => JSON.stringify(look[entry.key]) !== JSON.stringify(getSetting(entry.key))).map((entry) =>
+    setSetting(entry.key, look[entry.key]),
+  );
+  if (game.user.isGM) writes.push(setSetting(SETTINGS.tableLook, look));
+  await Promise.all(writes);
+}
+
+/**
+ * Every appearance value this user draws with, read once per render: their
+ * own, the table look (RF-91), or their own with the GM's locked options (RF-119).
  */
 export function appearanceValues() {
   const own = ownAppearance();
-  const style = combatStyle();
-  if (style && (game.user.isGM || followsTableLook())) return withLook(own, style.values);
-  return followsTableLook() ? withTableLook(own) : own;
+  return followsTableLook() ? withTableLook(own) : withLockedValues(own);
 }
 
 /**
@@ -182,10 +232,25 @@ export function activeHealthSource() {
   });
 }
 
+const PORTRAIT_CHOICES = Object.freeze(["token", "actor"]);
+
+/**
+ * RF-117: the art this user's slices show. Their look may pick the token or
+ * the character; otherwise (or with "table") the world's portrait source.
+ * `portraitImage` overrides the saved look (the editor's draft).
+ */
+export function portraitSource(portraitImage) {
+  let choice = portraitImage ?? getSetting(SETTINGS.portraitImage);
+  if (portraitImage === undefined && (followsTableLook() || lockedKeys().has(SETTINGS.portraitImage))) {
+    choice = getSetting(SETTINGS.tableLook)?.portraitImage ?? choice;
+  }
+  return PORTRAIT_CHOICES.includes(choice) ? choice : getSetting(SETTINGS.portraitSource);
+}
+
 /** The settings the projection reads, gathered once per projection. */
-export function projectionSettings() {
+export function projectionSettings({ portraitImage } = {}) {
   return {
-    portraitSource: getSetting(SETTINGS.portraitSource),
+    portraitSource: portraitSource(portraitImage),
     hpForPlayers: getSetting(SETTINGS.hpForPlayers),
     npcNames: getSetting(SETTINGS.npcNames),
     defeatedMode: getSetting(SETTINGS.defeatedMode),

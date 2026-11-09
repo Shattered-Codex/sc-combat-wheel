@@ -32,7 +32,6 @@ describe("colorOverrides", () => {
   it("maps the other colors to their roles", () => {
     const vars = colorOverrides({ background: "#101010", text: "#eeeeee", hostile: "#ff0000", active: "#00ff00" });
     assert.equal(vars["--scw-bg"], "#101010");
-    assert.equal(vars["--scw-panel-bg"], "color-mix(in srgb, #101010 92%, transparent)");
     assert.equal(vars["--scw-text"], "#eeeeee");
     assert.ok(vars["--scw-text-muted"].includes("#eeeeee"));
     assert.equal(vars["--scw-hostile"], "#ff0000");

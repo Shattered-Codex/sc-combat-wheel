@@ -2,6 +2,12 @@ export const MODULE_ID = "sc-combat-wheel";
 export const I18N_ROOT = "SC_COMBAT_WHEEL";
 export const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates`;
 /** In cascade order: the tokens first, the themes and finishes over the base rules. Loaded by StyleLoader. */
+/** The Shattered Codex links offered in Foundry's settings (as in SC Item Rarity Colors). */
+// The module has no wiki page yet (…/modules/sc-combat-wheel answers 404): the modules index until it does.
+export const WIKI_URL = "https://wiki.shattered-codex.com/modules";
+export const PATREON_URL = "https://www.patreon.com/c/shatteredcodex";
+export const DISCORD_URL = "https://discord.gg/6mWCQEJEwG";
+
 export const STYLESHEETS = Object.freeze([
   "styles/tokens.css",
   "styles/theme-fonts.css",
@@ -9,11 +15,11 @@ export const STYLESHEETS = Object.freeze([
   "styles/module.css",
   "styles/particles.css",
   "styles/effects.css",
+  "styles/announce.css",
   "styles/finishes.css",
   "styles/settings.css",
 ]);
 /** RF-108: the combat style a combat was given, under the module's flags (`flags.sc-combat-wheel.style`). */
-export const COMBAT_STYLE_FLAG = "style";
 
 export const SETTINGS = Object.freeze({
   openOnStart: "openOnStart",
@@ -22,8 +28,14 @@ export const SETTINGS = Object.freeze({
   orientation: "orientation",
   anchor: "anchor",
   widgetState: "widgetState",
+  userWidgetState: "userWidgetState",
+  sceneButtonWheel: "sceneButtonWheel",
+  sceneButtonStyles: "sceneButtonStyles",
+  sceneButtonResetPosition: "sceneButtonResetPosition",
   portraitSource: "portraitSource",
   clickAction: "clickAction",
+  doubleClickAction: "doubleClickAction",
+  rightClickAction: "rightClickAction",
   cameraFollows: "cameraFollows",
   hpForPlayers: "hpForPlayers",
   defeatedMode: "defeatedMode",
@@ -32,6 +44,7 @@ export const SETTINGS = Object.freeze({
   secondsPerRound: "secondsPerRound",
   animationSpeed: "animationSpeed",
   portraitShape: "portraitShape",
+  portraitImage: "portraitImage",
   sliceGap: "sliceGap",
   scale: "scale",
   restOpacity: "restOpacity",
@@ -94,9 +107,11 @@ export const SETTINGS = Object.freeze({
   colorActive: "colorActive",
   tableLook: "tableLook",
   tableLookMode: "tableLookMode",
+  lockedLook: "lockedLook",
   useTableLook: "useTableLook",
   appearanceMigrated: "appearanceMigrated",
   particleType: "particleType",
+  particleMotion: "particleMotion",
   particlePlacement: "particlePlacement",
   particleSpeed: "particleSpeed",
   particleIntensity: "particleIntensity",
@@ -112,7 +127,27 @@ export const SETTINGS = Object.freeze({
   barVisibility: "barVisibility",
   barHidden: "barHidden",
   actingEffect: "actingEffect",
+  announceMode: "announceMode",
+  announceNextUp: "announceNextUp",
+  announceTitle: "announceTitle",
+  announceImage: "announceImage",
+  announceFrame: "announceFrame",
+  announceBorder: "announceBorder",
+  announceStyle: "announceStyle",
+  announcePosition: "announcePosition",
+  announceSize: "announceSize",
+  announceSeconds: "announceSeconds",
+  announceEntrance: "announceEntrance",
+  announceColor: "announceColor",
+  announceCustomColor: "announceCustomColor",
+  announceEffect: "announceEffect",
+  announceParticles: "announceParticles",
+  announceIntensity: "announceIntensity",
+  announceShareCard: "announceShareCard",
+  announcePlayerCards: "announcePlayerCards",
+  actingWaves: "actingWaves",
   turnEffect: "turnEffect",
+  widgetEffect: "widgetEffect",
   soundTurnBack: "soundTurnBack",
   soundTurnBackFile: "soundTurnBackFile",
   soundCombatEnd: "soundCombatEnd",
@@ -203,7 +238,7 @@ export const SPLIT_POD = Object.freeze({ gap: 6, width: 42, cell: 32 });
 /** What the bar can show (RF-99), in bar order; `barHidden` lists the ones a user turned off. */
 export const BAR_ITEMS = Object.freeze([
   "grab", "previous", "endTurn", "round", "roll", "virtual", "grid", "details",
-  "lock", "direction", "appearance", "settings", "endCombat",
+  "lock", "direction", "appearance", "style", "settings", "endCombat",
 ]);
 
 /** The style tweaks (RF-98): setting key by tweak of theme-style.js. */

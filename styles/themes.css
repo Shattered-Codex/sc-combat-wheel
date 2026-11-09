@@ -175,7 +175,6 @@
     url("../../../systems/dnd5e/ui/texture-gray1.webp") top left / auto 200px no-repeat,
     url("../../../systems/dnd5e/ui/texture-gray2.webp") bottom right / auto 200px no-repeat,
     var(--dnd5e-color-parchment, #f1ebe8);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid var(--dnd5e-color-gold, #9f9275);
   --scw-header-bg: linear-gradient(to right, #401f25, #741b2b);
   --scw-header-text: #ffffff;
@@ -254,7 +253,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="dnd5e"] {
   --scw-critical: #ff4500;
   --scw-hp-fill: var(--color-pf-health-bg, #5e0000);
   --scw-surface-bg: url("../../../systems/pf2e/assets/sheet/background.webp") center / cover, var(--bg, #f8f4f1);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid var(--color-border-trait, #d8c384);
   --scw-header-bg: url("../../../systems/pf2e/assets/sheet/header.webp") center / cover, var(--color-pf-primary, #5e0000);
   --scw-header-text: #ffffff;
@@ -323,7 +321,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="dnd5e"] {
   --scw-critical: var(--red, #e54e4e);
   --scw-hp-fill: var(--gradient-hp, linear-gradient(15deg, #46140a 0%, #be0000 42%, #fcb045 100%));
   --scw-surface-bg: var(--dark-blue-c0, #18162ec0);
-  --scw-panel-bg: var(--dark-blue-c0, #18162ec0);
   --scw-surface-blur: blur(7px);
   --scw-border: 1px solid var(--golden, #f3c267);
   --scw-header-bg: url("../../../systems/daggerheart/assets/parchments/dh-parchment-dark.png") center / cover, var(--deep-black, #0e0d15);
@@ -360,7 +357,6 @@ body.theme-light .sc-combat-wheel[data-scw-theme="daggerheart"] {
   --scw-divider: #18162e40;
   --scw-accent: #18162e;
   --scw-surface-bg: url("../../../systems/daggerheart/assets/parchments/dh-parchment-light.png") center / cover, var(--beige, #efe6d8);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-surface-blur: none;
   --scw-border: 1px solid #18162e;
   --scw-btn-primary-text: var(--golden, #f3c267);
@@ -405,7 +401,6 @@ body.theme-light .sc-combat-wheel[data-scw-theme="daggerheart"] {
   --scw-critical: #ff6400;
   --scw-hp-fill: #922d2e;
   --scw-surface-bg: url("../../../systems/CoC7/assets/art/page-light.webp") 0 0, #efe3c2;
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px groove #7a6a54;
   --scw-header-bg: #2c471d;
   --scw-header-text: #ffffff;
@@ -532,7 +527,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
     linear-gradient(var(--holo), var(--holo)) bottom right / 2px 12px no-repeat,
     repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.06) 0 1px, transparent 1px 3px),
     rgba(6, 30, 48, 0.78);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-surface-blur: blur(6px);
   --scw-border: 1px solid rgba(0, 229, 255, 0.45);
   --scw-header-bg: linear-gradient(90deg, rgba(0, 229, 255, 0.28), rgba(0, 229, 255, 0.04));
@@ -581,7 +575,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   --scw-surface-bg:
     radial-gradient(ellipse at 50% 120%, rgba(255, 43, 214, 0.18), transparent 60%),
     rgba(20, 8, 32, 0.9);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid #ff2bd6;
   --scw-header-bg: linear-gradient(90deg, #ff2bd6, #7a2bff);
   --scw-header-text: #ffffff;
@@ -630,7 +623,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   --scw-surface-bg:
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px),
     radial-gradient(ellipse at center, #06200b, #020a03);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid #1f8f3a;
   --scw-header-bg: #0a3a16;
   --scw-header-text: #b6ffc6;
@@ -690,7 +682,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   --scw-surface-bg:
     repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 8px),
     #1c1a17;
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid #4a4234;
   --scw-header-bg: #ffb000;
   --scw-header-text: #151310;
@@ -1071,7 +1062,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   --scw-secret: #7b3fa0;
   --scw-critical: #b8322a;
   --scw-hp-fill: #3d5f86;
-  --scw-panel-bg: #e9ecef;
   --scw-name-weight: 600;
   --scw-radius: 4px;
   --scw-radius-sm: 2px;
@@ -1458,7 +1448,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
     repeating-linear-gradient(0deg, rgba(255, 46, 151, 0.07) 0 1px, transparent 1px 24px),
     linear-gradient(180deg, transparent 55%, rgba(255, 138, 61, 0.16)),
     rgba(30, 10, 48, 0.9);
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid #ff2e97;
   --scw-header-bg: linear-gradient(90deg, #ff2e97, #ff8a3d);
   --scw-header-text: #1a0626;
@@ -1508,7 +1497,6 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
     linear-gradient(135deg, #fcee0a 0 10px, transparent 10px) top left / 14px 14px no-repeat,
     repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.04) 0 1px, transparent 1px 4px),
     #0e0e0b;
-  --scw-panel-bg: var(--scw-surface-bg);
   --scw-border: 1px solid #fcee0a;
   --scw-header-bg: #fcee0a;
   --scw-header-text: #0a0a08;

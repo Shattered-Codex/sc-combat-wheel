@@ -26,3 +26,10 @@ describe("upgradeLook (RF-111)", () => {
     assert.equal(upgradeLook(null), null);
   });
 });
+
+describe("withdrawn options", () => {
+  it("draws a look saved with the arc bar with the straight bar", () => {
+    assert.equal(upgradeLook({ barLayout: "arc" }).barLayout, "bar");
+    assert.equal(upgradeLook({ barLayout: "split" }).barLayout, "split");
+  });
+});

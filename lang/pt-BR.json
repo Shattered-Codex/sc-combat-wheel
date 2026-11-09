@@ -6,8 +6,8 @@
     },
     "Settings": {
       "openOnStart": {
-        "Name": "Abrir ao iniciar o combate",
-        "Hint": "Mostra a roda para todos assim que o combate começa e fecha quando ele termina."
+        "Name": "Abrir automaticamente",
+        "Hint": "Mostra a roda para todos assim que o combate tem combatentes, para rolarem a iniciativa, e de novo quando ele começa. Fecha quando ele termina."
       },
       "hideNativeTracker": {
         "Name": "Esconder a aba nativa de combate",
@@ -45,8 +45,31 @@
       },
       "clickAction": {
         "Name": "Clique na fatia",
-        "Hint": "O que acontece ao clicar num retrato.",
+        "Hint": "O que acontece ao clicar num retrato com o botão esquerdo.",
         "Choices": {
+          "menu": "Abrir um menu (câmera, ficha, movimento, remover)",
+          "pan": "Centralizar a câmera no token",
+          "select": "Selecionar o token",
+          "sheet": "Abrir a ficha",
+          "none": "Nada"
+        }
+      },
+      "doubleClickAction": {
+        "Name": "Duplo clique na fatia",
+        "Hint": "O que acontece ao dar duplo clique num retrato. O clique simples acontece antes, como no tracker do Foundry.",
+        "Choices": {
+          "menu": "Abrir um menu (câmera, ficha, movimento, remover)",
+          "pan": "Centralizar a câmera no token",
+          "select": "Selecionar o token",
+          "sheet": "Abrir a ficha",
+          "none": "Nada"
+        }
+      },
+      "rightClickAction": {
+        "Name": "Clique direito na fatia",
+        "Hint": "O que acontece ao clicar num retrato com o botão direito. O menu reúne o que você pode fazer com aquele combatente; o Mestre também pode limpar o movimento dele e tirá-lo do combate.",
+        "Choices": {
+          "menu": "Abrir um menu (câmera, ficha, movimento, remover)",
           "pan": "Centralizar a câmera no token",
           "select": "Selecionar o token",
           "sheet": "Abrir a ficha",
@@ -66,6 +89,18 @@
           "slow": "Lento"
         }
       },
+      "sceneButtonWheel": {
+        "Name": "Botão da roda nos controles de token",
+        "Hint": "Abre e fecha a roda. Sem ele, a roda continua abrindo sozinha quando o combate começa, e pelo atalho de teclado, se você definir um."
+      },
+      "sceneButtonStyles": {
+        "Name": "Botão de estilos nos controles de token",
+        "Hint": "A troca rápida do Mestre entre os estilos salvos. Sem ele, o menu do tracker de combate continua oferecendo a troca."
+      },
+      "sceneButtonResetPosition": {
+        "Name": "Botão de recentralizar nos controles de token",
+        "Hint": "Traz a roda de volta ao lugar padrão. Sem ele, o botão abaixo continua fazendo isso, assim como o menu do tracker de combate (Mestre) e o atalho de teclado, se você definir um."
+      },
       "animationSpeed": {
         "Name": "Velocidade da animação",
         "Hint": "Quão rápido a roda gira. A preferência de movimento reduzido do sistema sempre vence.",
@@ -78,7 +113,7 @@
       },
       "portraitSource": {
         "Name": "Fonte do retrato",
-        "Hint": "Imagem mostrada em cada fatia.",
+        "Hint": "Imagem mostrada em cada fatia. Cada usuário pode escolher o token ou o retrato do personagem no próprio visual (Aparência → Retratos).",
         "Choices": {
           "token": "Imagem do token",
           "actor": "Retrato do ator",
@@ -125,6 +160,15 @@
         "Choices": {
           "sector": "Setor",
           "square": "Quadrado de cantos suaves"
+        }
+      },
+      "portraitImage": {
+        "Name": "Imagem do retrato",
+        "Hint": "A arte do token ou o retrato do personagem. \"Como a mesa\" mantém o que o Mestre escolheu para o mundo. Jogadores só veem o retrato de um personagem quando o Foundry já mostra a eles (permissão Limitada ou mais); senão, o token.",
+        "Choices": {
+          "table": "Como a mesa",
+          "token": "Token",
+          "actor": "Retrato do personagem"
         }
       },
       "sliceGap": {
@@ -451,7 +495,27 @@
           "motes": "Poeira dourada",
           "confetti": "Confete",
           "runes": "Runas",
-          "wisps": "Fogos-fátuos"
+          "wisps": "Fogos-fátuos",
+          "smoke": "Fumaça",
+          "glyphs": "Glifos"
+        }
+      },
+      "particleMotion": {
+        "Name": "Movimento",
+        "Hint": "Como as partículas se movem. Automático dá a cada tipo o seu.",
+        "Choices": {
+          "auto": "Automático",
+          "burst": "Explodir para fora",
+          "rise": "Subir",
+          "fall": "Cair",
+          "swirl": "Girar",
+          "twinkle": "Cintilar",
+          "wander": "Vagar",
+          "drift": "Cair balançando",
+          "float": "Subir devagar",
+          "hover": "Pairar",
+          "orbit": "Orbitar",
+          "wave": "Subir em ondas"
         }
       },
       "particlePlacement": {
@@ -473,7 +537,7 @@
       },
       "particleIntensity": {
         "Name": "Intensidade dos efeitos",
-        "Hint": "A força de todos os efeitos: o de quem age, o da troca de turno e as partículas (quantas e o quanto brilham).",
+        "Hint": "A força de todos os efeitos: o de quem age, o do widget, o da troca de turno e as partículas. Mais forte é mais brilhante e depois maior: brilhos, chamas, anéis e partículas crescem, e aparecem mais partículas.",
         "Choices": {
           "subtle": "Sutil",
           "normal": "Normal",
@@ -589,6 +653,7 @@
           "lock": "Travar posição",
           "direction": "Direção",
           "appearance": "Aparência",
+          "style": "Trocar estilo (Mestre)",
           "settings": "Configurações",
           "endCombat": "Encerrar combate (Mestre)"
         }
@@ -602,8 +667,189 @@
           "halo": "Halo",
           "aura": "Aura de energia",
           "flicker": "Chama",
+          "flames": "Chamas de energia",
+          "inferno": "Inferno",
+          "void": "Vazio",
           "rays": "Coroa de raios",
+          "storm": "Tempestade",
+          "runes": "Círculo rúnico",
           "shine": "Reflexo"
+        }
+      },
+      "announceMode": {
+        "Name": "Mostrar",
+        "Hint": "Automático: em toda vez para o Mestre, na própria vez para o jogador. Desligado desliga para você.",
+        "Choices": {
+          "auto": "Automático",
+          "own": "Só na minha vez",
+          "all": "Na vez de todos",
+          "off": "Desligado"
+        }
+      },
+      "announceNextUp": {
+        "Name": "Também quando eu for o próximo",
+        "Hint": "Um aviso pequeno quando a sua vez (ou fase) é a próxima, no lugar da notificação do Foundry. O Mestre pode desligar o \"próximo\" para a mesa."
+      },
+      "announceTitle": {
+        "Name": "Título da sua vez",
+        "Hint": "O que a sua vez diz. Vazio usa o padrão.",
+        "Placeholder": "Sua vez!"
+      },
+      "announceImage": {
+        "Name": "Imagem",
+        "Hint": "A arte do personagem (só quando o Foundry já mostra a você), o token, ou nenhuma imagem.",
+        "Choices": {
+          "actor": "Arte do personagem",
+          "token": "Token",
+          "none": "Nenhuma"
+        }
+      },
+      "announceFrame": {
+        "Name": "Formato do retrato",
+        "Hint": "Redondo, quadrado, retângulo em pé, ou livre: a arte inteira, sem recorte (bom para tokens com fundo transparente).",
+        "Choices": {
+          "round": "Redondo",
+          "square": "Quadrado",
+          "tall": "Retângulo em pé",
+          "free": "Livre"
+        }
+      },
+      "announceBorder": {
+        "Name": "Borda",
+        "Hint": "Uma borda grossa na cor, uma fina, só um brilho, ou nenhuma.",
+        "Choices": {
+          "color": "Grossa, na cor",
+          "thin": "Fina",
+          "glow": "Só brilho",
+          "none": "Sem borda"
+        }
+      },
+      "announceStyle": {
+        "Name": "Formato",
+        "Hint": "Um cartão, uma faixa de ponta a ponta, ou pequeno junto aos controles da cena.",
+        "Choices": {
+          "card": "Cartão",
+          "cinematic": "Faixa cinematográfica",
+          "corner": "Canto"
+        }
+      },
+      "announcePosition": {
+        "Name": "Posição",
+        "Hint": "Onde aparece na tela.",
+        "Choices": {
+          "top": "Em cima",
+          "center": "No centro",
+          "bottom": "Embaixo"
+        }
+      },
+      "announceSize": {
+        "Name": "Tamanho",
+        "Hint": "O tamanho dos retratos e do texto.",
+        "Choices": {
+          "small": "Pequeno",
+          "normal": "Normal",
+          "large": "Grande"
+        }
+      },
+      "announceSeconds": {
+        "Name": "Segundos na tela",
+        "Hint": "Quanto tempo fica. Um clique dispensa antes."
+      },
+      "announceEntrance": {
+        "Name": "Entrada",
+        "Hint": "Como ele chega. Com movimento reduzido só aparece.",
+        "Choices": {
+          "zoom": "Zoom",
+          "slide": "Deslizar",
+          "fade": "Surgir"
+        }
+      },
+      "announceColor": {
+        "Name": "Cor",
+        "Hint": "O lado de cada combatente (aliado, inimigo…), o destaque do tema, ou uma cor sua. Uma fase usa a própria cor.",
+        "Choices": {
+          "side": "Lado",
+          "theme": "Tema",
+          "custom": "Minha cor"
+        }
+      },
+      "announceCustomColor": {
+        "Name": "Cor própria",
+        "Hint": "A cor do aviso e dos efeitos."
+      },
+      "announceEffect": {
+        "Name": "Efeito em volta do retrato",
+        "Hint": "Os mesmos efeitos de quem age.",
+        "Choices": {
+          "none": "Nenhum",
+          "pulse": "Brilho pulsante",
+          "halo": "Halo",
+          "aura": "Aura de energia",
+          "flicker": "Chama",
+          "flames": "Chamas de energia",
+          "inferno": "Inferno",
+          "void": "Vazio",
+          "rays": "Coroa de raios",
+          "storm": "Tempestade",
+          "runes": "Círculo rúnico"
+        }
+      },
+      "announceParticles": {
+        "Name": "Partículas",
+        "Hint": "Partículas em volta do retrato enquanto aparece.",
+        "Choices": {
+          "none": "Nenhuma",
+          "embers": "Brasas",
+          "arcane": "Arcano",
+          "stardust": "Poeira estelar",
+          "frost": "Geada",
+          "shadow": "Sombra",
+          "fireflies": "Vaga-lumes",
+          "petals": "Pétalas",
+          "bubbles": "Bolhas",
+          "sparks": "Faíscas",
+          "snow": "Neve",
+          "rain": "Chuva",
+          "leaves": "Folhas caindo",
+          "ash": "Cinzas",
+          "motes": "Poeira dourada",
+          "confetti": "Confete",
+          "runes": "Runas",
+          "wisps": "Fogos-fátuos",
+          "smoke": "Fumaça",
+          "glyphs": "Glifos"
+        }
+      },
+      "announceIntensity": {
+        "Name": "Intensidade",
+        "Hint": "O brilho e o tamanho do efeito e das partículas.",
+        "Choices": {
+          "subtle": "Sutil",
+          "normal": "Normal",
+          "strong": "Forte"
+        }
+      },
+      "announceShareCard": {
+        "Name": "Mostrar meu cartão para a mesa",
+        "Hint": "Na vez do seu personagem, todos veem o aviso com a sua imagem, moldura, borda, formato, entrada, cor, efeito e partículas. Onde aparece, o tamanho e quanto tempo fica são de cada um. Para o Mestre, é o padrão dos jogadores que seguem o visual da mesa."
+      },
+      "announcePlayerCards": {
+        "Name": "Ver o cartão de cada jogador",
+        "Hint": "Na vez do personagem de um jogador, o cartão que ele compartilha. Desligado: todo aviso usa o seu próprio visual."
+      },
+      "actingWaves": {
+        "Name": "Ondas em quem age",
+        "Hint": "Anéis que não param de sair do retrato de quem age, como no SC Item Rarity Colors. Somam-se ao efeito acima.",
+        "Choices": {
+          "none": "Nenhuma",
+          "energy": "Energia",
+          "ripples": "Ondulações",
+          "shockwave": "Onda de choque",
+          "arcane": "Arcana",
+          "mist": "Névoa",
+          "sonar": "Sonar",
+          "prism": "Prisma",
+          "burst": "Explosão"
         }
       },
       "turnEffect": {
@@ -614,7 +860,23 @@
           "ripple": "Ondas",
           "burst": "Explosão de luz",
           "flash": "Clarão",
-          "pop": "Salto"
+          "pop": "Salto",
+          "shockwave": "Onda de choque",
+          "lightning": "Relâmpago"
+        }
+      },
+      "widgetEffect": {
+        "Name": "Efeito em volta do widget",
+        "Hint": "Desenhado em volta da roda inteira (a borda dela) ou da fileira de cartões, o tempo todo.",
+        "Choices": {
+          "none": "Nenhum",
+          "pulse": "Brilho pulsante",
+          "halo": "Halo",
+          "flames": "Chamas de energia",
+          "inferno": "Inferno",
+          "rays": "Coroa de raios",
+          "storm": "Tempestade",
+          "runes": "Moldura rúnica"
         }
       },
       "soundTurnBack": {
@@ -697,7 +959,9 @@
       "ConsequenceFailed": "\"{name}\": a consequência {kind} falhou. Veja o console para detalhes.",
       "AppearanceSaved": "Aparência da Roda de Iniciativa salva.",
       "PhaseNextUp": "Sua fase é a próxima: {name}. Prepare-se.",
-      "PositionReset": "A roda voltou para o lugar padrão."
+      "PositionReset": "A roda voltou para o lugar padrão.",
+      "LookImported": "Visual “{name}” carregado. Salve para usar.",
+      "LookImportFailed": "Esse arquivo não é um visual da Roda de Combate."
     },
     "Slice": {
       "RollOne": "Rolar iniciativa",
@@ -741,6 +1005,7 @@
       "Waiting": "Aguardando",
       "Acting": "Agindo",
       "First": "Primeiro",
+      "Yours": "Seu personagem",
       "Viewing": "Visualizando",
       "Virtual": "Posição virtual"
     },
@@ -785,6 +1050,7 @@
       "SeeAll": "Ver todos",
       "Settings": "Configurações",
       "EndTurn": "Encerrar turno",
+      "StartCombat": "Iniciar combate",
       "More": "Mais",
       "Locked": "Posição travada",
       "Appearance": "Aparência",
@@ -805,7 +1071,8 @@
       "Npc": "Só NPCs",
       "Pc": "Só personagens",
       "Reset": "Limpar iniciativas",
-      "Kicker": "Iniciativa"
+      "Kicker": "Iniciativa",
+      "Group": "Rolar iniciativa: {group} ({count})"
     },
     "Details": {
       "Character": "Personagem",
@@ -830,12 +1097,15 @@
       "Close": "Fechar",
       "RemoveVirtual": "Remover esta posição virtual",
       "Insert": "Adicionar uma posição virtual aqui",
+      "InsertBeforeUnrolled": "Adicionar uma posição virtual aqui: quem ainda não rolou iniciativa fica sempre no fim, depois dela",
       "NewVirtual": "Nova posição virtual",
       "NoTemplate": "Sem modelo: só uma mensagem na tela",
       "Cancel": "Cancelar",
       "Add": "Adicionar",
       "TitlePlaceholder": "Título (ex.: O covil treme)",
-      "MessagePlaceholder": "Mensagem mostrada na tela quando a vez chegar"
+      "MessagePlaceholder": "Mensagem mostrada na tela quando a vez chegar",
+      "ImagePlaceholder": "Imagem (opcional: a do modelo, ou um raio)",
+      "ManageVirtual": "Configurar posições virtuais"
     },
     "Sounds": {
       "off": "Desligado",
@@ -967,11 +1237,11 @@
         "portraits": "Retratos",
         "bar": "Barra",
         "phases": "Fases",
-        "motion": "Movimento",
         "effects": "Efeitos",
         "sharing": "Compartilhar",
         "sounds": "Sons",
-        "visual": "Visual"
+        "visual": "Visual",
+        "announce": "Aviso de turno"
       },
       "Names": {
         "knight": "Cavaleira",
@@ -992,7 +1262,8 @@
         "effects": "As partículas são desenhadas pelo navegador só com animações CSS, e param quando o sistema pede movimento reduzido.",
         "presets": "Escolha um visual completo para começar e depois mude o que quiser nas outras seções. Nada é salvo até você apertar Salvar.",
         "sounds": "Valem só para este navegador: estilos prontos e o visual da mesa nunca mexem neles. Avance a prévia com Sons ligado para ouvir na ordem do combate.",
-        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto, os painéis e os retratos. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta."
+        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto, os painéis e os retratos. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta.",
+        "announce": "Um aviso na tela quando chega uma vez — a sua, ou a de todos — com efeito e partículas em volta do retrato. Sob o SC Venaerys's Initiative, mostra a fase com todos os seus membros."
       },
       "Sections": "Seções",
       "ThemeColor": "Do tema",
@@ -1005,6 +1276,7 @@
         "panels": "Painéis",
         "sides": "Lados",
         "acting": "Efeitos",
+        "widget": "Em volta do widget",
         "text": "Texto",
         "particles": "Partículas",
         "motion": "Movimento",
@@ -1015,7 +1287,12 @@
         "soundEvents": "Quando tocar",
         "banner": "Mensagem das posições virtuais",
         "finish": "Acabamento",
-        "palette": "Paleta"
+        "palette": "Paleta",
+        "announceWhen": "Quando",
+        "announceContent": "O que mostra",
+        "announceLook": "Como fica",
+        "announceFx": "Efeitos",
+        "announceShare": "Cartões dos jogadores"
       },
       "CloseGallery": "Fechar estilos prontos",
       "TurnLabel": "Rodada {round} · {turn}",
@@ -1054,7 +1331,13 @@
       "ContrastAccent": "O destaque quase não se separa dos painéis ({ratio}:1; o mínimo é 3:1).",
       "ContrastFix": "Escolha outras cores, ou gere uma paleta a partir de uma cor acima.",
       "ThemesHint": "Aponte para um tema para vê-lo na prévia; clique para escolher.",
-      "CloseThemes": "Fechar os temas"
+      "CloseThemes": "Fechar os temas",
+      "Import": "Importar",
+      "ImportHint": "Carrega no editor um visual de um arquivo .json. Salve para usar.",
+      "Export": "Exportar",
+      "ExportHint": "Salva o que está na tela num arquivo .json, para levar a outro mundo ou compartilhar.",
+      "TestAnnounce": "Testar o aviso",
+      "TestAnnounceHint": "Mostra o aviso como ele vai aparecer, com o que está na tela agora."
     },
     "Virtual": {
       "Name": "Nome",
@@ -1134,9 +1417,10 @@
     "Sharing": {
       "Mode": {
         "Name": "Visual da mesa",
-        "Hint": "O seu visual salvo é o visual da mesa. Jogadores escolhem: seguem até criar o próprio. Todos usam o meu: os jogadores não podem mudar. Cada um usa o próprio: ninguém segue.",
+        "Hint": "O seu visual salvo é o visual da mesa. Jogadores escolhem: seguem até criar o próprio. Trancar algumas opções: um cadeado em cada opção; o que você trancar todos usam como você definiu, e os jogadores nem veem; o resto cada um escolhe. Todos usam o meu: os jogadores não podem mudar. Cada um usa o próprio: ninguém segue.",
         "Choices": {
           "optional": "Jogadores escolhem",
+          "partial": "Trancar algumas opções",
           "forced": "Todos usam o meu",
           "off": "Cada um usa o próprio"
         }
@@ -1148,7 +1432,11 @@
       },
       "FollowingNotice": "Você está usando o visual do Mestre. Mude qualquer coisa para criar o seu.",
       "ForcedNotice": "O Mestre escolheu o visual da mesa toda.",
-      "OffNotice": "Nesta mesa, cada jogador usa o próprio visual."
+      "OffNotice": "Nesta mesa, cada jogador usa o próprio visual.",
+      "LockNotice": "Clique no cadeado de uma opção para a mesa toda usar o seu valor nela; os jogadores não vão vê-la. As opções abertas, cada jogador escolhe. Fica salvo com o visual.",
+      "PartialNotice": "O Mestre definiu algumas opções para a mesa toda; elas não aparecem aqui. O resto é você quem escolhe.",
+      "Lock": "Trancar para a mesa toda",
+      "Unlock": "Destrancar para os jogadores"
     },
     "CoreCombat": {
       "NoTheme": "Nenhum",
@@ -1228,32 +1516,56 @@
     },
     "CombatStyles": {
       "Gallery": "Estilos",
-      "Title": "Estilos da mesa",
+      "Title": "Estilos salvos",
       "Save": "Salvar o visual atual como estilo",
-      "SaveTitle": "Salvar estilo de combate",
+      "SaveTitle": "Salvar estilo",
       "Name": "Nome",
       "Saved": "Estilo “{name}” salvo.",
-      "Default": "Estilo padrão dos combates",
-      "DefaultHint": "Todo combate usa este, a menos que outro seja escolhido para ele. O visual de sempre é o visual da mesa que você publica ao salvar.",
-      "Prompt": "Perguntar o estilo ao iniciar cada combate",
-      "Usual": "O visual de sempre",
-      "IsDefault": "Padrão dos combates",
       "Delete": "Apagar estilo",
-      "DeleteText": "Apagar o estilo “{name}”? Os combates que o usavam voltam ao visual de sempre.",
-      "EmptyGM": "Nenhum estilo salvo ainda. Monte um visual e salve aqui para usar nos seus combates.",
+      "DeleteText": "Apagar o estilo “{name}”? O visual atual continua como está.",
+      "EmptyGM": "Nenhum estilo salvo ainda. Monte um visual e salve aqui para trocar para ele quando quiser.",
       "Empty": "O Mestre ainda não salvou nenhum estilo.",
-      "ActiveNotice": "Este combate usa o estilo “{name}”. O que você muda aqui é o visual de sempre, que aparece fora dele.",
-      "AskTitle": "Estilo do combate",
-      "AskText": "Qual visual a mesa deve ver neste combate?",
+      "AskTitle": "Trocar estilo",
+      "AskText": "Qual estilo salvo a mesa deve ver agora?",
       "Use": "Usar este estilo",
       "Field": "Estilo",
-      "UsualMeta": "O visual da mesa, como está salvo",
       "NoMatch": "Nenhum estilo com esse nome",
-      "Choose": "Estilo deste combate…",
-      "UseInCombat": "Usar neste combate",
-      "Applied": "Este combate agora usa “{name}”.",
-      "NoCombat": "Não há combate para receber um estilo.",
-      "NoStyles": "Nenhum estilo salvo ainda: salve um em Estilos, no editor de aparência."
+      "Choose": "Trocar estilo…",
+      "Applied": "A mesa agora usa “{name}”.",
+      "NoStyles": "Nenhum estilo salvo ainda: salve um em Estilos, no editor de aparência.",
+      "Current": "Visual atual"
+    },
+    "Announce": {
+      "YourTurn": "Sua vez!",
+      "TurnOf": "Vez de {name}",
+      "YourPhase": "Sua fase!",
+      "PhaseNow": "Fase atual",
+      "NextUp": "Você é o próximo",
+      "NextUpLine": "Você é o próximo!"
+    },
+    "SliceMenu": {
+      "Pan": "Centralizar a câmera",
+      "Select": "Selecionar o token",
+      "Sheet": "Abrir a ficha",
+      "ClearMovement": "Limpar o movimento",
+      "Remove": "Remover do combate"
+    },
+    "Community": {
+      "Label": "Links da comunidade",
+      "wiki": {
+        "Label": "Abrir wiki",
+        "Tooltip": "Abrir a wiki dos módulos da Shattered Codex."
+      },
+      "patreon": {
+        "Label": "Apoiar no Patreon",
+        "Tooltip": "Apoie o desenvolvimento da Shattered Codex no Patreon."
+      },
+      "discord": {
+        "Label": "Discord",
+        "Tooltip": "Entre no servidor do Discord da Shattered Codex."
+      },
+      "NoteSupport": "Está gostando do módulo? Considere entrar no meu Patreon para ter acesso a muitos outros módulos, e dê uma olhada na wiki.",
+      "NoteFeedback": "Tem uma sugestão ou encontrou um bug? Me conte no canal do Discord."
     }
   }
 }

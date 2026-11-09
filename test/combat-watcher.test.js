@@ -12,7 +12,7 @@ function fakeApp({ visible = true } = {}) {
     combatId: null,
     renders: [],
     closed: 0,
-    hasVisibleCombatants: () => visible,
+    hasVisibleCombatants: (combat) => visible && combat.turns.length > 0,
     get isOpen() {
       return this.rendered;
     },
@@ -33,13 +33,14 @@ const fire = (hook, ...args) => {
   for (const fn of registered.on.get(hook) ?? []) fn(...args);
 };
 
-function setup({ round = 0, openOnStart = true, visible = true } = {}) {
+function setup({ round = 0, openOnStart = true, visible = true, withCombatant = true } = {}) {
   registered.on.clear();
   const combat = { id: "c1", round, started: round > 0, combatants: [], turns: [] };
   game.combat = combat;
   game.combats = [combat];
   game.settings.get = (module, key) => (key === "openOnStart" ? openOnStart : undefined);
   const app = fakeApp({ visible });
+  if (withCombatant) combat.turns.push({ id: "a" });
   const turns = [];
   const watcher = new CombatWatcher({ createApp: () => app, onTurnChanged: (c, previous) => turns.push(previous) });
   watcher.start();
@@ -50,8 +51,9 @@ describe("CombatWatcher — the wheel appears when combat starts (RF-00)", () =>
   beforeEach(() => registered.on.clear());
 
   it("opens on every client when the round goes from 0 to 1", () => {
-    const { combat, app } = setup();
-    assert.equal(app.renders.length, 0, "nothing before the start");
+    const { combat, app } = setup({ withCombatant: false });
+    assert.equal(app.renders.length, 0, "nobody to show yet");
+    combat.turns.push({ id: "a" });
     combat.round = 1;
     combat.started = true;
     fire("updateCombat", combat, { round: 1, turn: 0 });
@@ -138,6 +140,44 @@ describe("CombatWatcher — the wheel appears when combat starts (RF-00)", () =>
     fire("deleteCombatant", { parent: combat });
     await Promise.resolve();
     assert.deepEqual(turns, [{ round: 1, turn: 1 }]);
+  });
+
+  it("opens on load before the start once the combat has combatants", () => {
+    assert.equal(setup().app.renders.length, 1);
+    assert.equal(setup({ withCombatant: false }).app.renders.length, 0);
+  });
+
+  it("opens when the first combatant this user may see joins or is revealed", async () => {
+    const { combat, app } = setup({ withCombatant: false });
+    fire("createCombatant", { parent: combat });
+    await Promise.resolve();
+    assert.equal(app.renders.length, 0, "the turns have nobody yet");
+    combat.turns.push({ id: "a" });
+    fire("updateCombatant", { parent: combat }, { hidden: false });
+    await Promise.resolve();
+    assert.equal(app.renders.length, 1);
+  });
+
+  it("ignores combatants of a combat that is not the viewed one", async () => {
+    const { app } = setup({ withCombatant: false });
+    const other = { id: "c2", round: 0, turns: [{ id: "x" }] };
+    game.combat.turns.push({ id: "a" });
+    fire("createCombatant", { parent: other });
+    await Promise.resolve();
+    assert.equal(app.renders.length, 0);
+  });
+
+  it("stays closed for joining combatants once the user closed it, and comes back at the start", async () => {
+    const { combat, app, watcher } = setup();
+    watcher.toggle();
+    assert.equal(app.closed, 1);
+    fire("createCombatant", { parent: combat });
+    await Promise.resolve();
+    assert.equal(app.renders.length, 1, "only the load-time open");
+    combat.round = 1;
+    combat.started = true;
+    fire("updateCombat", combat, { round: 1, turn: 0 });
+    assert.equal(app.renders.length, 2);
   });
 
   it("closes when the displayed combat is deleted", () => {

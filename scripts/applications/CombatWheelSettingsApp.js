@@ -69,7 +69,12 @@ export default class CombatWheelSettingsApp extends HandlebarsApplicationMixin(A
   }
 
   static #entriesOf(sectionId) {
-    return SETTINGS_SCHEMA.filter((entry) => entry.section === sectionId);
+    return SETTINGS_SCHEMA.filter((entry) => entry.section === sectionId && CombatWheelSettingsApp.#offered(entry));
+  }
+
+  /** A `gmOnly` setting is about something only the GM has: a player neither sees nor saves it. */
+  static #offered(entry) {
+    return !entry.gmOnly || game.user.isGM;
   }
 
   /** The settings this window edits: an editor section's belong to that editor, never to this draft. */
@@ -77,7 +82,7 @@ export default class CombatWheelSettingsApp extends HandlebarsApplicationMixin(A
     const ids = new Set(
       CombatWheelSettingsApp.#visibleSections().filter((section) => section.kind !== "editor").map((section) => section.id),
     );
-    return SETTINGS_SCHEMA.filter((entry) => ids.has(entry.section));
+    return SETTINGS_SCHEMA.filter((entry) => ids.has(entry.section) && CombatWheelSettingsApp.#offered(entry));
   }
 
   #activeSection() {

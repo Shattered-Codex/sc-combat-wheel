@@ -3,10 +3,12 @@ import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   PARTICLE_AMOUNTS,
+  PARTICLE_MOTIONS,
   PARTICLE_PRESETS,
   PARTICLE_TYPES,
   buildParticles,
   particleSignature,
+  resolveMotion,
 } from "../scripts/helpers/particle-presets.js";
 
 /** A small deterministic generator (mulberry32). */
@@ -28,7 +30,7 @@ const presetShapes = (type) => PARTICLE_PRESETS[type].shapes.map(([shape]) => sh
 describe("buildParticles", () => {
   it("returns nothing for none or an unknown type", () => {
     assert.deepEqual(buildParticles({ type: "none", box }), []);
-    assert.deepEqual(buildParticles({ type: "glyphs", box }), []);
+    assert.deepEqual(buildParticles({ type: "comets", box }), []);
     assert.deepEqual(buildParticles({ box }), []);
   });
 
@@ -39,7 +41,7 @@ describe("buildParticles", () => {
   it("keeps the stored type ids in order, none first", () => {
     assert.deepEqual(PARTICLE_TYPES, [
       "none", "embers", "arcane", "stardust", "frost", "shadow", "fireflies", "petals", "bubbles", "sparks",
-      "snow", "rain", "leaves", "ash", "motes", "confetti", "runes", "wisps",
+      "snow", "rain", "leaves", "ash", "motes", "confetti", "runes", "wisps", "smoke", "glyphs",
     ]);
   });
 
@@ -115,6 +117,34 @@ describe("buildParticles", () => {
     }
   });
 
+  it("moves every type the chosen way, or its own under auto (RF-116)", () => {
+    assert.equal(resolveMotion("embers", "auto"), "rise");
+    assert.equal(resolveMotion("embers", "fall"), "fall");
+    assert.equal(resolveMotion("embers", "nonsense"), "rise");
+    assert.ok(!PARTICLE_MOTIONS.includes("rain"), "rain is the rain's own");
+    const falling = buildParticles({ type: "embers", motion: "fall", amount: "many", box, random: seeded(4) });
+    assert.ok(falling.every(({ vars }) => parseFloat(vars["--p2y"]) > parseFloat(vars["--p0y"])), "embers made to fall fall");
+    for (const { className } of buildParticles({ type: "sparks", motion: "orbit", box, random: seeded(4) })) {
+      assert.match(className, /scw-fx-pm--spiral/);
+    }
+    for (const motion of PARTICLE_MOTIONS) {
+      for (const { vars } of buildParticles({ type: "arcane", motion, box, random: seeded(2) })) {
+        assert.ok(Object.values(vars).every((value) => !/NaN|Infinity|undefined/.test(value)), motion);
+      }
+    }
+  });
+
+  it("draws stronger particles bigger", () => {
+    const size = (scale) => parseFloat(buildParticles({ type: "arcane", scale, box, random: seeded(8) })[0].vars["--s"]);
+    assert.ok(Math.abs(size(1.4) - size(1) * 1.4) < 0.02);
+  });
+
+  it("gives glyphs one of the strip's signs", () => {
+    for (const { vars } of buildParticles({ type: "glyphs", amount: "many", box, random: seeded(6) })) {
+      assert.ok(Number(vars["--g"]) >= 0 && Number(vars["--g"]) < 15);
+    }
+  });
+
   it("stays finite for empty or tiny boxes", () => {
     for (const tiny of [undefined, { width: 0, height: 0 }, { width: 4, height: 4 }]) {
       for (const { vars } of buildParticles({ type: "sparks", box: tiny, random: seeded(3) })) {
@@ -137,6 +167,9 @@ describe("particleSignature", () => {
     assert.notEqual(base, particleSignature({ type: "embers", box }));
     assert.notEqual(base, particleSignature({ type: "frost", amount: "many", box }));
     assert.notEqual(base, particleSignature({ type: "frost", box: { width: 260, height: 120 } }));
+    assert.notEqual(base, particleSignature({ type: "frost", motion: "rise", box }));
+    assert.notEqual(base, particleSignature({ type: "frost", scale: 1.4, box }));
+    assert.equal(base, particleSignature({ type: "frost", motion: "fall", box }), "frost already falls");
   });
 
   it("collapses none and unknown types", () => {

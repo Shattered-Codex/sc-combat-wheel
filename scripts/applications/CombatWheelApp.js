@@ -2,10 +2,11 @@ import { ANIMATION_SPEED, MODULE_ID, SETTINGS, TEMPLATE_ROOT } from "../constant
 import { shortestOffset } from "../helpers/wheel-geometry.js";
 import { layoutFromSettings } from "../helpers/view-layout.js";
 import { normalizeOrientation } from "../helpers/orientation.js";
-import { initiativeBetween, initiativeForMove } from "../helpers/initiative-order.js";
-import { activeTheme, appearanceValues, getSetting, setSetting } from "../hooks/register-settings.js";
+import { initiativeAtSlot, initiativeForMove } from "../helpers/initiative-order.js";
+import { activeTheme, appearanceValues, currentStyleId, getSetting, savedStyles, setSetting } from "../hooks/register-settings.js";
 import { projectCombat } from "../services/project-combat.js";
 import CombatControls from "../services/CombatControls.js";
+import StylePicker from "../services/StylePicker.js";
 import TokenInteractions from "../services/TokenInteractions.js";
 import VirtualPositions from "../services/VirtualPositions.js";
 import WidgetPosition from "../services/WidgetPosition.js";
@@ -15,9 +16,10 @@ import WheelAnimator from "./WheelAnimator.js";
 import OverviewLayer from "./OverviewLayer.js";
 import WheelAppearance from "./WheelAppearance.js";
 import WheelParticles from "./WheelParticles.js";
-import WheelActingFx from "./WheelActingFx.js";
+import WheelFxLayer from "./WheelFxLayer.js";
 import WheelRenderer from "./WheelRenderer.js";
 import WheelViewData from "./WheelViewData.js";
+import SliceMenu from "./SliceMenu.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const HIDE_TRACKER_CLASS = "scw-hide-native-tracker";
@@ -39,6 +41,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       endTurn: CombatWheelApp.#onEndTurn,
       toggleMenu: CombatWheelApp.#onToggleMenu,
       previousTurn: CombatWheelApp.#onPreviousTurn,
+      startCombat: CombatWheelApp.#onStartCombat,
       endCombat: CombatWheelApp.#onEndCombat,
       endOwnTurn: CombatWheelApp.#onEndOwnTurn,
       toggleMemberDone: CombatWheelApp.#onToggleMemberDone,
@@ -51,6 +54,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       addVirtual: CombatWheelApp.#onAddVirtual,
       openSettings: CombatWheelApp.#onOpenSettings,
       openAppearance: CombatWheelApp.#onOpenAppearance,
+      applyStyle: CombatWheelApp.#onApplyStyle,
       backToTurn: CombatWheelApp.#onBackToTurn,
       viewStep: CombatWheelApp.#onViewStep,
     },
@@ -64,7 +68,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   #renderer = new WheelRenderer();
   #particles = new WheelParticles();
-  #actingFx = new WheelActingFx();
+  #actingFx = new WheelFxLayer("acting");
+  #widgetFx = new WheelFxLayer("widget");
   #grid = new OverviewLayer();
   /** Order signature of the ring the overview shows, to refresh it after a move or insert. */
   #gridSignature = "";
@@ -136,11 +141,15 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       theme: activeTheme(this.#look),
       viewIndex: this.#viewIndex ?? model.currentIndex,
       viewT: this.#viewT(),
-      templates: isGM ? VirtualPositions.templates() : [],
+      // Read when the form opens: templates set up meanwhile are offered at once.
+      templates: () => (isGM ? VirtualPositions.templates() : []),
       onClosed: (combatantId, pickedOn) => this.#onGridClosed(combatantId, pickedOn),
       onMove: isGM ? (id, slot) => this.#moveCombatant(id, slot) : null,
       onInsert: isGM ? (slot, data) => this.#insertVirtual(slot, data) : null,
+      onManageVirtual: isGM ? () => CombatWheelSettingsApp.open("virtual") : null,
       onRemove: isGM ? (id) => this.combat?.combatants.get(id)?.delete() : null,
+      // RF-122: a right click on a tile opens the same menu as on the wheel (remove from combat included, for the GM).
+      onContextMenu: (id, event) => this.#openSliceMenu(id, event),
     });
   }
 
@@ -161,9 +170,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** RF-69: a virtual position created right where the GM clicked "+". */
   #insertVirtual(slot, data) {
-    const ring = this.#model.ring;
-    const initiative = initiativeBetween(ring[slot - 1]?.initiative ?? null, ring[slot]?.initiative ?? null);
-    return VirtualPositions.addAt(this.combat, { ...data, initiative });
+    const initiatives = this.#model.ring.map((vm) => vm.initiative);
+    return VirtualPositions.addAt(this.combat, { ...data, initiative: initiativeAtSlot(initiatives, slot) });
   }
 
   /** RF-22: rotates back to the real turn, step by step the short way. */
@@ -208,6 +216,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
         orientation: this.#orientation,
         viewIndex: this.#viewIndex,
         virtualTemplates: game.user.isGM ? VirtualPositions.templates() : [],
+        savedStyles: game.user.isGM ? CombatWheelApp.#styleChoices() : [],
       },
     };
   }
@@ -318,7 +327,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
     this.#animator.show(this.#model ?? CombatWheelApp.#emptyModel(), this.#motion(), this.#viewT());
     this.#particles.update(element, WheelAppearance.particleOptions(look, this.#layout, this.#orientation, this.#model));
-    this.#actingFx.update(element, this.#layout, this.#orientation);
+    this.#widgetFx.update(element, WheelAppearance.widgetFxOptions(look, this.#layout, this.#orientation));
+    this.#actingFx.update(element, WheelAppearance.actingFxOptions(look, this.#layout, this.#orientation));
     if (this.#turnFxPending) {
       this.#turnFxPending = false;
       WheelAppearance.playTurnEffect(element);
@@ -337,9 +347,11 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     TokenInteractions.hoverOut(new PointerEvent("pointerleave"));
     this.#animator.reset();
     this.#grid.destroy();
+    SliceMenu.close();
     this.#renderer.unmount();
     this.#particles.destroy();
     this.#actingFx.destroy();
+    this.#widgetFx.destroy();
     this.#setViewIndex(null);
     this.#model = null;
     this.#ui = { menu: null, rolling: false };
@@ -363,12 +375,80 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     this.#grid.destroy();
     this.element.classList.remove("is-grid");
     this.#renderer.mount(container, layout, {
-      onClick: (id) => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)),
+      onClick: (id, event) => this.#runSliceAction(SETTINGS.clickAction, id, event),
+      onDoubleClick: (id, event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event),
+      onContextMenu: (id, event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event),
       onHoverIn: (id, event) => TokenInteractions.hoverIn(this.combat, id, event),
       onHoverOut: (event) => TokenInteractions.hoverOut(event),
       onRollOne: (id) => CombatControls.rollOne(this.combat, id),
     });
     this.#placeWidget();
+  }
+
+  /**
+   * RF-31: a click, double click or right click on a portrait runs the action
+   * its setting names, or opens the slice's menu (RF-122). A right click keeps
+   * the browser's own menu away only when it has something instead.
+   */
+  #runSliceAction(settingKey, combatantId, event) {
+    // A click set to open the menu has already opened it twice: the double click starts clean.
+    if (settingKey === SETTINGS.doubleClickAction) SliceMenu.close();
+    const action = getSetting(settingKey);
+    if (action === "none") return;
+    if (action !== "menu") {
+      event?.preventDefault();
+      return TokenInteractions.click(this.combat, combatantId, action);
+    }
+    return this.#openSliceMenu(combatantId, event);
+  }
+
+  /** RF-122: the slice's menu at the pointer, or by the portrait when the keyboard asked for it. */
+  #openSliceMenu(combatantId, event) {
+    const items = this.#sliceMenuItems(combatantId);
+    if (!items.length) return;
+    event.preventDefault();
+    // The keyboard's menu key gives no pointer: the menu opens by the portrait.
+    const target = event.currentTarget instanceof Element ? event.currentTarget : event.target;
+    const box = target?.getBoundingClientRect?.();
+    const fromKeyboard = !event.clientX && !event.clientY && box;
+    SliceMenu.open({
+      x: fromKeyboard ? box.left + box.width / 2 : event.clientX,
+      y: fromKeyboard ? box.top + box.height / 2 : event.clientY,
+      title: this.#visibleName(combatantId),
+      items,
+      returnFocus: target?.closest?.("[tabindex]") ?? null,
+    });
+  }
+
+  /**
+   * RF-122: what this user may do with one combatant from the wheel — find
+   * and open it like the clicks do, and for the GM, as the core tracker
+   * offers, clear what its token moved this combat and take it out.
+   */
+  #sliceMenuItems(combatantId) {
+    const combat = this.combat;
+    const combatant = combat?.combatants.get(combatantId);
+    if (!combatant) return [];
+    const label = (key) => game.i18n.localize(`SC_COMBAT_WHEEL.SliceMenu.${key}`);
+    const token = TokenInteractions.placeableFor(combat, combatantId);
+    const items = [];
+    if (token && TokenInteractions.isVisible(token)) items.push({ icon: "fa-crosshairs", label: label("Pan"), run: () => TokenInteractions.click(combat, combatantId, "pan") });
+    if (token?.isOwner) items.push({ icon: "fa-hand-pointer", label: label("Select"), run: () => TokenInteractions.click(combat, combatantId, "select") });
+    if (combatant.actor?.testUserPermission(game.user, "LIMITED")) {
+      items.push({ icon: "fa-id-card", label: label("Sheet"), run: () => TokenInteractions.click(combat, combatantId, "sheet") });
+    }
+    if (CombatControls.canClearMovement(combatant)) {
+      items.push({ icon: "fa-shoe-prints", label: label("ClearMovement"), run: () => CombatControls.clearMovement(combat, combatantId) });
+    }
+    if (game.user.isGM) items.push({ icon: "fa-trash-can", label: label("Remove"), danger: true, run: () => CombatControls.removeCombatant(combat, combatantId) });
+    return items;
+  }
+
+  /** The name this user reads for a combatant on the wheel or the phase strip (never one the tracker hides). */
+  #visibleName(combatantId) {
+    const model = this.#model;
+    const vm = model?.ring.find((entry) => entry.id === combatantId) ?? model?.phase?.acting.find((member) => member.id === combatantId);
+    return vm?.name ?? "";
   }
 
   #placeWidget() {
@@ -410,7 +490,9 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     // The phase strip's portraits act like the slices: click per setting, hover highlights the token.
     for (const actor of this.element.querySelectorAll("[data-strip-combatant]")) {
       const id = actor.dataset.stripCombatant;
-      actor.addEventListener("click", () => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)));
+      actor.addEventListener("click", (event) => this.#runSliceAction(SETTINGS.clickAction, id, event));
+      actor.addEventListener("dblclick", (event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event));
+      actor.addEventListener("contextmenu", (event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event));
       actor.addEventListener("pointerenter", (event) => TokenInteractions.hoverIn(this.combat, id, event));
       actor.addEventListener("pointerleave", (event) => TokenInteractions.hoverOut(event));
     }
@@ -438,6 +520,11 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   static #onPreviousTurn() {
     return this.previousTurn();
+  }
+
+  static #onStartCombat() {
+    this.#closeMenu();
+    return CombatControls.startCombat(this.combat);
   }
 
   static #onEndCombat() {
@@ -500,6 +587,20 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   static #onOpenSettings(event, target) {
     this.#closeMenu();
     return CombatWheelSettingsApp.open(target.dataset.tab);
+  }
+
+  /** RF-110: the saved styles for the bar's menu, the one the look is now marked. */
+  static #styleChoices() {
+    const styles = savedStyles();
+    if (!styles.length) return [];
+    const current = currentStyleId(styles);
+    return styles.map(({ id, name }) => ({ id, name, current: id === current }));
+  }
+
+  /** Saving the look rebuilds the wheel through the settings' onChange. */
+  static #onApplyStyle(event, target) {
+    this.#closeMenu();
+    return StylePicker.apply(target.dataset.styleId);
   }
 
   static #onOpenAppearance() {

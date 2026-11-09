@@ -5,7 +5,7 @@ import { normalizeOrientation } from "../helpers/orientation.js";
 import WheelAnimator from "./WheelAnimator.js";
 import WheelAppearance from "./WheelAppearance.js";
 import WheelParticles from "./WheelParticles.js";
-import WheelActingFx from "./WheelActingFx.js";
+import WheelFxLayer from "./WheelFxLayer.js";
 import WheelRenderer from "./WheelRenderer.js";
 import WheelViewData from "./WheelViewData.js";
 
@@ -13,7 +13,7 @@ import WheelViewData from "./WheelViewData.js";
 const STAGE_PADDING = 16;
 /** How long the sample strip runs past the end of the bar (head and four members). */
 const STRIP_LENGTH = 300;
-const NO_HANDLERS = Object.freeze({ onClick() {}, onHoverIn() {}, onHoverOut() {}, onRollOne() {} });
+const NO_HANDLERS = Object.freeze({ onClick() {}, onDoubleClick() {}, onContextMenu() {}, onHoverIn() {}, onHoverOut() {}, onRollOne() {} });
 /** The settings layoutFromSettings() reads; only they rebuild the slices. */
 const LAYOUT_KEYS = Object.freeze([
   "view", "layoutPreset", "customOuter", "customInner", "customStep", "anchor", "portraitShape", "sliceGap",
@@ -33,7 +33,8 @@ export default class AppearancePreview {
   #bar;
   #renderer = new WheelRenderer();
   #particles = new WheelParticles();
-  #actingFx = new WheelActingFx();
+  #actingFx = new WheelFxLayer("acting");
+  #widgetFx = new WheelFxLayer("widget");
   #lastT = null;
   #animator = new WheelAnimator(this.#renderer);
   #layout = null;
@@ -90,7 +91,8 @@ export default class AppearancePreview {
     WheelAppearance.applyGeometry(this.#root, this.#layout);
     WheelAppearance.applyLook(this.#root, values, { orientation, theme, expanded });
     this.#particles.update(this.#root, WheelAppearance.particleOptions(values, this.#layout, orientation, model));
-    this.#actingFx.update(this.#root, this.#layout, orientation);
+    this.#widgetFx.update(this.#root, WheelAppearance.widgetFxOptions(values, this.#layout, orientation));
+    this.#actingFx.update(this.#root, WheelAppearance.actingFxOptions(values, this.#layout, orientation));
     // Stepping the sample turn shows the turn effect, as the table would see it.
     if (this.#lastT !== null && model.T !== this.#lastT) WheelAppearance.playTurnEffect(this.#root);
     this.#lastT = model.T;
@@ -140,6 +142,7 @@ export default class AppearancePreview {
     this.#renderer.unmount();
     this.#particles.destroy();
     this.#actingFx.destroy();
+    this.#widgetFx.destroy();
   }
 
   async #renderParts(model, { phase, ...options }) {
@@ -203,6 +206,14 @@ export default class AppearancePreview {
     const bounds = widgetBounds(split ? { ...this.#layout, barWidth: 0 } : this.#layout, orientation, thickness);
     if (split) AppearancePreview.#withSplitColumns(bounds, orientation, this.#layout);
     if (strip) AppearancePreview.#withStrip(bounds, orientation, values);
+    // RF-116: the effects and particles stay inside the stage too, wherever this layout puts them.
+    const fx = WheelAppearance.fxBounds(values, this.#layout, orientation);
+    if (fx) {
+      bounds.minX = Math.min(bounds.minX, fx.minX);
+      bounds.maxX = Math.max(bounds.maxX, fx.maxX);
+      bounds.minY = Math.min(bounds.minY, fx.minY);
+      bounds.maxY = Math.max(bounds.maxY, fx.maxY);
+    }
     const boxWidth = bounds.maxX - bounds.minX;
     const boxHeight = bounds.maxY - bounds.minY;
     const wanted = (Number(values.scale) || 100) / 100;

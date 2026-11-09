@@ -1,4 +1,4 @@
-import { COMBAT_STYLE_FLAG, MODULE_ID, SETTINGS, TIMING } from "../constants/module-constants.js";
+import { SETTINGS, TIMING } from "../constants/module-constants.js";
 import { getSetting } from "../hooks/register-settings.js";
 import { turnChanged } from "../helpers/turn-events.js";
 import CombatWheelApp from "../applications/CombatWheelApp.js";
@@ -11,9 +11,9 @@ import VirtualPositions from "./VirtualPositions.js";
 import TurnAutomation from "./TurnAutomation.js";
 
 /**
- * Owns the widget's lifecycle: opens it when a combat starts (RF-00), closes it
- * when the combat goes away, and funnels document hooks into batched refreshes
- * (ARCHITECTURE §5). It also reacts to real turn changes (sounds, camera,
+ * Owns the widget's lifecycle: opens it once the viewed combat has someone this
+ * user may see, and again when it starts (RF-00), closes it when the combat
+ * goes away, and funnels document hooks into batched refreshes (ARCHITECTURE §5). It also reacts to real turn changes (sounds, camera,
  * notices, virtual positions) whether or not the wheel is open.
  */
 export default class CombatWatcher {
@@ -21,6 +21,8 @@ export default class CombatWatcher {
   #createApp;
   #onTurnChanged;
   #refreshTimer = null;
+  /** The combat whose wheel this user closed: combatants joining it no longer bring the wheel back; its start still does. */
+  #dismissedCombatId = null;
   /**
    * Last `{ round, turn }` seen per combat id: catches the 0 → ≥1 start on every
    * client and tells a real turn change (and its direction) from other updates.
@@ -86,6 +88,11 @@ export default class CombatWatcher {
       if ("initiative" in changed) this.#onRosterChanged(combatant.parent, { reportHandOver: false });
     });
     Hooks.on("updateCombatant", (combatant, changed) => VirtualPositions.onCombatantUpdated(combatant, changed));
+    // RF-00: the first combatant this user may see brings the wheel up, to roll initiative before the start.
+    Hooks.on("createCombatant", (combatant) => this.#autoOpenFor(combatant.parent));
+    Hooks.on("updateCombatant", (combatant, changed) => {
+      if ("hidden" in changed) this.#autoOpenFor(combatant.parent);
+    });
     for (const hook of ["updateActor", "updateActorDelta"]) {
       Hooks.on(hook, (document) => this.#refreshIfActorInCombat(document.actor ?? document));
     }
@@ -96,8 +103,7 @@ export default class CombatWatcher {
       Hooks.on(hook, (effect) => this.#refreshIfActorInCombat(effect.target ?? effect.parent));
     }
 
-    const combat = game.combat;
-    if (combat?.started && getSetting(SETTINGS.openOnStart)) this.open({ auto: true });
+    this.#autoOpen();
   }
 
   /** @param {{auto?: boolean}} [options] auto-opens are skipped when this user sees nobody. */
@@ -113,8 +119,14 @@ export default class CombatWatcher {
     this.#app?.close();
   }
 
+  /** Closed by the user, who wants it out of the way until the combat starts. */
+  dismiss() {
+    this.#dismissedCombatId = this.#app?.combatId ?? game.combat?.id ?? null;
+    this.close();
+  }
+
   toggle() {
-    if (this.app) this.close();
+    if (this.app) this.dismiss();
     else this.open();
   }
 
@@ -148,8 +160,6 @@ export default class CombatWatcher {
 
     const justStarted = previous.round === 0 && combat.round >= 1;
     if (justStarted && !this.app && getSetting(SETTINGS.openOnStart)) return this.open({ auto: true });
-    // RF-108: another style can change the shape of everything, not just the data.
-    if (foundry.utils.hasProperty(changed, `flags.${MODULE_ID}.${COMBAT_STYLE_FLAG}`)) return this.relayout();
     this.scheduleRefresh();
   }
 
@@ -193,9 +203,20 @@ export default class CombatWatcher {
     return { round: combat.round ?? 0, turn: turn ?? null, combatantId: phased ? null : combat.combatant?.id ?? null };
   }
 
+  /** The roster hooks fire before Combat rebuilds its turns, hence the microtask. */
+  #autoOpenFor(combat) {
+    if (combat && combat === game.combat) queueMicrotask(() => this.#autoOpen());
+  }
+
+  #autoOpen() {
+    const combat = game.combat;
+    if (!combat || this.app || combat.id === this.#dismissedCombatId || !getSetting(SETTINGS.openOnStart)) return;
+    this.open({ auto: true });
+  }
+
   /** The viewed combat depends on the scene and on which encounter is active. */
   #onViewedCombatMaybeChanged() {
-    if (!this.app) return;
+    if (!this.app) return this.#autoOpen();
     if (!game.combat) return this.close();
     if (this.#app.combatId !== game.combat.id) return this.relayout();
     this.scheduleRefresh();

@@ -233,6 +233,19 @@ describe("CombatantAdapter", () => {
     stranger.actor.flags["sc-combat-wheel"] = { portrait: "art/a.webp" };
     assert.equal(CombatantAdapter.portraitFor(stranger, "flag", undefined, { revealActor: false }).src, "tokens/a.webp");
   });
+
+  it("never falls back from a video token to art the player may not see (RF-117)", () => {
+    const isVideo = (src) => src.endsWith(".webm");
+    const stranger = combatant("a");
+    stranger.actor.permission = 0;
+    stranger.token.texture.src = "tokens/a.webm";
+    assert.equal(CombatantAdapter.portraitFor(stranger, "token", isVideo, { revealActor: false }).src, null, "initials, not the disguise's secret");
+    assert.equal(CombatantAdapter.portraitFor(stranger, "token", isVideo, { revealActor: true }).src, "actors/a.webp");
+    const seen = CombatantAdapter.toViewModel(stranger, { ...player, round: 1, isVideo });
+    assert.deepEqual([seen.img, seen.tokenImg, seen.artImg], [null, null, null], "no field of the view model leaks it");
+    const byGM = CombatantAdapter.toViewModel(stranger, { ...gm, round: 1, isVideo });
+    assert.deepEqual([byGM.img, byGM.tokenImg, byGM.artImg], ["actors/a.webp", "actors/a.webp", "actors/a.webp"]);
+  });
 });
 
 describe("CombatProjector virtual positions (RF-66)", () => {

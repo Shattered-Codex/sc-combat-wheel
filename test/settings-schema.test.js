@@ -203,12 +203,12 @@ describe("slice clicks (RF-31)", () => {
   it("offers the same actions for the click, the double click and the right click, each this browser's", () => {
     const [click, double, right] = ["clickAction", "doubleClickAction", "rightClickAction"].map((key) => SETTINGS_SCHEMA.find((entry) => entry.key === key));
     for (const entry of [click, double, right]) {
-      assert.deepEqual(entry.choices, ["pan", "select", "sheet", "none"]);
+      assert.deepEqual(entry.choices, ["menu", "pan", "select", "sheet", "none"]);
       assert.equal(entry.scope, "client");
       assert.equal(entry.section, "behavior");
     }
     assert.equal(click.default, "pan");
     assert.equal(double.default, "sheet", "as the core tracker");
-    assert.equal(right.default, "none");
+    assert.equal(right.default, "menu", "the slice's menu (RF-122), only on the right click");
   });
 });

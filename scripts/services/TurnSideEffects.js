@@ -3,6 +3,7 @@ import { getSetting } from "../hooks/register-settings.js";
 import { soundEventFor } from "../helpers/turn-events.js";
 import SoundPlayer from "./SoundPlayer.js";
 import TokenInteractions from "./TokenInteractions.js";
+import TurnAnnouncer from "./TurnAnnouncer.js";
 
 /** Which setting pair (choice, file) each sound event reads (RF-52). */
 const SOUND_SETTINGS = Object.freeze({
@@ -17,7 +18,8 @@ const SOUND_SETTINGS = Object.freeze({
 
 /**
  * Local reactions to a real turn change, with or without the wheel open:
- * the turn sound, camera follow and the "up next" notice.
+ * the turn sound, camera follow, the turn announcement (RF-121) and the "up
+ * next" notice — inside the announcement when this user has it on.
  */
 export default class TurnSideEffects {
   static player = new SoundPlayer();
@@ -30,9 +32,9 @@ export default class TurnSideEffects {
   static onTurnChanged(combat, model, previous) {
     const turnBack = getSetting(SETTINGS.soundTurnBack) !== "off";
     TurnSideEffects.#playSound(soundEventFor(previous, model, { isGM: game.user.isGM, turnBack }));
-    if (!model?.current || model.activeHidden) return;
+    if (!model?.current || model.activeHidden) return TurnAnnouncer.dismiss();
     if (getSetting(SETTINGS.cameraFollows)) TokenInteractions.panToCombatant(combat, model.current.id);
-    TurnSideEffects.#notifyNextUp(model);
+    if (!TurnAnnouncer.onTurnChanged(model)) TurnSideEffects.#notifyNextUp(model);
   }
 
   /** RF-101: a combat that had started is over (deleted) — its closing sound, on every client. */
@@ -57,7 +59,7 @@ export default class TurnSideEffects {
 
   static #notifyNextUp(model) {
     const next = model.nextUp;
-    if (game.user.isGM || !next?.isOwner || next.virtual || next.id === model.current.id) return;
+    if (game.user.isGM || !model.started || !next?.isOwner || next.virtual || next.id === model.current.id) return;
     if (!getSetting(SETTINGS.nextUpNotice)) return;
     const key = model.phased ? "Notifications.PhaseNextUp" : "Notifications.NextUp";
     ui.notifications.info(game.i18n.format(`${I18N_ROOT}.${key}`, { name: next.name }));

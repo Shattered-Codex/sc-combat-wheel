@@ -414,6 +414,8 @@
                             <input type="color" value="{{#if value}}{{value}}{{else}}#808080{{/if}}" data-color-picker="{{key}}" aria-label="{{name}}">
                           {{else if isNumber}}
                             <range-picker id="{{id}}" name="{{key}}" value="{{value}}" min="{{range.min}}" max="{{range.max}}" step="{{range.step}}"></range-picker>
+                          {{else if isText}}
+                            <input type="text" class="scw-field__text" id="{{id}}" name="{{key}}" value="{{value}}" maxlength="40" placeholder="{{placeholder}}" aria-describedby="{{id}}-hint">
                           {{else if segmented}}
                             <span class="scw-segmented" role="radiogroup" aria-labelledby="{{id}}-name" aria-describedby="{{id}}-hint">
                               {{#each choices}}
@@ -441,6 +443,13 @@
           <p class="scw-appearance__more" data-more-note="{{id}}" hidden>
             <i class="fa-solid fa-sliders" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.MoreOptions"}}
           </p>
+          {{#if isAnnounce}}
+            <div class="scw-appearance__panel-actions">
+              <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="testAnnouncement" data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.TestAnnounceHint"}}">
+                <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>{{localize "SC_COMBAT_WHEEL.Appearance.TestAnnounce"}}
+              </button>
+            </div>
+          {{/if}}
           {{#if isVisual}}
             <div class="scw-appearance__panel-actions">
               <button type="button" class="scw-config-btn scw-config-btn--sm" data-action="testBanner" data-tooltip="{{localize "SC_COMBAT_WHEEL.Appearance.TestBannerHint"}}">

@@ -19,6 +19,8 @@ import { lookFile, lookFileName, readLookFile } from "../helpers/look-file.js";
 import { upsertStyle } from "../helpers/combat-styles.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
 import ScreenBanner from "../services/ScreenBanner.js";
+import TurnAnnouncer from "../services/TurnAnnouncer.js";
+import { announcementFor } from "../helpers/turn-announcement.js";
 import TurnSideEffects from "../services/TurnSideEffects.js";
 import { isVenaerysActive, projectCombat } from "../services/project-combat.js";
 import AppearancePreview from "./AppearancePreview.js";
@@ -53,7 +55,7 @@ const TEST_SEQUENCE_GAP_MS = 1100;
 const COLOR_ROLES = Object.freeze(Object.fromEntries(Object.entries(COLOR_SETTINGS).map(([role, key]) => [key, role])));
 const SCOPE_ICONS = Object.freeze({ user: "fa-solid fa-user", client: "fa-solid fa-display" });
 /** Sections that open with a line of explanation. */
-const PANEL_HINTS = new Set(["visual", "effects", "sounds"]);
+const PANEL_HINTS = new Set(["visual", "effects", "announce", "sounds"]);
 const TABLE_LOOK_MODES = Object.freeze(["optional", "partial", "forced", "off"]);
 /** A few short choices read better as one row of buttons than as a menu: up to this many letters, counting padding. */
 const SEGMENTED_BUDGET = 40;
@@ -101,6 +103,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       testSequence: CombatWheelAppearanceApp.#onTestSequence,
       previewCoreTheme: CombatWheelAppearanceApp.#onPreviewCoreTheme,
       testBanner: CombatWheelAppearanceApp.#onTestBanner,
+      testAnnouncement: CombatWheelAppearanceApp.#onTestAnnouncement,
       makePalette: CombatWheelAppearanceApp.#onMakePalette,
       resetPanel: CombatWheelAppearanceApp.#onResetPanel,
       closeEditor: CombatWheelAppearanceApp.#onCloseEditor,
@@ -133,6 +136,9 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   /** Whether turning the sample plays the sound that turn would play. */
   #previewSound = false;
   #preview = null;
+  /** RF-121: the announcement shown in the preview while its tab is open, and what it was drawn from. */
+  #clearAnnouncement = null;
+  #announcementSignature = "";
   #boundRoot = null;
   #frame = null;
 
@@ -215,6 +221,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
         active: panel.id === this.#panel,
         isLayout: panel.id === "layout",
         isVisual: panel.id === "visual",
+        isAnnounce: panel.id === "announce",
         isSounds: panel.id === SOUNDS_PANEL,
         groups: panel.id === SOUNDS_PANEL ? [] : this.#groupsOf(panel.id, draft),
       })),
@@ -248,6 +255,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       root.addEventListener("focusin", hoverTheme);
     }
     this.#preview?.destroy();
+    this.#dropAnnouncement();
     this.#preview = new AppearancePreview(root.querySelector("[data-preview-stage]"), {
       onFit: (shown, wanted) => this.#showZoom(shown, wanted),
     });
@@ -277,6 +285,7 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     this.#clearSequence();
     this.#preview?.destroy();
     this.#preview = null;
+    this.#dropAnnouncement();
     this.#draft = null;
     this.#sounds = null;
     this.#sharing = null;
@@ -714,6 +723,8 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
     }
     for (const badge of root.querySelectorAll("[data-scope-badge]")) badge.hidden = badge.dataset.scopeBadge !== panel.scope;
     root.querySelector("[data-advanced-group]")?.toggleAttribute("hidden", id === SOUNDS_PANEL);
+    // RF-121: the preview shows the announcement while its tab is open, the wheel otherwise.
+    this.#scheduleRefresh();
   }
 
   #scheduleRefresh() {
@@ -776,8 +787,40 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       expanded: this.#expanded && offersDetails,
       phase: this.#previewPhase(model),
     });
+    this.#showAnnouncement(model, { ...values, [SETTINGS.theme]: this.#hoverTheme ?? values[SETTINGS.theme] });
     this.#showContrast();
     this.#syncStatus();
+  }
+
+  /**
+   * RF-121: on the turn display tab, the preview shows the announcement in the
+   * wheel's place, redrawn only when what it is drawn from changes. It follows
+   * the sample's turn: "Your turn!" on a character of the user's, "X's turn"
+   * on anyone else (a virtual position hands over to whoever comes next).
+   */
+  #showAnnouncement(model, values) {
+    const stage = this.element.querySelector("[data-preview-stage]");
+    const announcement = this.#panel === "announce" ? this.#previewAnnouncement(model, values) : null;
+    stage?.classList.toggle("is-announcing", Boolean(announcement));
+    const signature = announcement ? JSON.stringify([announcement, values]) : "";
+    if (signature === this.#announcementSignature) return;
+    this.#dropAnnouncement();
+    this.#announcementSignature = signature;
+    if (announcement && stage) this.#clearAnnouncement = TurnAnnouncer.mount(stage, announcement, values);
+  }
+
+  #previewAnnouncement(model, values) {
+    const options = { isGM: false, mode: "all", image: values[SETTINGS.announceImage] };
+    const phase = model.phased ? model.phase : this.#previewPhase(model);
+    if (phase) return announcementFor({ phased: true, started: true, current: {}, phase }, options);
+    const current = model.current?.virtual ? model.nextUp : model.current;
+    return announcementFor({ ...model, current }, options);
+  }
+
+  #dropAnnouncement() {
+    this.#clearAnnouncement?.();
+    this.#clearAnnouncement = null;
+    this.#announcementSignature = "";
   }
 
   /**
@@ -1134,6 +1177,21 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
       seconds: 4,
       img: DEFAULT_VIRTUAL_IMAGE,
     }, this.#draft, { preview: true });
+  }
+
+  /**
+   * RF-121: the announcement as the draft draws it, for the sample's first
+   * character (one's own turn, so the title shows) — or, with Venaerys, a
+   * sample phase and its members.
+   */
+  static #onTestAnnouncement() {
+    this.#captureDraft();
+    const names = CombatWheelAppearanceApp.#sampleNames();
+    const model = isVenaerysActive()
+      ? { phased: true, started: true, current: {}, phase: samplePhase({ ...names, phase: t("Appearance.SamplePhase") }) }
+      : sampleWheelModel({ T: 0, names });
+    const announcement = announcementFor(model, { isGM: false, mode: "all", image: this.#draft[SETTINGS.announceImage] });
+    if (announcement) TurnAnnouncer.show({ ...announcement, own: true }, this.#draft, { preview: true });
   }
 
   /** The visible tab back to its defaults, in the draft only: "Save" still decides. */

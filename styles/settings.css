@@ -889,6 +889,9 @@
     #262b26;
 }
 
+/* RF-121: on the turn display tab the announcement takes the wheel's place. */
+.sc-combat-wheel-settings .scw-appearance__stage.is-announcing > .scw-preview { visibility: hidden; }
+
 /* The widget is fitted between the heading and the turn controls, never under
    them; what its effects reach past the fitted room is cut at the stage. */
 .sc-combat-wheel-settings .scw-appearance__stage {
@@ -1542,6 +1545,8 @@
   height: 30px;
   font-size: 12px;
 }
+
+.sc-combat-wheel-settings .scw-field__control input[type="text"].scw-field__text { flex: 1; width: auto; min-width: 0; font: inherit; font-size: 12px; }
 
 .sc-combat-wheel-settings .scw-field__control input[type="text"] {
   width: 84px;

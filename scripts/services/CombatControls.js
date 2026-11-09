@@ -22,6 +22,34 @@ export default class CombatControls {
     return combat.startCombat();
   }
 
+  /** RF-122: the GM takes one combatant out of the combat, as the core tracker's "Remove Combatant" does. */
+  static removeCombatant(combat, combatantId) {
+    if (!CombatControls.#requireGM(combat)) return null;
+    return combat.combatants.get(combatantId)?.delete() ?? null;
+  }
+
+  /**
+   * RF-122: whether the GM can clear what a combatant's token moved this
+   * combat. Foundry v13 tracks it per token and the core tracker clears it;
+   * nothing to offer when it has not moved.
+   */
+  static canClearMovement(combatant) {
+    return game.user.isGM && Boolean(CombatControls.#movementClearer(combatant)) && (combatant.token?.movementHistory?.length ?? 0) > 0;
+  }
+
+  static clearMovement(combat, combatantId) {
+    if (!CombatControls.#requireGM(combat)) return null;
+    return CombatControls.#movementClearer(combat.combatants.get(combatantId))?.() ?? null;
+  }
+
+  /** The Combatant's own method, or its token's: the same history either way. */
+  static #movementClearer(combatant) {
+    if (typeof combatant?.clearMovementHistory === "function") return () => combatant.clearMovementHistory();
+    const token = combatant?.token;
+    if (typeof token?.clearMovementHistory === "function") return () => token.clearMovementHistory();
+    return null;
+  }
+
   /** Core asks for confirmation before deleting the encounter. */
   static endCombat(combat) {
     if (!CombatControls.#requireGM(combat)) return null;

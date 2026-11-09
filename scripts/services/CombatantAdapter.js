@@ -35,9 +35,8 @@ export default class CombatantAdapter {
         npcNames: settings.npcNames,
         tokenDisplayName: token?.displayName,
       }) ?? context.unknownName;
-    const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo, {
-      revealActor: isGM || CombatantAdapter.#canSeeActor(combatant),
-    });
+    const revealActor = isGM || CombatantAdapter.#canSeeActor(combatant);
+    const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo, { revealActor });
     const initiative = Number.isFinite(combatant.initiative) ? combatant.initiative : null;
     const health = readHealth(combatant, context.healthSource ?? DEFAULT_HEALTH_SOURCE);
     const hp = hpView(health, {
@@ -59,7 +58,9 @@ export default class CombatantAdapter {
       img: portrait.src,
       imgPosition: portrait.position,
       // The token's own art, as the canvas and the core tracker show it (the Venaerys strip may use it, RF-82).
-      tokenImg: CombatantAdapter.portraitFor(combatant, "token", context.isVideo).src,
+      tokenImg: CombatantAdapter.portraitFor(combatant, "token", context.isVideo, { revealActor }).src,
+      // RF-121: the character's own art for the turn announcement, the token's when this user may not see it.
+      artImg: CombatantAdapter.portraitFor(combatant, "actor", context.isVideo, { revealActor }).src,
       initials: initialsOf(name),
       initiative,
       hasInitiative: initiative !== null,
@@ -85,7 +86,8 @@ export default class CombatantAdapter {
   /**
    * Portrait source with fallbacks; videos fall back to the actor image.
    * RF-117: without `revealActor`, the character's own art ("actor", "flag")
-   * gives way to the token — a disguised creature keeps its disguise.
+   * gives way to the token — a disguised creature keeps its disguise — and a
+   * video token gives way to the initials, never to that art.
    */
   static portraitFor(combatant, source = "token", isVideo = () => false, { revealActor = true } = {}) {
     const actor = combatant.actor ?? null;
@@ -105,7 +107,7 @@ export default class CombatantAdapter {
     }
     if (!src) src = source === "actor" ? actorImg ?? tokenImg : tokenImg ?? actorImg;
     src ??= combatant.img ?? null;
-    if (src && isVideo(src)) src = actorImg && !isVideo(actorImg) ? actorImg : null;
+    if (src && isVideo(src)) src = revealActor && actorImg && !isVideo(actorImg) ? actorImg : null;
     return { src, position: position ?? DEFAULT_IMAGE_POSITION };
   }
 

@@ -1,0 +1,246 @@
+/* === Turn announcement (RF-121) ============================================ */
+/* TurnAnnouncer puts one .scw-announce in a full-screen host that lets the
+   pointer through: its portraits (each with the look's effect and particles,
+   from effects.css and particles.css, hung on .scw-announce-anchor), the title
+   and the lines under it. The host carries the look (theme, colours) and
+   data-scw-announce-style | -position | -size | -entrance; the card carries
+   --scw-announce-c (its colour) and --scw-announce-size (a portrait's size).
+   It shows under Foundry's windows in play, over everything in the editor's
+   test. Under reduced motion it only fades. */
+
+.scw-announce-host.sc-combat-wheel {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-app, 100) - 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 24px;
+  pointer-events: none;
+  --scw-announce-scale: 1;
+}
+.scw-announce-host[data-scw-announce-position="top"] { justify-content: flex-start; }
+.scw-announce-host[data-scw-announce-position="bottom"] { justify-content: flex-end; padding-bottom: 140px; }
+.scw-announce-host[data-scw-announce-size="small"] { --scw-announce-scale: 0.8; }
+.scw-announce-host[data-scw-announce-size="large"] { --scw-announce-scale: 1.3; }
+
+.scw-announce-host .scw-announce {
+  --scw-announce-c: var(--scw-accent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: min(92vw, 1100px);
+  padding: 18px 28px 16px;
+  border: 1px solid color-mix(in srgb, var(--scw-announce-c) 55%, transparent);
+  border-radius: var(--scw-radius-lg);
+  background: var(--scw-surface-bg);
+  box-shadow:
+    0 0 36px color-mix(in srgb, var(--scw-announce-c) 35%, transparent),
+    var(--scw-shadow-lg);
+  color: var(--scw-text);
+  font-family: var(--scw-font-body);
+  text-align: center;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.scw-announce-host .scw-announce.is-shown { opacity: 1; }
+
+/* ---------- portraits ---------- */
+/* --scw-announce-reach: how far the effect reaches past a portrait (TurnAnnouncer). */
+.scw-announce-host .scw-announce-cast {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(2 * var(--scw-announce-reach, 0px) + 14px);
+  padding: calc(var(--scw-announce-reach, 0px) * 0.8 + 6px) var(--scw-announce-reach, 0px) calc(var(--scw-announce-reach, 0px) * 0.8 + 4px);
+}
+.scw-announce-host .scw-announce-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+/* Frame: round, square, tall (TALL_RATIO in TurnAnnouncer) or free — the
+   whole art, uncut, its outline drawn by a shadow that follows it. */
+.scw-announce-host { --scw-announce-ratio: 1; --scw-announce-radius: 50%; }
+.scw-announce-host[data-scw-announce-frame="square"] { --scw-announce-radius: var(--scw-radius-lg); }
+.scw-announce-host[data-scw-announce-frame="tall"] { --scw-announce-ratio: 0.75; --scw-announce-radius: var(--scw-radius-lg); }
+.scw-announce-host[data-scw-announce-frame="free"] { --scw-announce-radius: 0; }
+.scw-announce-host .scw-announce-portrait {
+  position: relative;
+  isolation: isolate;
+  width: calc(var(--scw-announce-size) * var(--scw-announce-ratio));
+  height: var(--scw-announce-size);
+}
+.scw-announce-host .scw-announce-anchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+.scw-announce-host :is(.scw-announce-img, .scw-announce-initials) {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--scw-fx-c);
+  border-radius: var(--scw-announce-radius);
+  background: var(--scw-surface);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+/* Border: thick in the colour (above), thin, a glow with no line, or none. */
+.scw-announce-host[data-scw-announce-border="thin"] :is(.scw-announce-img, .scw-announce-initials) {
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--scw-fx-c) 70%, transparent);
+}
+.scw-announce-host[data-scw-announce-border="glow"] :is(.scw-announce-img, .scw-announce-initials) {
+  border: 0;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--scw-fx-c) 45%, transparent), 0 0 18px 2px var(--scw-fx-c), 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.scw-announce-host[data-scw-announce-border="none"] :is(.scw-announce-img, .scw-announce-initials) { border: 0; }
+/* Free: the art as it is, on nothing; its border is a shadow hugging its own shape. */
+.scw-announce-host[data-scw-announce-frame="free"] .scw-announce-img {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  object-fit: contain;
+  object-position: 50% 50%;
+  filter: drop-shadow(0 0 1.5px var(--scw-fx-c)) drop-shadow(0 0 1.5px var(--scw-fx-c)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+.scw-announce-host[data-scw-announce-frame="free"][data-scw-announce-border="thin"] .scw-announce-img {
+  filter: drop-shadow(0 0 1px var(--scw-fx-c)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+.scw-announce-host[data-scw-announce-frame="free"][data-scw-announce-border="glow"] .scw-announce-img {
+  filter: drop-shadow(0 0 10px var(--scw-fx-c)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+.scw-announce-host[data-scw-announce-frame="free"][data-scw-announce-border="none"] .scw-announce-img {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+.scw-announce-host .scw-announce-initials {
+  display: grid;
+  place-items: center;
+  font: 600 calc(var(--scw-announce-size) * 0.32) var(--scw-font-title);
+}
+/* Finished in the phase: still there, quieter, with no effect. */
+.scw-announce-host .scw-announce-actor.is-dimmed { opacity: 0.45; filter: grayscale(0.7); }
+.scw-announce-host .scw-announce-name {
+  margin-top: calc(var(--scw-announce-reach, 0px) * 0.8);
+  max-width: calc(var(--scw-announce-size) * 1.3);
+  overflow: hidden;
+  color: var(--scw-text-muted);
+  font-size: calc(12px * var(--scw-announce-scale));
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- words ---------- */
+.scw-announce-host .scw-announce-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.scw-announce-host .scw-announce-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  color: color-mix(in srgb, var(--scw-announce-c) 55%, var(--scw-text));
+  font: var(--scw-name-weight) calc(28px * var(--scw-name-size) * var(--scw-announce-scale)) var(--scw-font-title);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--scw-announce-c) 60%, transparent);
+  text-transform: var(--scw-name-transform);
+}
+.scw-announce-host .scw-announce-icon { color: var(--scw-announce-c); }
+.scw-announce-host .scw-announce-sub { font-size: calc(15px * var(--scw-announce-scale)); }
+.scw-announce-host .scw-announce-footer {
+  margin-top: 4px;
+  color: var(--scw-text-muted);
+  font-size: calc(11px * var(--scw-announce-scale));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* "You are up next" on its own: a small card, portrait beside the words. */
+.scw-announce-host .scw-announce.is-minor {
+  flex-direction: row;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 18px;
+  text-align: left;
+}
+.scw-announce-host .scw-announce.is-minor .scw-announce-cast { padding: 4px; }
+.scw-announce-host .scw-announce.is-minor .scw-announce-text { align-items: flex-start; }
+.scw-announce-host .scw-announce.is-minor .scw-announce-title { font-size: calc(18px * var(--scw-announce-scale)); }
+
+/* ---------- cinematic: a band across the screen ---------- */
+.scw-announce-host[data-scw-announce-style="cinematic"] { align-items: stretch; padding-right: 0; padding-left: 0; }
+.scw-announce-host[data-scw-announce-style="cinematic"] .scw-announce {
+  flex-direction: row;
+  justify-content: center;
+  gap: calc(var(--scw-announce-reach, 0px) + 20px);
+  max-width: none;
+  /* A share of the band, not of the screen: the same inside the editor's preview. */
+  padding: 14px 8%;
+  border-width: 1px 0;
+  border-radius: 0;
+  /* --scw-surface-bg may be a gradient or a picture, which cannot be a stop: the plain surface colour fades out. */
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--scw-surface) 94%, transparent) 18%, color-mix(in srgb, var(--scw-surface) 94%, transparent) 82%, transparent);
+  box-shadow: 0 0 44px color-mix(in srgb, var(--scw-announce-c) 25%, transparent);
+  text-align: left;
+}
+/* The words keep to one line beside the portrait; the pair is what the band centres. */
+.scw-announce-host[data-scw-announce-style="cinematic"] .scw-announce-text { flex: none; align-items: flex-start; }
+.scw-announce-host[data-scw-announce-style="cinematic"] :is(.scw-announce-title, .scw-announce-sub) { white-space: nowrap; }
+.scw-announce-host[data-scw-announce-style="cinematic"] .scw-announce-cast { padding-right: 0; }
+.scw-announce-host[data-scw-announce-style="cinematic"] .scw-announce-title { font-size: calc(34px * var(--scw-name-size) * var(--scw-announce-scale)); }
+
+/* ---------- corner: out of the way, by the scene controls ---------- */
+.scw-announce-host[data-scw-announce-style="corner"] { align-items: flex-start; padding-left: 90px; }
+.scw-announce-host[data-scw-announce-style="corner"] .scw-announce {
+  flex-direction: row;
+  gap: calc(var(--scw-announce-reach, 0px) + 10px);
+  min-width: 0;
+  padding: 10px 18px;
+  text-align: left;
+}
+.scw-announce-host[data-scw-announce-style="corner"] .scw-announce-cast { flex-wrap: nowrap; padding: 4px 0 4px var(--scw-announce-reach, 0px); }
+.scw-announce-host[data-scw-announce-style="corner"] .scw-announce-text { flex: none; align-items: flex-start; }
+.scw-announce-host[data-scw-announce-style="corner"] :is(.scw-announce-title, .scw-announce-sub) { white-space: nowrap; }
+.scw-announce-host[data-scw-announce-style="corner"] .scw-announce-title { font-size: calc(20px * var(--scw-name-size) * var(--scw-announce-scale)); }
+
+/* ---------- the appearance editor's live preview: inside its stage ---------- */
+.scw-announce-host--inline.sc-combat-wheel { position: absolute; z-index: 2; padding: 16px; }
+.scw-announce-host--inline[data-scw-announce-style="corner"] { padding-left: 16px; }
+.scw-announce-host--inline[data-scw-announce-position="bottom"] { padding-bottom: 16px; }
+
+/* ---------- the editor's test: over everything, on a darkened screen ---------- */
+.scw-announce-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-tooltip, 10000) + 1);
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 400ms ease;
+}
+.scw-announce-backdrop.is-shown { opacity: 1; }
+.scw-announce-backdrop .scw-announce-host.sc-combat-wheel { z-index: auto; }
+
+/* ---------- entrances, only when the system allows motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .scw-announce-host .scw-announce { transition: opacity 400ms ease, transform 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+  .scw-announce-host[data-scw-announce-entrance="zoom"] .scw-announce { transform: scale(0.7); }
+  .scw-announce-host[data-scw-announce-entrance="slide"] .scw-announce { transform: translateX(-60px); }
+  .scw-announce-host .scw-announce.is-shown { transform: none; }
+}

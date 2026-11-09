@@ -187,6 +187,11 @@ export default class WheelAppearance {
     };
   }
 
+  /** How far an effect reaches past a round portrait, as a share of its size (before the boost). */
+  static effectReach(effect) {
+    return ACTING_FX_SHARE[effect] ?? 0;
+  }
+
   /** A centred box grown by `reach` on every side but the bar's, when `barSide` names the portraits' side. */
   static #grown({ x, y, width, height }, reach, barSide = null) {
     return {

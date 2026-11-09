@@ -19,6 +19,7 @@ import WheelParticles from "./WheelParticles.js";
 import WheelFxLayer from "./WheelFxLayer.js";
 import WheelRenderer from "./WheelRenderer.js";
 import WheelViewData from "./WheelViewData.js";
+import SliceMenu from "./SliceMenu.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const HIDE_TRACKER_CLASS = "scw-hide-native-tracker";
@@ -343,6 +344,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     TokenInteractions.hoverOut(new PointerEvent("pointerleave"));
     this.#animator.reset();
     this.#grid.destroy();
+    SliceMenu.close();
     this.#renderer.unmount();
     this.#particles.destroy();
     this.#actingFx.destroy();
@@ -370,9 +372,9 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     this.#grid.destroy();
     this.element.classList.remove("is-grid");
     this.#renderer.mount(container, layout, {
-      onClick: (id) => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)),
-      onDoubleClick: (id) => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.doubleClickAction)),
-      onContextMenu: (id, event) => this.#onContextMenu(id, event),
+      onClick: (id, event) => this.#runSliceAction(SETTINGS.clickAction, id, event),
+      onDoubleClick: (id, event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event),
+      onContextMenu: (id, event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event),
       onHoverIn: (id, event) => TokenInteractions.hoverIn(this.combat, id, event),
       onHoverOut: (event) => TokenInteractions.hoverOut(event),
       onRollOne: (id) => CombatControls.rollOne(this.combat, id),
@@ -380,12 +382,63 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     this.#placeWidget();
   }
 
-  /** The right click runs its action, keeping the browser's menu away only when it has one. */
-  #onContextMenu(combatantId, event) {
-    const action = getSetting(SETTINGS.rightClickAction);
+  /**
+   * RF-31: a click, double click or right click on a portrait runs the action
+   * its setting names, or opens the slice's menu (RF-122). A right click keeps
+   * the browser's own menu away only when it has something instead.
+   */
+  #runSliceAction(settingKey, combatantId, event) {
+    const action = getSetting(settingKey);
     if (action === "none") return;
+    if (action !== "menu") {
+      event?.preventDefault();
+      return TokenInteractions.click(this.combat, combatantId, action);
+    }
+    const items = this.#sliceMenuItems(combatantId);
+    if (!items.length) return;
     event.preventDefault();
-    return TokenInteractions.click(this.combat, combatantId, action);
+    // The keyboard's menu key gives no pointer: the menu opens by the portrait.
+    const target = event.currentTarget instanceof Element ? event.currentTarget : event.target;
+    const box = target?.getBoundingClientRect?.();
+    const fromKeyboard = !event.clientX && !event.clientY && box;
+    SliceMenu.open({
+      x: fromKeyboard ? box.left + box.width / 2 : event.clientX,
+      y: fromKeyboard ? box.top + box.height / 2 : event.clientY,
+      title: this.#visibleName(combatantId),
+      items,
+      returnFocus: target?.closest?.("[tabindex]") ?? null,
+    });
+  }
+
+  /**
+   * RF-122: what this user may do with one combatant from the wheel — find
+   * and open it like the clicks do, and for the GM, as the core tracker
+   * offers, clear what its token moved this combat and take it out.
+   */
+  #sliceMenuItems(combatantId) {
+    const combat = this.combat;
+    const combatant = combat?.combatants.get(combatantId);
+    if (!combatant) return [];
+    const label = (key) => game.i18n.localize(`SC_COMBAT_WHEEL.SliceMenu.${key}`);
+    const token = TokenInteractions.placeableFor(combat, combatantId);
+    const items = [];
+    if (token) items.push({ icon: "fa-crosshairs", label: label("Pan"), run: () => TokenInteractions.click(combat, combatantId, "pan") });
+    if (token?.isOwner) items.push({ icon: "fa-hand-pointer", label: label("Select"), run: () => TokenInteractions.click(combat, combatantId, "select") });
+    if (combatant.actor?.testUserPermission(game.user, "LIMITED")) {
+      items.push({ icon: "fa-id-card", label: label("Sheet"), run: () => TokenInteractions.click(combat, combatantId, "sheet") });
+    }
+    if (CombatControls.canClearMovement(combatant)) {
+      items.push({ icon: "fa-shoe-prints", label: label("ClearMovement"), run: () => CombatControls.clearMovement(combat, combatantId) });
+    }
+    if (game.user.isGM) items.push({ icon: "fa-trash-can", label: label("Remove"), danger: true, run: () => CombatControls.removeCombatant(combat, combatantId) });
+    return items;
+  }
+
+  /** The name this user reads for a combatant on the wheel or the phase strip (never one the tracker hides). */
+  #visibleName(combatantId) {
+    const model = this.#model;
+    const vm = model?.ring.find((entry) => entry.id === combatantId) ?? model?.phase?.acting.find((member) => member.id === combatantId);
+    return vm?.name ?? "";
   }
 
   #placeWidget() {
@@ -427,9 +480,9 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
     // The phase strip's portraits act like the slices: click per setting, hover highlights the token.
     for (const actor of this.element.querySelectorAll("[data-strip-combatant]")) {
       const id = actor.dataset.stripCombatant;
-      actor.addEventListener("click", () => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.clickAction)));
-      actor.addEventListener("dblclick", () => TokenInteractions.click(this.combat, id, getSetting(SETTINGS.doubleClickAction)));
-      actor.addEventListener("contextmenu", (event) => this.#onContextMenu(id, event));
+      actor.addEventListener("click", (event) => this.#runSliceAction(SETTINGS.clickAction, id, event));
+      actor.addEventListener("dblclick", (event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event));
+      actor.addEventListener("contextmenu", (event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event));
       actor.addEventListener("pointerenter", (event) => TokenInteractions.hoverIn(this.combat, id, event));
       actor.addEventListener("pointerleave", (event) => TokenInteractions.hoverOut(event));
     }

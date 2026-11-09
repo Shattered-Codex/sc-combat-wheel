@@ -47,6 +47,7 @@
         "Name": "Click on a slice",
         "Hint": "What a left click on a portrait does.",
         "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
           "pan": "Center the camera on the token",
           "select": "Select the token",
           "sheet": "Open the sheet",
@@ -57,6 +58,7 @@
         "Name": "Double click on a slice",
         "Hint": "What a double click on a portrait does. The single click runs first, as in Foundry's tracker.",
         "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
           "pan": "Center the camera on the token",
           "select": "Select the token",
           "sheet": "Open the sheet",
@@ -65,8 +67,9 @@
       },
       "rightClickAction": {
         "Name": "Right click on a slice",
-        "Hint": "What a right click on a portrait does.",
+        "Hint": "What a right click on a portrait does. The menu gathers what you may do with that combatant; the GM can also clear its movement and remove it from the combat.",
         "Choices": {
+          "menu": "Open a menu (camera, sheet, movement, remove)",
           "pan": "Center the camera on the token",
           "select": "Select the token",
           "sheet": "Open the sheet",
@@ -661,6 +664,159 @@
           "shine": "Shine"
         }
       },
+      "announceMode": {
+        "Name": "Show it",
+        "Hint": "Automatic: on every turn for the GM, on their own for a player. Off turns it off for you.",
+        "Choices": {
+          "auto": "Automatic",
+          "own": "Only on my turn",
+          "all": "On everyone's turn",
+          "off": "Off"
+        }
+      },
+      "announceNextUp": {
+        "Name": "Also when I am next",
+        "Hint": "A small announcement when your turn (or phase) comes next, instead of Foundry's notification. The GM can turn \"next up\" off for the table."
+      },
+      "announceTitle": {
+        "Name": "Title of your turn",
+        "Hint": "What your own turn says. Empty uses the default.",
+        "Placeholder": "Your turn!"
+      },
+      "announceImage": {
+        "Name": "Picture",
+        "Hint": "The character's art (only when Foundry already shows it to you), the token, or no picture.",
+        "Choices": {
+          "actor": "Character art",
+          "token": "Token",
+          "none": "None"
+        }
+      },
+      "announceFrame": {
+        "Name": "Portrait frame",
+        "Hint": "Round, square, a tall rectangle, or free: the whole art, uncut (good for tokens with a transparent background).",
+        "Choices": {
+          "round": "Round",
+          "square": "Square",
+          "tall": "Tall rectangle",
+          "free": "Free"
+        }
+      },
+      "announceBorder": {
+        "Name": "Border",
+        "Hint": "A thick border in the colour, a thin one, only a glow, or none.",
+        "Choices": {
+          "color": "Thick, in the colour",
+          "thin": "Thin",
+          "glow": "Glow only",
+          "none": "None"
+        }
+      },
+      "announceStyle": {
+        "Name": "Shape",
+        "Hint": "A card, a band across the screen, or small by the scene controls.",
+        "Choices": {
+          "card": "Card",
+          "cinematic": "Cinematic band",
+          "corner": "Corner"
+        }
+      },
+      "announcePosition": {
+        "Name": "Place",
+        "Hint": "Where on the screen it appears.",
+        "Choices": {
+          "top": "Top",
+          "center": "Center",
+          "bottom": "Bottom"
+        }
+      },
+      "announceSize": {
+        "Name": "Size",
+        "Hint": "How big the portraits and words are.",
+        "Choices": {
+          "small": "Small",
+          "normal": "Normal",
+          "large": "Large"
+        }
+      },
+      "announceSeconds": {
+        "Name": "Seconds on screen",
+        "Hint": "How long it stays. A click dismisses it sooner."
+      },
+      "announceEntrance": {
+        "Name": "Entrance",
+        "Hint": "How it arrives. Under reduced motion it only fades.",
+        "Choices": {
+          "zoom": "Zoom",
+          "slide": "Slide in",
+          "fade": "Fade"
+        }
+      },
+      "announceColor": {
+        "Name": "Colour",
+        "Hint": "Each combatant's side (friend, foe…), the theme's accent, or your own colour. A phase uses its own colour.",
+        "Choices": {
+          "side": "Side",
+          "theme": "Theme",
+          "custom": "My own"
+        }
+      },
+      "announceCustomColor": {
+        "Name": "Own colour",
+        "Hint": "The colour of the announcement and its effects."
+      },
+      "announceEffect": {
+        "Name": "Effect around the portrait",
+        "Hint": "The same effects as the acting portrait's.",
+        "Choices": {
+          "none": "None",
+          "pulse": "Breathing glow",
+          "halo": "Halo",
+          "aura": "Energy aura",
+          "flicker": "Flame",
+          "flames": "Energy flames",
+          "inferno": "Inferno",
+          "void": "Void",
+          "rays": "Crown of rays",
+          "storm": "Storm",
+          "runes": "Runic circle"
+        }
+      },
+      "announceParticles": {
+        "Name": "Particles",
+        "Hint": "Particles around the portrait while it shows.",
+        "Choices": {
+          "none": "None",
+          "embers": "Embers",
+          "arcane": "Arcane",
+          "stardust": "Stardust",
+          "frost": "Frost",
+          "shadow": "Shadow",
+          "fireflies": "Fireflies",
+          "petals": "Petals",
+          "bubbles": "Bubbles",
+          "sparks": "Sparks",
+          "snow": "Snow",
+          "rain": "Rain",
+          "leaves": "Falling leaves",
+          "ash": "Ash",
+          "motes": "Golden motes",
+          "confetti": "Confetti",
+          "runes": "Runes",
+          "wisps": "Wisps",
+          "smoke": "Smoke",
+          "glyphs": "Glyphs"
+        }
+      },
+      "announceIntensity": {
+        "Name": "Intensity",
+        "Hint": "How bright and how big the effect and particles are.",
+        "Choices": {
+          "subtle": "Subtle",
+          "normal": "Normal",
+          "strong": "Strong"
+        }
+      },
       "actingWaves": {
         "Name": "Waves around the acting portrait",
         "Hint": "Rings that keep leaving the acting portrait, as in the SC Item Rarity Colors. They add to the effect above.",
@@ -1061,7 +1217,8 @@
         "effects": "Effects",
         "sharing": "Sharing",
         "sounds": "Sounds",
-        "visual": "Visual"
+        "visual": "Visual",
+        "announce": "Turn display"
       },
       "Names": {
         "knight": "Knight",
@@ -1082,7 +1239,8 @@
         "effects": "Particles are drawn by the browser with CSS animations only, and stop when the system asks for reduced motion.",
         "presets": "Pick a complete look to start from, then change anything in the other sections. Nothing is saved until you press Save.",
         "sounds": "These apply to this browser only: ready-made looks and the table look never change them. Turn the preview with Sounds on to hear them in combat order.",
-        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints."
+        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
+        "announce": "A message on screen when a turn comes up — yours, or everyone's — with an effect and particles around the portrait. Under SC Venaerys's Initiative it shows the phase with all its members."
       },
       "Sections": "Sections",
       "ThemeColor": "Theme's",
@@ -1106,7 +1264,11 @@
         "soundEvents": "When to play",
         "banner": "Virtual position message",
         "finish": "Finish",
-        "palette": "Palette"
+        "palette": "Palette",
+        "announceWhen": "When",
+        "announceContent": "What it shows",
+        "announceLook": "How it looks",
+        "announceFx": "Effects"
       },
       "CloseGallery": "Close ready-made looks",
       "TurnLabel": "Round {round} · {turn}",
@@ -1149,7 +1311,9 @@
       "Import": "Import",
       "ImportHint": "Load a look from a .json file into the editor. Save to use it.",
       "Export": "Export",
-      "ExportHint": "Save what is on screen as a .json file, to take to another world or share."
+      "ExportHint": "Save what is on screen as a .json file, to take to another world or share.",
+      "TestAnnounce": "Test the announcement",
+      "TestAnnounceHint": "Shows the announcement as it will appear, with what is on screen now."
     },
     "Virtual": {
       "Name": "Name",
@@ -1346,6 +1510,21 @@
       "Applied": "The table now uses “{name}”.",
       "NoStyles": "No saved styles yet: save one in the appearance editor's Styles.",
       "Current": "Current look"
+    },
+    "Announce": {
+      "YourTurn": "Your turn!",
+      "TurnOf": "{name}'s turn",
+      "YourPhase": "Your phase!",
+      "PhaseNow": "Phase now",
+      "NextUp": "You are up next",
+      "NextUpLine": "You are up next!"
+    },
+    "SliceMenu": {
+      "Pan": "Center the camera",
+      "Select": "Select the token",
+      "Sheet": "Open the sheet",
+      "ClearMovement": "Clear movement",
+      "Remove": "Remove from combat"
     }
   }
 }

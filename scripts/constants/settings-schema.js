@@ -43,6 +43,8 @@ export const APPEARANCE_PANELS = Object.freeze([
   // RF-115: colours and style in one tab, the theme's palette first.
   { id: "visual", icon: "fa-solid fa-swatchbook", scope: "user" },
   { id: "effects", icon: "fa-solid fa-wand-magic-sparkles", scope: "user" },
+  // RF-121: the "your turn" announcement, on its own tab.
+  { id: "announce", icon: "fa-solid fa-bullhorn", scope: "user" },
   { id: "phases", icon: "fa-solid fa-hourglass-half", scope: "user", module: VENAERYS_ID },
   { id: "sounds", icon: "fa-solid fa-volume-high", scope: "client" },
 ]);
@@ -124,6 +126,23 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.particlePlacement, scope: "user", type: "choice", choices: ["acting", "widget"], default: "acting", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: { key: SETTINGS.particleType, notIn: ["none"] } },
   { key: SETTINGS.particleColor, scope: "user", type: "choice", choices: ["theme", "side", "custom"], default: "theme", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: { key: SETTINGS.particleType, notIn: ["none"] } },
   { key: SETTINGS.particleCustomColor, scope: "user", type: "color", default: "#ffc56b", section: "appearance", react: "data", group: "particles", nested: true, panel: "effects", visibleWhen: [{ key: SETTINGS.particleType, notIn: ["none"] }, { key: SETTINGS.particleColor, in: ["custom"] }] },
+  // RF-121: the turn announcement. "auto": every turn for the GM, their own for a player.
+  { key: SETTINGS.announceMode, scope: "user", type: "choice", choices: ["auto", "own", "all", "off"], default: "auto", section: "appearance", react: null, group: "announceWhen", panel: "announce" },
+  { key: SETTINGS.announceNextUp, scope: "user", type: "boolean", default: true, section: "appearance", react: null, group: "announceWhen", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceTitle, scope: "user", type: "text", default: "", section: "appearance", react: null, group: "announceContent", panel: "announce", placeholder: true, visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceImage, scope: "user", type: "choice", choices: ["actor", "token", "none"], default: "actor", section: "appearance", react: null, group: "announceContent", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceFrame, scope: "user", type: "choice", choices: ["round", "square", "tall", "free"], default: "round", section: "appearance", react: null, group: "announceContent", panel: "announce", visibleWhen: [{ key: SETTINGS.announceMode, notIn: ["off"] }, { key: SETTINGS.announceImage, notIn: ["none"] }] },
+  { key: SETTINGS.announceBorder, scope: "user", type: "choice", choices: ["color", "thin", "glow", "none"], default: "color", section: "appearance", react: null, group: "announceContent", panel: "announce", visibleWhen: [{ key: SETTINGS.announceMode, notIn: ["off"] }, { key: SETTINGS.announceImage, notIn: ["none"] }] },
+  { key: SETTINGS.announceStyle, scope: "user", type: "choice", choices: ["card", "cinematic", "corner"], default: "card", section: "appearance", react: null, group: "announceLook", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announcePosition, scope: "user", type: "choice", choices: ["top", "center", "bottom"], default: "center", section: "appearance", react: null, group: "announceLook", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceSize, scope: "user", type: "choice", choices: ["small", "normal", "large"], default: "normal", section: "appearance", react: null, group: "announceLook", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceSeconds, scope: "user", type: "number", range: { min: 1, max: 8, step: 0.5 }, default: 3, section: "appearance", react: null, group: "announceLook", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceEntrance, scope: "user", type: "choice", choices: ["zoom", "slide", "fade"], default: "zoom", section: "appearance", react: null, group: "announceLook", panel: "announce", advanced: true, visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceColor, scope: "user", type: "choice", choices: ["side", "theme", "custom"], default: "side", section: "appearance", react: null, group: "announceLook", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceCustomColor, scope: "user", type: "color", default: "#ffc56b", section: "appearance", react: null, group: "announceLook", nested: true, panel: "announce", visibleWhen: [{ key: SETTINGS.announceMode, notIn: ["off"] }, { key: SETTINGS.announceColor, in: ["custom"] }] },
+  { key: SETTINGS.announceEffect, scope: "user", type: "choice", choices: ["none", "pulse", "halo", "aura", "flicker", "flames", "inferno", "void", "rays", "storm", "runes"], default: "flames", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceParticles, scope: "user", type: "choice", choices: PARTICLE_TYPES, default: "sparks", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
+  { key: SETTINGS.announceIntensity, scope: "user", type: "choice", choices: Object.keys(PARTICLE_INTENSITIES), default: "normal", section: "appearance", react: null, group: "announceFx", panel: "announce", visibleWhen: { key: SETTINGS.announceMode, notIn: ["off"] } },
   { key: SETTINGS.animationSpeed, scope: "user", type: "choice", choices: ["slow", "normal", "fast", "off"], default: "normal", section: "appearance", react: null, group: "motion", panel: "effects" },
   // RF-106: the on-screen message of a virtual position, read when it shows.
   { key: SETTINGS.bannerStyle, scope: "user", type: "choice", choices: ["card", "strip", "toast"], default: "card", section: "appearance", react: null, group: "banner", panel: "visual" },
@@ -134,10 +153,10 @@ export const SETTINGS_SCHEMA = Object.freeze([
   // Behaviour (this browser)
   { key: SETTINGS.openOnStart, scope: "client", type: "boolean", default: true, section: "behavior", react: null },
   { key: SETTINGS.hideNativeTracker, scope: "client", type: "boolean", default: false, section: "behavior", react: "data" },
-  { key: SETTINGS.clickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "pan", section: "behavior", react: null },
-  // RF-31: like the core tracker, a double click opens the sheet unless told otherwise; the right click does nothing by default.
-  { key: SETTINGS.doubleClickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "sheet", section: "behavior", react: null },
-  { key: SETTINGS.rightClickAction, scope: "client", type: "choice", choices: ["pan", "select", "sheet", "none"], default: "none", section: "behavior", react: null },
+  { key: SETTINGS.clickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "pan", section: "behavior", react: null },
+  // RF-31: like the core tracker, a double click opens the sheet unless told otherwise; the right click opens the slice's menu (RF-122), which any of them may open.
+  { key: SETTINGS.doubleClickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "sheet", section: "behavior", react: null },
+  { key: SETTINGS.rightClickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "menu", section: "behavior", react: null },
   { key: SETTINGS.cameraFollows, scope: "client", type: "boolean", default: false, section: "behavior", react: null },
   { key: SETTINGS.cameraPan, scope: "client", type: "choice", choices: ["fast", "smooth", "slow"], default: "smooth", section: "behavior", react: null },
 

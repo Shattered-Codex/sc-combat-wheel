@@ -535,6 +535,17 @@
 .sc-combat-wheel.scw-up .scw-roll-menu { bottom: calc(100% + 6px); }
 .sc-combat-wheel.scw-down .scw-roll-menu { top: calc(100% + 6px); }
 .sc-combat-wheel .scw-roll-menu .scw-details-kicker { padding: 4px 6px; }
+
+/* ---------- a slice's menu (RF-122): on the page, at the pointer ---------- */
+/* After the menus' direction rules: its host carries a direction class too. */
+.scw-slice-menu-host.sc-combat-wheel {
+  position: fixed;
+  z-index: var(--z-index-tooltip, 10000);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.sc-combat-wheel.scw-slice-menu-host .scw-roll-menu { top: 0; right: auto; bottom: auto; left: 0; }
 .sc-combat-wheel .scw-menu-item {
   justify-content: flex-start;
   gap: 8px;
@@ -1231,7 +1242,8 @@
   padding: calc(14px * var(--scw-banner-scale)) 10vw;
   border: none;
   border-radius: 0;
-  background: linear-gradient(90deg, transparent, var(--scw-surface-bg) 22%, var(--scw-surface-bg) 78%, transparent);
+  /* --scw-surface-bg may be a gradient or a picture, which cannot be a stop: the plain surface colour fades out. */
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--scw-surface) 94%, transparent) 22%, color-mix(in srgb, var(--scw-surface) 94%, transparent) 78%, transparent);
   box-shadow: none;
 }
 .scw-banner-host[data-scw-banner-style="strip"] .scw-banner::before,

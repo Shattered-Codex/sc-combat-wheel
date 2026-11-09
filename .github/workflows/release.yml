@@ -37,8 +37,8 @@ jobs:
               module_id = json.load(handle)["id"]
           with open("module-tiers.json", encoding="utf-8") as handle:
               policy = json.load(handle)[module_id]
-          assert policy.get("free", False) is False, "This module requires a subscription."
-          assert policy["allowTierNames"] == ["The First Forgers", "The Gem-Smith"], "Unexpected subscription tiers."
+          assert policy.get("free", False) is False, "This module uses tier-based access."
+          assert policy["allowTierNames"] == ["The First Forgers", "The Gem-Smith", "Free"], "Unexpected membership tiers."
           PY
 
   release:

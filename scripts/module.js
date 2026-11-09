@@ -4,6 +4,7 @@ import { registerTrackerMenu } from "./hooks/register-tracker-menu.js";
 import { getSetting, migrateBrowserAppearance, registerSettings } from "./hooks/register-settings.js";
 import CombatWheelAppearanceApp from "./applications/CombatWheelAppearanceApp.js";
 import CombatWheelSettingsApp from "./applications/CombatWheelSettingsApp.js";
+import CommunityLinks from "./applications/CommunityLinks.js";
 import AnnouncementCards from "./services/AnnouncementCards.js";
 import CombatWatcher from "./services/CombatWatcher.js";
 import StylePicker from "./services/StylePicker.js";
@@ -24,6 +25,7 @@ Hooks.once("init", () => {
   });
   registerKeybindings(watcher);
   registerTrackerMenu(watcher);
+  Hooks.on("renderSettingsConfig", (application, html) => CommunityLinks.inject(html));
 });
 
 Hooks.once("ready", () => {

@@ -2,7 +2,7 @@ import { ANIMATION_SPEED, MODULE_ID, SETTINGS, TEMPLATE_ROOT } from "../constant
 import { shortestOffset } from "../helpers/wheel-geometry.js";
 import { layoutFromSettings } from "../helpers/view-layout.js";
 import { normalizeOrientation } from "../helpers/orientation.js";
-import { initiativeBetween, initiativeForMove } from "../helpers/initiative-order.js";
+import { initiativeAtSlot, initiativeForMove } from "../helpers/initiative-order.js";
 import { activeTheme, appearanceValues, currentStyleId, getSetting, savedStyles, setSetting } from "../hooks/register-settings.js";
 import { projectCombat } from "../services/project-combat.js";
 import CombatControls from "../services/CombatControls.js";
@@ -148,6 +148,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       onInsert: isGM ? (slot, data) => this.#insertVirtual(slot, data) : null,
       onManageVirtual: isGM ? () => CombatWheelSettingsApp.open("virtual") : null,
       onRemove: isGM ? (id) => this.combat?.combatants.get(id)?.delete() : null,
+      // RF-122: a right click on a tile opens the same menu as on the wheel (remove from combat included, for the GM).
+      onContextMenu: (id, event) => this.#openSliceMenu(id, event),
     });
   }
 
@@ -168,9 +170,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** RF-69: a virtual position created right where the GM clicked "+". */
   #insertVirtual(slot, data) {
-    const ring = this.#model.ring;
-    const initiative = initiativeBetween(ring[slot - 1]?.initiative ?? null, ring[slot]?.initiative ?? null);
-    return VirtualPositions.addAt(this.combat, { ...data, initiative });
+    const initiatives = this.#model.ring.map((vm) => vm.initiative);
+    return VirtualPositions.addAt(this.combat, { ...data, initiative: initiativeAtSlot(initiatives, slot) });
   }
 
   /** RF-22: rotates back to the real turn, step by step the short way. */
@@ -398,6 +399,11 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       event?.preventDefault();
       return TokenInteractions.click(this.combat, combatantId, action);
     }
+    return this.#openSliceMenu(combatantId, event);
+  }
+
+  /** RF-122: the slice's menu at the pointer, or by the portrait when the keyboard asked for it. */
+  #openSliceMenu(combatantId, event) {
     const items = this.#sliceMenuItems(combatantId);
     if (!items.length) return;
     event.preventDefault();

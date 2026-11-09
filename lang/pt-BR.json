@@ -1097,6 +1097,7 @@
       "Close": "Fechar",
       "RemoveVirtual": "Remover esta posição virtual",
       "Insert": "Adicionar uma posição virtual aqui",
+      "InsertBeforeUnrolled": "Adicionar uma posição virtual aqui: quem ainda não rolou iniciativa fica sempre no fim, depois dela",
       "NewVirtual": "Nova posição virtual",
       "NoTemplate": "Sem modelo: só uma mensagem na tela",
       "Cancel": "Cancelar",
@@ -1548,6 +1549,23 @@
       "Sheet": "Abrir a ficha",
       "ClearMovement": "Limpar o movimento",
       "Remove": "Remover do combate"
+    },
+    "Community": {
+      "Label": "Links da comunidade",
+      "wiki": {
+        "Label": "Abrir wiki",
+        "Tooltip": "Abrir a wiki dos módulos da Shattered Codex."
+      },
+      "patreon": {
+        "Label": "Apoiar no Patreon",
+        "Tooltip": "Apoie o desenvolvimento da Shattered Codex no Patreon."
+      },
+      "discord": {
+        "Label": "Discord",
+        "Tooltip": "Entre no servidor do Discord da Shattered Codex."
+      },
+      "NoteSupport": "Está gostando do módulo? Considere entrar no meu Patreon para ter acesso a muitos outros módulos, e dê uma olhada na wiki.",
+      "NoteFeedback": "Tem uma sugestão ou encontrou um bug? Me conte no canal do Discord."
     }
   }
 }

@@ -1097,6 +1097,7 @@
       "Close": "Close",
       "RemoveVirtual": "Remove this virtual position",
       "Insert": "Add a virtual position here",
+      "InsertBeforeUnrolled": "Add a virtual position here: whoever has not rolled initiative always stays at the end, after it",
       "NewVirtual": "New virtual position",
       "NoTemplate": "No template: just a message on screen",
       "Cancel": "Cancel",
@@ -1548,6 +1549,23 @@
       "Sheet": "Open the sheet",
       "ClearMovement": "Clear movement",
       "Remove": "Remove from combat"
+    },
+    "Community": {
+      "Label": "Community links",
+      "wiki": {
+        "Label": "Open wiki",
+        "Tooltip": "Open the Shattered Codex modules wiki."
+      },
+      "patreon": {
+        "Label": "Patreon support",
+        "Tooltip": "Support Shattered Codex development on Patreon."
+      },
+      "discord": {
+        "Label": "Discord",
+        "Tooltip": "Join the Shattered Codex Discord server."
+      },
+      "NoteSupport": "Enjoying this module? Consider joining my Patreon for access to many more modules, and take a look at the wiki.",
+      "NoteFeedback": "Have a suggestion or found a bug? Let me know on the Discord channel."
     }
   }
 }

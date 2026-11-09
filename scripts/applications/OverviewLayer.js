@@ -1,5 +1,6 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
 import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
+import { landingSlot, lastReachableSlot } from "../helpers/initiative-order.js";
 import { OVERVIEW_GRID, gridClip, gridLayout, shortestOffset } from "../helpers/wheel-geometry.js";
 import { wheelRotation } from "../helpers/orientation.js";
 import { cardClip, trackPose } from "../helpers/track-geometry.js";
@@ -55,6 +56,7 @@ export default class OverviewLayer {
    * @param {(combatantId: string, slot: number) => void} [options.onMove]      GM drag
    * @param {(slot: number, data: object) => void} [options.onInsert]         GM "+"
    * @param {(combatantId: string) => void} [options.onRemove]                 GM ×
+   * @param {(combatantId: string, event: MouseEvent) => void} [options.onContextMenu]  right click (or the menu key) on a tile
    */
   open(options) {
     if (this.isOpen || !options.model?.N) return;
@@ -248,7 +250,9 @@ export default class OverviewLayer {
     this.#root.append(...this.#tiles.flatMap((tile) => [tile.element, tile.label]));
     this.#inserts = [];
     if (game.user.isGM && onInsert) {
-      for (let k = 0; k <= model.N; k++) this.#inserts.push(this.#buildInsert(k));
+      // Nothing can sort after those without initiative (Foundry keeps them last): no "+" among them.
+      const reach = lastReachableSlot(OverviewLayer.#initiatives(model));
+      for (let k = 0; k <= reach; k++) this.#inserts.push(this.#buildInsert(k, { beforeUnrolled: k === reach && reach < model.N }));
       this.#root.append(...this.#inserts);
     }
   }
@@ -334,6 +338,11 @@ export default class OverviewLayer {
   /** Click picks, Enter/Space picks, and for the GM a drag moves (RF-33). */
   #bindTile(tile, j) {
     const { element } = tile;
+    element.addEventListener("contextmenu", (event) => {
+      if (this.#phase !== "open" || !this.#context.onContextMenu) return;
+      this.#closePopover();
+      this.#context.onContextMenu(tile.id, event);
+    });
     element.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
@@ -359,7 +368,8 @@ export default class OverviewLayer {
         if (!dragging) return;
         const center = this.#cellCenter(j);
         element.style.transform = `translate(${(center.x - this.#context.anchor.x + dx).toFixed(1)}px, ${(center.y - this.#context.anchor.y + dy).toFixed(1)}px) rotate(0deg) scale(1.06)`;
-        slot = this.#nearestSlot(move.clientX, move.clientY);
+        // Where it would really land: never among those without initiative.
+        slot = landingSlot(OverviewLayer.#initiatives(this.#context.model), this.#nearestSlot(move.clientX, move.clientY), j);
         this.#inserts.forEach((node, k) => node.classList.toggle("is-target", k === slot));
       };
       const onUp = () => {
@@ -394,17 +404,25 @@ export default class OverviewLayer {
     return best;
   }
 
-  /** RF-69: a "+" between two positions opens the quick form for a virtual position. */
-  #buildInsert(k) {
+  static #initiatives(model) {
+    return model.ring.map((vm) => vm.initiative);
+  }
+
+  /**
+   * RF-69: a "+" between two positions opens the quick form for a virtual
+   * position. The last one before those without initiative says why it is the last.
+   */
+  #buildInsert(k, { beforeUnrolled = false } = {}) {
     const point = this.#slotPoint(k);
+    const label = game.i18n.localize(`${I18N_ROOT}.Grid.${beforeUnrolled ? "InsertBeforeUnrolled" : "Insert"}`);
     const button = document.createElement("button");
     button.type = "button";
     button.className = "scw-overview-insert";
     button.style.left = `${point.x}px`;
     button.style.top = `${point.y}px`;
     button.innerHTML = `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
-    button.setAttribute("aria-label", game.i18n.localize(`${I18N_ROOT}.Grid.Insert`));
-    button.dataset.tooltip = game.i18n.localize(`${I18N_ROOT}.Grid.Insert`);
+    button.setAttribute("aria-label", label);
+    button.dataset.tooltip = label;
     button.addEventListener("click", () => this.#openPopover(k, point));
     return button;
   }

@@ -2,6 +2,12 @@ export const MODULE_ID = "sc-combat-wheel";
 export const I18N_ROOT = "SC_COMBAT_WHEEL";
 export const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates`;
 /** In cascade order: the tokens first, the themes and finishes over the base rules. Loaded by StyleLoader. */
+/** The Shattered Codex links offered in Foundry's settings (as in SC Item Rarity Colors). */
+// The module has no wiki page yet (…/modules/sc-combat-wheel answers 404): the modules index until it does.
+export const WIKI_URL = "https://wiki.shattered-codex.com/modules";
+export const PATREON_URL = "https://www.patreon.com/c/shatteredcodex";
+export const DISCORD_URL = "https://discord.gg/6mWCQEJEwG";
+
 export const STYLESHEETS = Object.freeze([
   "styles/tokens.css",
   "styles/theme-fonts.css",

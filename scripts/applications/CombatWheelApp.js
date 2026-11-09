@@ -141,10 +141,12 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       theme: activeTheme(this.#look),
       viewIndex: this.#viewIndex ?? model.currentIndex,
       viewT: this.#viewT(),
-      templates: isGM ? VirtualPositions.templates() : [],
+      // Read when the form opens: templates set up meanwhile are offered at once.
+      templates: () => (isGM ? VirtualPositions.templates() : []),
       onClosed: (combatantId, pickedOn) => this.#onGridClosed(combatantId, pickedOn),
       onMove: isGM ? (id, slot) => this.#moveCombatant(id, slot) : null,
       onInsert: isGM ? (slot, data) => this.#insertVirtual(slot, data) : null,
+      onManageVirtual: isGM ? () => CombatWheelSettingsApp.open("virtual") : null,
       onRemove: isGM ? (id) => this.combat?.combatants.get(id)?.delete() : null,
     });
   }

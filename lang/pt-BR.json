@@ -1090,7 +1090,9 @@
       "Cancel": "Cancelar",
       "Add": "Adicionar",
       "TitlePlaceholder": "Título (ex.: O covil treme)",
-      "MessagePlaceholder": "Mensagem mostrada na tela quando a vez chegar"
+      "MessagePlaceholder": "Mensagem mostrada na tela quando a vez chegar",
+      "ImagePlaceholder": "Imagem (opcional: a do modelo, ou um raio)",
+      "ManageVirtual": "Configurar posições virtuais"
     },
     "Sounds": {
       "off": "Desligado",

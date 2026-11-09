@@ -1090,7 +1090,9 @@
       "Cancel": "Cancel",
       "Add": "Add",
       "TitlePlaceholder": "Title (e.g. The lair shakes)",
-      "MessagePlaceholder": "Message shown on screen when its turn comes"
+      "MessagePlaceholder": "Message shown on screen when its turn comes",
+      "ImagePlaceholder": "Picture (optional: the template's, or a lightning bolt)",
+      "ManageVirtual": "Set up virtual positions"
     },
     "Sounds": {
       "off": "Off",

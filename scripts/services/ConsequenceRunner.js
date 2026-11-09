@@ -33,7 +33,9 @@ export default class ConsequenceRunner {
   }
 
   static #HANDLERS = {
-    screenMessage: (params, { config }) => ScreenBanner.show({ title: params.title || config.name, text: params.text, seconds: params.seconds, img: config.img }),
+    // The picture the wheel shows for this position: one chosen when it was added (RF-69) wins over its template's.
+    screenMessage: (params, { config, combatant }) =>
+      ScreenBanner.show({ title: params.title || config.name, text: params.text, seconds: params.seconds, img: combatant?.img || config.img }),
 
     sound: (params) => TurnSideEffects.player.play("file", params.src, params.volume / 100),
 

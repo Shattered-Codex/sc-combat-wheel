@@ -43,15 +43,16 @@ export default class VirtualPositions {
   /**
    * RF-69: a position created on the spot from the overview, at an exact
    * initiative. From a template when one is picked, otherwise a titled screen
-   * message. GM only.
+   * message; a picture chosen there replaces the template's. GM only.
    */
-  static async addAt(combat, { initiative, name, text, templateId }) {
+  static async addAt(combat, { initiative, name, text, img, templateId }) {
     if (!combat || !game.user.isGM) return null;
     const template = VirtualPositions.templates().find((t) => t.id === templateId);
     const data = template
-      ? combatantDataFor({ ...template, name: name || template.name, initiative })
+      ? combatantDataFor({ ...template, name: name || template.name, img: img || template.img, initiative })
       : combatantDataFor({
           name,
+          img,
           initiative,
           consequences: [{ kind: "screenMessage", params: { title: name, text } }],
         });

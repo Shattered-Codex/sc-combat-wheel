@@ -1170,6 +1170,21 @@
   font: inherit;
 }
 .scw-overview .scw-overview-popover-actions { display: flex; justify-content: flex-end; gap: 6px; }
+/* The settings link stands apart, on the left. */
+.scw-overview .scw-overview-popover-manage { margin-right: auto; }
+.scw-overview .scw-overview-popover-image { display: flex; align-items: center; gap: 6px; }
+.scw-overview .scw-overview-popover-image img {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--scw-divider);
+  border-radius: var(--scw-radius-sm);
+  background: color-mix(in srgb, var(--scw-bg) 70%, transparent);
+  object-fit: cover;
+}
+.scw-overview .scw-overview-popover file-picker { display: flex; flex: 1; gap: 4px; min-width: 0; }
+.scw-overview .scw-overview-popover file-picker input { flex: 1; width: auto; min-width: 0; }
+.scw-overview .scw-overview-popover file-picker button { flex: none; }
 
 /* ---------- on-screen message of a virtual position (RF-68) ---------- */
 .scw-banner-host.sc-combat-wheel {

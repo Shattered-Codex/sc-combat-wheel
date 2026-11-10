@@ -3,16 +3,6 @@
   "title": "SC - Combat Wheel",
   "description": "An initiative wheel for any system: the combat order as a half-circle of portraits that turns with every turn, with a control bar for the GM and players.",
   "version": "1.0.3",
-  "media": [
-    {
-      "type": "setup",
-      "url": "https://raw.githubusercontent.com/Shattered-Codex/sc-combat-wheel/main/docs/images/cover.webp"
-    },
-    {
-      "type": "cover",
-      "url": "https://raw.githubusercontent.com/Shattered-Codex/sc-combat-wheel/main/docs/images/cover.webp"
-    }
-  ],
   "authors": [
     {
       "name": "Gustavo Bacelar",

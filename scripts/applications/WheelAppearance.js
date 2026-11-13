@@ -6,6 +6,8 @@ import { FX_BOOST, INTENSITY_AMOUNTS, PARTICLE_INTENSITIES, PARTICLE_PRESETS, PA
 import { ORIENTATIONS, isSideOrientation } from "../helpers/orientation.js";
 import { initiativeBadgeAppearance, initiativePosition, marksBelowInitiative } from "../helpers/initiative-badges.js";
 
+/** The health displays the numbers can sit in (#9): the bar along the foot and the side band. */
+const HP_LABEL_BARS = Object.freeze(["bottom", "band"]);
 /** How long a turn-change effect may run (effects.css keeps them shorter). */
 const TURN_FX_MS = 1200;
 const TURN_FX_TIMERS = new WeakMap();
@@ -29,6 +31,12 @@ const WIDGET_FX_REACH = Object.freeze({
  * what the table sees.
  */
 export default class WheelAppearance {
+  /** #9: where the hit points numbers go; "bar" needs a bar to sit in (the foot's or the side band), without one they sit at the bottom. */
+  static hpLabelPlacement(look) {
+    const placement = look.hpLabelPlacement ?? "bar";
+    return placement === "bar" && !HP_LABEL_BARS.includes(look.hpOverlay) ? "bottom" : placement;
+  }
+
   /**
    * Geometry from layoutFromSettings(), for any view (RF-90); `scale` is the
    * root's overall zoom around its anchor.
@@ -47,6 +55,16 @@ export default class WheelAppearance {
       // RF-94: a sector's portrait box starts above its outer arc; the badge sits just inside the arc.
       const initiativeTop = layout.shape === "sector" ? layout.Rm - layout.R - layout.portrait.top + 4 : 6;
       style.setProperty("--scw-init-top", `${initiativeTop.toFixed(1)}px`);
+      // #8: a sector's foot is its inner arc, this far from the hub; the bottom health bar follows it.
+      // The portrait's square runs past that arc (and, facing down, past the outer one): the numbers stand clear of it.
+      style.setProperty("--scw-r0", `${layout.r0}px`);
+      const { top, size } = layout.portrait;
+      style.setProperty("--scw-sector-foot", `${Math.max(0, top + size - (layout.Rm - layout.r0)).toFixed(1)}px`);
+      style.setProperty("--scw-sector-head", `${Math.max(0, -top).toFixed(1)}px`);
+      // How far a resting slice's outer arc stands inside the acting one's (styles: --scw-foot-cut facing down).
+      style.setProperty("--scw-E", `${layout.E}px`);
+      // The hub, below the portrait's top: the bottom health bar's arcs are drawn around it.
+      style.setProperty("--scw-hub-y", `${(layout.Rm - top).toFixed(1)}px`);
     } else {
       style.setProperty("--scw-card-w", `${layout.cardWidth}px`);
       style.setProperty("--scw-card-h", `${layout.cardHeight}px`);
@@ -83,6 +101,8 @@ export default class WheelAppearance {
     if (marksBelowInitiative(look)) data.scwMarksBelow = "";
     else delete data.scwMarksBelow;
     data.scwHealth = look.hpOverlay;
+    data.scwHpLabel = look.hpLabel ?? "off";
+    data.scwHpLabelAt = WheelAppearance.hpLabelPlacement(look);
     data.scwNames = look.trackNames;
     data.scwBar = look.barVisibility ?? "always";
     // Only an explicit size is marked: automatic keeps the bar's own normal/compact design.
@@ -111,6 +131,7 @@ export default class WheelAppearance {
     style.setProperty("--scw-bar-h-expanded-side", `${WheelAppearance.barThickness("right", true, look)}px`);
     style.setProperty("--scw-strip-size", `${PHASE_STRIP_SIZES[look.phaseStripSize] ?? PHASE_STRIP_SIZES.medium}px`);
     style.setProperty("--scw-health-opacity", String(look.hpOverlayOpacity / 100));
+    style.setProperty("--scw-hp-label-scale", String((Number(look.hpLabelSize) || 100) / 100));
     style.setProperty("--scw-rest-opacity", String(look.restOpacity / 100));
     // RF-112: one intensity and one speed for every effect, the acting ones and the particles alike.
     style.setProperty("--scw-fx-strength", String(PARTICLE_INTENSITIES[look.particleIntensity] ?? PARTICLE_INTENSITIES.normal));

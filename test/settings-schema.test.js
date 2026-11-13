@@ -159,6 +159,25 @@ describe("appearance editor (RF-73)", () => {
     }
   });
 
+  it("adds the bottom health bar and the health numbers without changing anyone's look (#8, #9)", () => {
+    const row = (key) => SETTINGS_SCHEMA.find((entry) => entry.key === key);
+    const overlay = row("hpOverlay");
+    assert.deepEqual(overlay.choices, ["off", "drain", "fill", "band", "bottom"]);
+    assert.equal(overlay.default, "drain");
+    assert.equal(row("hpLabel").default, "off");
+    for (const key of ["hpOverlay", "hpOverlayOpacity", "hpLabel", "hpLabelPlacement", "hpLabelSize"]) {
+      assert.deepEqual([row(key).panel, row(key).group, row(key).scope], ["portraits", "health", "user"], key);
+    }
+    for (const key of ["hpLabelPlacement", "hpLabelSize"]) {
+      assert.equal(isSettingShown(row(key), { hpLabel: "off" }), false, key);
+      for (const hpLabel of ["fraction", "current", "percent"]) assert.equal(isSettingShown(row(key), { hpLabel }), true, key);
+    }
+    assert.deepEqual(row("hpLabelPlacement").choices, ["bar", "bottom", "center"]);
+    assert.equal(row("hpLabelPlacement").default, "bar");
+    assert.equal(coerceSetting(row("hpLabelSize"), 10), 70);
+    assert.equal(coerceSetting(row("hpLabelPlacement"), "nowhere"), null, "an unknown place is rejected");
+  });
+
   it("keeps the Venaerys tab for worlds that run it (RF-82)", () => {
     const phases = APPEARANCE_PANELS.find((panel) => panel.id === "phases");
     assert.equal(phases.module, "sc-venaerys-initiative");

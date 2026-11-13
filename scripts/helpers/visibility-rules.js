@@ -71,7 +71,7 @@ export function hpView(hp, { isGM, isOwner, disposition, hpForPlayers }) {
   const mode = exact ? "number" : hpForPlayers;
 
   if (mode === "number") {
-    return { mode, text: `${hp.value}/${hp.max}`, pct: ratio, critical: ratio <= CRITICAL_RATIO, stateKey };
+    return { mode, text: `${hp.value}/${hp.max}`, value: hp.value, max: hp.max, pct: ratio, critical: ratio <= CRITICAL_RATIO, stateKey };
   }
   if (mode === "bar") return { mode, pct: ratio, critical: ratio <= CRITICAL_RATIO, stateKey: null };
   if (mode === "state") {
@@ -79,6 +79,20 @@ export function hpView(hp, { isGM, isOwner, disposition, hpForPlayers }) {
     return { mode, pct: fill, critical: fill <= 0.25, stateKey };
   }
   return { mode: "hidden" };
+}
+
+/**
+ * #9: the hit points a portrait may print, in every format the look offers,
+ * or null. Only the exact mode has numbers: a bar or a descriptive state never
+ * turns into a figure, not even a percentage of the bar.
+ */
+export function portraitHpLabel(hp) {
+  if (hp?.mode !== "number" || !Number.isFinite(hp.value) || !Number.isFinite(hp.max)) return null;
+  return {
+    fraction: `${hp.value}/${hp.max}`,
+    current: String(hp.value),
+    percent: `${Math.round(hp.pct * 100)}%`,
+  };
 }
 
 /** RF-44: the name this viewer may read. `null` means "use the unknown label". */

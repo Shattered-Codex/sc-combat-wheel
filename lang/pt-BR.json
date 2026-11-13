@@ -331,11 +331,35 @@
           "off": "Desligado",
           "drain": "A vida perdida tinge de vermelho a partir do topo",
           "fill": "A vida restante preenche a partir da base (verde → vermelho)",
-          "band": "Medidor fino na lateral"
+          "band": "Medidor fino na lateral",
+          "bottom": "Barra na base"
         }
       },
       "hpOverlayOpacity": {
         "Name": "Intensidade da vida no retrato",
+        "Hint": "Em porcentagem."
+      },
+      "hpLabel": {
+        "Name": "Números de PV",
+        "Hint": "Escreve os PV em cada retrato. Só aparece para quem pode ver o valor exato: o Mestre, os donos e os combatentes amigáveis, ou todos quando os PV dos inimigos aparecem como número.",
+        "Choices": {
+          "off": "Desligado",
+          "fraction": "Atual / máximo (25/40)",
+          "current": "Só o atual (25)",
+          "percent": "Porcentagem (63%)"
+        }
+      },
+      "hpLabelPlacement": {
+        "Name": "Posição dos números",
+        "Hint": "Na barra, ficam dentro da barra na base ou sobem pelo medidor lateral (com preencher ou tingir, vão para a base). Na base, ficam acima do nome, da barra e de qualquer selo nessa borda.",
+        "Choices": {
+          "bar": "Na barra",
+          "bottom": "Base",
+          "center": "Centro"
+        }
+      },
+      "hpLabelSize": {
+        "Name": "Tamanho dos números",
         "Hint": "Em porcentagem."
       },
       "view": {
@@ -1342,6 +1366,7 @@
         "placement": "Posição",
         "portrait": "Retrato",
         "info": "Informação",
+        "health": "Vida",
         "panels": "Painéis",
         "sides": "Lados",
         "acting": "Efeitos",

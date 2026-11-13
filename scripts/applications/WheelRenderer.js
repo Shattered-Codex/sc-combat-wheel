@@ -1,5 +1,6 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
 import { trackPose } from "../helpers/track-geometry.js";
+import { portraitHpLabel } from "../helpers/visibility-rules.js";
 import { windowSlots } from "../helpers/wheel-geometry.js";
 
 /**
@@ -96,6 +97,7 @@ export default class WheelRenderer {
         <img class="scw-portrait-img" alt="" draggable="false" loading="lazy">
         <span class="scw-phase-face" aria-hidden="true"><i class="scw-phase-icon"></i><span class="scw-phase-name"></span></span>
         <span class="scw-health" aria-hidden="true"></span>
+        <span class="scw-hp-label" aria-hidden="true" hidden></span>
         <i class="scw-flag scw-flag-hidden fa-solid fa-eye-slash" aria-hidden="true"></i>
         <i class="scw-flag scw-flag-defeated fa-solid fa-skull" aria-hidden="true"></i>
         <i class="scw-flag scw-flag-virtual fa-solid fa-bolt" aria-hidden="true"></i>
@@ -122,6 +124,7 @@ export default class WheelRenderer {
       turnBadge: element.querySelector(".scw-badge-turn"),
       nameTag: element.querySelector(".scw-name-tag"),
       initiative: element.querySelector(".scw-badge-init"),
+      hpLabel: element.querySelector(".scw-hp-label"),
       s: null,
       signature: "",
       combatantId: null,
@@ -240,6 +243,7 @@ export default class WheelRenderer {
     // On the slice, not the portrait: the wheel's arc gauge is drawn by the rim, a sibling of the portrait.
     if (tone) element.style.setProperty("--scw-health", String(vm.hp.pct));
     else element.style.removeProperty("--scw-health");
+    this.#applyHpLabel(slot, vm);
     slot.roll.disabled = !vm?.isOwner;
     slot.roll.setAttribute("aria-label", game.i18n.localize(`${I18N_ROOT}.Slice.RollOne`));
 
@@ -275,6 +279,20 @@ export default class WheelRenderer {
       element.removeAttribute("aria-label");
       delete slot.portrait.dataset.tooltip;
     }
+  }
+
+  /**
+   * #9: every format the look may pick is kept on the label and the stylesheet
+   * prints the chosen one (data-scw-hp-label), so a format change redraws
+   * nothing. Empty unless this viewer may read the exact hit points.
+   */
+  #applyHpLabel(slot, vm) {
+    const label = vm && !vm.virtual && vm.kind !== "phase" ? portraitHpLabel(vm.hp) : null;
+    const { dataset } = slot.hpLabel;
+    dataset.fraction = label?.fraction ?? "";
+    dataset.current = label?.current ?? "";
+    dataset.percent = label?.percent ?? "";
+    slot.hpLabel.hidden = label === null;
   }
 
   /** RF-80: a Venaerys phase shows its icon and name on its own color instead of a portrait. */

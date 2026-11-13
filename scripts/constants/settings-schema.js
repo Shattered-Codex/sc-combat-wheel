@@ -1,4 +1,4 @@
-import { BAR_BUTTON_RANGE, BAR_BUTTON_SIZES, BAR_ITEMS, INITIATIVE_BADGE_SIZE_RANGE, INITIATIVE_FONT_RANGE, INITIATIVE_OFFSET_RANGE, DEFAULT_PRESET, LAYOUT_PRESETS, PHASE_STRIP_SIZES, SETTINGS, TRACK_SHAPES, TRACK_SIZES, VIEWS } from "./module-constants.js";
+import { BAR_BUTTON_RANGE, BAR_BUTTON_SIZES, BAR_ITEMS, HP_LABEL_SIZE_RANGE, INITIATIVE_BADGE_SIZE_RANGE, INITIATIVE_FONT_RANGE, INITIATIVE_OFFSET_RANGE, DEFAULT_PRESET, LAYOUT_PRESETS, PHASE_STRIP_SIZES, SETTINGS, TRACK_SHAPES, TRACK_SIZES, VIEWS } from "./module-constants.js";
 import { SOUND_CHOICES } from "../helpers/sound-presets.js";
 import { FOLLOW_SYSTEM, THEMES } from "../helpers/themes.js";
 import { ORIENTATIONS } from "../helpers/orientation.js";
@@ -93,8 +93,13 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.initiativeBadgeOffsetX, scope: "user", type: "number", range: INITIATIVE_OFFSET_RANGE, default: 0, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
   { key: SETTINGS.initiativeBadgeOffsetY, scope: "user", type: "number", range: INITIATIVE_OFFSET_RANGE, default: 0, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
   { key: SETTINGS.restOpacity, scope: "user", type: "number", range: { min: 40, max: 100, step: 5 }, default: 100, section: "appearance", react: "data", advanced: true, group: "portrait", panel: "portraits" },
-  { key: SETTINGS.hpOverlay, scope: "user", type: "choice", choices: ["off", "drain", "fill", "band"], default: "drain", section: "appearance", react: "data", group: "info", panel: "portraits" },
-  { key: SETTINGS.hpOverlayOpacity, scope: "user", type: "number", range: { min: 10, max: 90, step: 5 }, default: 45, section: "appearance", react: "data", advanced: true, group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.hpOverlay, notIn: ["off"] } },
+  // RF-48: how the health left shows; "bottom" is a bar along the portrait's foot (#8).
+  { key: SETTINGS.hpOverlay, scope: "user", type: "choice", choices: ["off", "drain", "fill", "band", "bottom"], default: "drain", section: "appearance", react: "data", group: "health", panel: "portraits" },
+  { key: SETTINGS.hpOverlayOpacity, scope: "user", type: "number", range: { min: 10, max: 90, step: 5 }, default: 45, section: "appearance", react: "data", advanced: true, group: "health", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.hpOverlay, notIn: ["off"] } },
+  // #9: the hit points as numbers, only for whoever may read them exactly (RF-42).
+  { key: SETTINGS.hpLabel, scope: "user", type: "choice", choices: ["off", "fraction", "current", "percent"], default: "off", section: "appearance", react: "data", group: "health", panel: "portraits" },
+  { key: SETTINGS.hpLabelPlacement, scope: "user", type: "choice", choices: ["bar", "bottom", "center"], default: "bar", section: "appearance", react: "data", group: "health", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.hpLabel, notIn: ["off"] } },
+  { key: SETTINGS.hpLabelSize, scope: "user", type: "number", range: HP_LABEL_SIZE_RANGE, default: 100, section: "appearance", react: "data", group: "health", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.hpLabel, notIn: ["off"] } },
   { key: SETTINGS.barVisibility, scope: "user", type: "choice", choices: ["always", "hover", "hidden"], default: "always", section: "appearance", react: "data", group: "display", panel: "bar" },
   { key: SETTINGS.barLayout, scope: "user", type: "choice", choices: ["bar", "split"], default: "bar", section: "appearance", react: "layout", group: "display", panel: "bar" },
   { key: SETTINGS.barControls, scope: "user", type: "choice", choices: ["inline", "menu"], default: "menu", section: "appearance", react: "data", group: "display", panel: "bar" },

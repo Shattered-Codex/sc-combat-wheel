@@ -1401,8 +1401,8 @@
 /* On ring sectors the portrait's square reaches past the slice, so a gauge on
  * its side would be cut off: the band follows the slice's outer arc instead,
  * just inside the rim, filling clockwise with the health left. */
-.sc-combat-wheel.scw-sectors[data-scw-health="band"] .scw-slot .scw-health { display: none !important; }
-.sc-combat-wheel.scw-sectors[data-scw-health="band"] .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger):not(.is-defeated) .scw-rim::before {
+.sc-combat-wheel.scw-sectors[data-scw-health="band"]:not([data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-slot .scw-health { display: none !important; }
+.sc-combat-wheel.scw-sectors[data-scw-health="band"]:not([data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger):not(.is-defeated) .scw-rim::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1416,6 +1416,239 @@
   -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7px), #000 calc(100% - 2px), transparent calc(100% - 1px));
   mask: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7px), #000 calc(100% - 2px), transparent calc(100% - 1px));
   opacity: calc(0.4 + var(--scw-health-opacity, 0.45));
+}
+
+/* The numbers in the side band (#9, placement "bar" with the band): the band
+ * widens to their line (--scw-hp-band) and they run up it, a quarter turn.
+ * On a sector the band is the outer arc: it thickens there and the numbers sit
+ * level in its middle, the initiative stepping in past it (--scw-init-push).
+ * Like the foot's arcs, the portrait's own health layer draws it, centred on
+ * the hub, so the numbers paint over it; --scw-head-cut is how far the outer
+ * arc stands below the portrait's top (the acting slice's rim is E further out). */
+.sc-combat-wheel { --scw-hp-band: 0px; }
+.sc-combat-wheel[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-band: calc(var(--scw-hp-label-line) + 3px); --scw-band-left: 6px; }
+.sc-combat-wheel:not(.scw-sectors)[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-health { width: var(--scw-hp-band); }
+.sc-combat-wheel:not(.scw-sectors)[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  top: 50%;
+  bottom: auto;
+  left: calc(var(--scw-band-left) + var(--scw-hp-band) / 2);
+  padding: 0 4px;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  line-height: var(--scw-hp-band);
+  text-shadow: 0 0 2px #000, 0 1px 2px #000;
+}
+.sc-combat-wheel.scw-sectors:not(.scw-down, .scw-side)[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-init-push: calc(var(--scw-rim-width) + var(--scw-hp-band)); }
+.sc-combat-wheel.scw-sectors[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot {
+  --scw-head-cut: calc(var(--scw-sector-head, 0px) + var(--scw-E, 0px));
+  --scw-ring-in: calc(var(--scw-Rm) - var(--scw-E, 0px) - var(--scw-rim-width) - 2px - var(--scw-hp-band));
+}
+.sc-combat-wheel.scw-sectors[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot.is-active {
+  --scw-head-cut: var(--scw-sector-head, 0px);
+  --scw-ring-in: calc(var(--scw-Rm) - var(--scw-rim-width) - 2px - var(--scw-hp-band));
+}
+.sc-combat-wheel.scw-sectors[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot .scw-health {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: conic-gradient(
+    from calc(-1 * var(--scw-half)) at 50% var(--scw-hub-y),
+    var(--scw-health-color) 0deg calc(2 * var(--scw-half) * var(--scw-health, 1)),
+    rgba(0, 0, 0, 0.6) 0deg calc(2 * var(--scw-half)),
+    transparent 0deg
+  );
+  box-shadow: none;
+  -webkit-mask: radial-gradient(circle at 50% var(--scw-hub-y), transparent var(--scw-ring-in), #000 calc(var(--scw-ring-in) + 0.5px), #000 calc(var(--scw-ring-in) + var(--scw-hp-band)), transparent calc(var(--scw-ring-in) + 0.5px + var(--scw-hp-band)));
+  mask: radial-gradient(circle at 50% var(--scw-hub-y), transparent var(--scw-ring-in), #000 calc(var(--scw-ring-in) + 0.5px), #000 calc(var(--scw-ring-in) + var(--scw-hp-band)), transparent calc(var(--scw-ring-in) + 0.5px + var(--scw-hp-band)));
+}
+.sc-combat-wheel.scw-sectors.scw-down[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot .scw-health { transform: rotate(180deg); }
+.sc-combat-wheel.scw-sectors[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  top: calc(var(--scw-head-cut) + var(--scw-rim-width) + 2px);
+  bottom: auto;
+  padding: 0 4px;
+  transform: translateX(-50%);
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  line-height: var(--scw-hp-band);
+  text-shadow: 0 0 2px #000, 0 1px 2px #000;
+}
+/* Facing down the art is turned over: the outer arc is its foot, where the round's badge and the die stand on it. */
+.sc-combat-wheel.scw-sectors.scw-down[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-foot: var(--scw-hp-band); }
+.sc-combat-wheel.scw-sectors.scw-down[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  top: auto;
+  bottom: calc(var(--scw-head-cut) + var(--scw-rim-width) + 2px);
+}
+
+/* ---------- health bar along the foot (#8) and health numbers (#9) ----------
+ * --scw-hp-foot is the room the bar takes at the portrait's foot: a thin bar,
+ * or a bar tall enough to hold the numbers when they go in it (placement
+ * "bar"). It is set for the whole widget, not per card, so names and badges
+ * stay in line from card to card whatever each viewer may see of each health. */
+.sc-combat-wheel { --scw-hp-foot: 0px; --scw-hp-foot-top: 0px; --scw-hp-label-line: calc(9px * var(--scw-hp-label-scale, 1) * 1.2); }
+.sc-combat-wheel[data-scw-health="bottom"] { --scw-hp-foot: 5px; --scw-hp-foot-top: calc(var(--scw-rim-width) + var(--scw-hp-foot)); }
+.sc-combat-wheel[data-scw-health="bottom"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-foot: calc(var(--scw-hp-label-line) + 3px); }
+.sc-combat-wheel[data-scw-health="bottom"] .scw-health {
+  inset: auto var(--scw-rim-width) var(--scw-rim-width);
+  height: var(--scw-hp-foot);
+  background: linear-gradient(to right, var(--scw-health-color) 0 calc(var(--scw-health, 1) * 100%), rgba(0, 0, 0, 0.6) calc(var(--scw-health, 1) * 100%) 100%);
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
+  opacity: calc(0.4 + var(--scw-health-opacity, 0.45));
+}
+/* A sector's foot is its inner arc, where the portrait's square is cut off
+ * (--scw-foot-cut: how far the square runs past it at the slice's middle):
+ * the bar follows the arc there, filling clockwise like the side band, and
+ * --scw-ring-gap away from it. Facing down, the art is turned over and its
+ * foot is the outer arc: the square's top runs --scw-sector-head past the
+ * acting slice's rim, and the others' rim stands E further in; the bar keeps
+ * clear of the rim's border there. Per slot, as the acting one differs. */
+.sc-combat-wheel.scw-sectors .scw-slot { --scw-foot-cut: var(--scw-sector-foot, 0px); --scw-ring-gap: 1px; }
+.sc-combat-wheel.scw-sectors.scw-down .scw-slot { --scw-foot-cut: var(--scw-sector-head, 0px); --scw-ring-gap: calc(var(--scw-rim-width) + 2px); }
+.sc-combat-wheel.scw-sectors.scw-down .scw-slot:not(.is-active) { --scw-foot-cut: calc(var(--scw-sector-head, 0px) + var(--scw-E, 0px)); }
+/* A thin arc, or one as thick as the numbers' line when they go in it (as the straight bar). */
+.sc-combat-wheel.scw-sectors[data-scw-health="bottom"][data-scw-hp-label-at] { --scw-hp-foot: 6px; }
+.sc-combat-wheel.scw-sectors[data-scw-health="bottom"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-foot: calc(var(--scw-hp-label-line) + 3px); }
+/* Drawn by the portrait's own health layer, not the rim, so the numbers in it
+ * paint over it: centred on the hub (--scw-hub-y below the portrait's top),
+ * --scw-ring-in from it. Facing down the layer turns back with the slice, the
+ * outer arc's radius being the resting slices' R (Rm − E) or the acting one's Rm. */
+.sc-combat-wheel.scw-sectors .scw-slot { --scw-ring-in: calc(var(--scw-r0) + var(--scw-ring-gap)); }
+.sc-combat-wheel.scw-sectors.scw-down .scw-slot { --scw-ring-in: calc(var(--scw-Rm) - var(--scw-E, 0px) - var(--scw-ring-gap) - var(--scw-hp-foot)); }
+.sc-combat-wheel.scw-sectors.scw-down .scw-slot.is-active { --scw-ring-in: calc(var(--scw-Rm) - var(--scw-ring-gap) - var(--scw-hp-foot)); }
+.sc-combat-wheel.scw-sectors[data-scw-health="bottom"] .scw-slot .scw-health {
+  inset: 0;
+  height: auto;
+  background: conic-gradient(
+    from calc(-1 * var(--scw-half)) at 50% var(--scw-hub-y),
+    var(--scw-health-color) 0deg calc(2 * var(--scw-half) * var(--scw-health, 1)),
+    rgba(0, 0, 0, 0.6) 0deg calc(2 * var(--scw-half)),
+    transparent 0deg
+  );
+  box-shadow: none;
+  -webkit-mask: radial-gradient(circle at 50% var(--scw-hub-y), transparent var(--scw-ring-in), #000 calc(var(--scw-ring-in) + 0.5px), #000 calc(var(--scw-ring-in) + var(--scw-hp-foot)), transparent calc(var(--scw-ring-in) + 0.5px + var(--scw-hp-foot)));
+  mask: radial-gradient(circle at 50% var(--scw-hub-y), transparent var(--scw-ring-in), #000 calc(var(--scw-ring-in) + 0.5px), #000 calc(var(--scw-ring-in) + var(--scw-hp-foot)), transparent calc(var(--scw-ring-in) + 0.5px + var(--scw-hp-foot)));
+}
+.sc-combat-wheel.scw-sectors.scw-down[data-scw-health="bottom"] .scw-slot .scw-health { transform: rotate(180deg); }
+/* On the wheel the round's badge and the roll die share the foot: they stand on the bar. */
+.sc-combat-wheel:not(.scw-view-track) .scw-slot { --scw-foot-line: calc(var(--scw-foot-cut, 0px) + var(--scw-ring-gap, 0px) + var(--scw-hp-foot) + 6px); }
+.sc-combat-wheel:not(.scw-view-track, .scw-sectors.scw-side):is([data-scw-health="bottom"], .scw-sectors.scw-down[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-badge-round { bottom: var(--scw-foot-line); }
+.sc-combat-wheel:not(.scw-view-track, .scw-sectors.scw-side):is([data-scw-health="bottom"], .scw-sectors.scw-down[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-slot.is-unrolled .scw-flag-unrolled { bottom: calc(var(--scw-foot-line) - 1px); }
+
+.sc-combat-wheel.scw-sectors .scw-slot { --scw-hp-bar-bottom: calc(var(--scw-foot-cut) + var(--scw-ring-gap)); }
+
+/* Facing left or right the wheel is turned a quarter and each portrait turned
+ * back (scw-right: -90deg, scw-left: 90deg) to keep its art upright: the arcs'
+ * layer turns with the slice again, and the art's foot is a side of the slice,
+ * not an arc. Numbers that go with an arc follow it instead: the inner arc is
+ * the portrait's left edge facing right and its right edge facing left (the
+ * outer arc the other one); in the arc they run along it, a quarter turn,
+ * beside it they stay level. The round's badge and the die keep the art's foot.
+ * Each rule says bottom: auto itself: the in-bar rules set a bottom, and with
+ * both top and bottom the box would stretch between them before it turns. */
+.sc-combat-wheel.scw-sectors.scw-right:is([data-scw-health="bottom"], [data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-slot .scw-health { transform: rotate(90deg); }
+.sc-combat-wheel.scw-sectors.scw-left:is([data-scw-health="bottom"], [data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"])) .scw-slot .scw-health { transform: rotate(-90deg); }
+.sc-combat-wheel.scw-sectors.scw-side .scw-slot {
+  --scw-foot-arc: calc(var(--scw-foot-cut) + var(--scw-ring-gap) + var(--scw-hp-foot) / 2);
+  --scw-head-arc: calc(var(--scw-head-cut, 0px) + var(--scw-rim-width) + 2px + var(--scw-hp-band) / 2);
+}
+.sc-combat-wheel.scw-sectors.scw-side:is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot .scw-hp-label:not([hidden]) {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+.sc-combat-wheel.scw-sectors.scw-right:is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot .scw-hp-label:not([hidden]) { left: var(--scw-foot-line); }
+.sc-combat-wheel.scw-sectors.scw-left:is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot .scw-hp-label:not([hidden]) { left: auto; right: var(--scw-foot-line); }
+.sc-combat-wheel.scw-sectors.scw-right[data-scw-health="bottom"][data-scw-hp-label-at="bar"] .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) { top: 50%; bottom: auto; left: var(--scw-foot-arc); transform: translate(-50%, -50%) rotate(90deg); }
+.sc-combat-wheel.scw-sectors.scw-left[data-scw-health="bottom"][data-scw-hp-label-at="bar"] .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) { top: 50%; bottom: auto; left: calc(100% - var(--scw-foot-arc)); right: auto; transform: translate(-50%, -50%) rotate(-90deg); }
+.sc-combat-wheel.scw-sectors.scw-right[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) { top: 50%; bottom: auto; left: calc(100% - var(--scw-head-arc)); transform: translate(-50%, -50%) rotate(90deg); }
+.sc-combat-wheel.scw-sectors.scw-left[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) { top: 50%; bottom: auto; left: var(--scw-head-arc); right: auto; transform: translate(-50%, -50%) rotate(-90deg); }
+
+/* The numbers print the format the look picks; WheelRenderer leaves the label
+ * empty and hidden for whoever may not read the exact hit points (RF-42). */
+.sc-combat-wheel .scw-hp-label { display: none; }
+.sc-combat-wheel:not([data-scw-hp-label="off"]) .scw-slot:not(.is-defeated) .scw-hp-label:not([hidden]) {
+  /* No z-index of its own: above the health overlay, below every badge and mark
+     (the order of the portrait's children), so where room runs out the
+     initiative and the round still read in full. The acting portrait lifts
+     them all alike (effects.css). */
+  position: absolute;
+  top: var(--scw-hp-label-top, auto);
+  left: 50%;
+  bottom: var(--scw-hp-label-bottom, 6px);
+  display: block;
+  padding: 1px 4px;
+  transform: translate(-50%, var(--scw-hp-label-shift, 0));
+  border-radius: var(--scw-radius-sm);
+  background: color-mix(in srgb, var(--scw-bg) 80%, transparent);
+  box-shadow: 0 0 0 1px var(--scw-divider);
+  color: var(--scw-hp-label-color, var(--scw-text));
+  font: 600 calc(9px * var(--scw-hp-label-scale, 1)) / 1.2 var(--scw-font-mono);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.sc-combat-wheel[data-scw-hp-label="fraction"] .scw-hp-label::before { content: attr(data-fraction); }
+.sc-combat-wheel[data-scw-hp-label="current"] .scw-hp-label::before { content: attr(data-current); }
+.sc-combat-wheel[data-scw-hp-label="percent"] .scw-hp-label::before { content: attr(data-percent); }
+/* Low health is also told by colour; the number itself says it first. */
+.sc-combat-wheel .scw-slot.is-health-danger { --scw-hp-label-color: color-mix(in srgb, var(--scw-health-danger) 65%, #fff); }
+/* Centre: in the middle of the art. A card too short for the numbers there
+ * and its name below them drops the name, as it does for its badges
+ * (--scw-center-name-off, 0 or 1px, as --scw-name-off); the name stays in the
+ * portrait's tooltip. While a card waits for a roll, the die (22px) and the
+ * numbers (their line and 1px padding each side) are centred together, die
+ * above, 2px apart, in the room above the name (--scw-pair-center): at most
+ * 26px + 17.3px (160%), so the pair fits the shortest card (48px). */
+.sc-combat-wheel[data-scw-hp-label-at="center"] { --scw-hp-label-top: 50%; --scw-hp-label-bottom: auto; --scw-hp-label-shift: -50%; }
+.sc-combat-wheel.scw-view-track[data-scw-hp-label-at="center"]:not([data-scw-hp-label="off"]) .scw-slot:not(.is-defeated) .scw-portrait:has(> .scw-hp-label:not([hidden])) {
+  --scw-center-name-off: clamp(0px, (var(--scw-hp-label-line) + 2px + 2 * var(--scw-name-h) - var(--scw-card-h)) * 10000, 1px);
+}
+.sc-combat-wheel.scw-view-track[data-scw-hp-label-at="center"]:not([data-scw-hp-label="off"]) .scw-slot.is-unrolled:not(.is-defeated) .scw-portrait:has(> .scw-hp-label:not([hidden])) {
+  --scw-center-name-off: clamp(0px, (28px + var(--scw-hp-label-line) + var(--scw-name-h) - var(--scw-card-h)) * 10000, 1px);
+  --scw-pair-center: calc((100% - max(0px, var(--scw-name-h) - var(--scw-center-name-off) * 100000)) / 2);
+  --scw-hp-label-top: calc(var(--scw-pair-center) + 12px);
+}
+.sc-combat-wheel.scw-view-track[data-scw-hp-label-at="center"]:not([data-scw-hp-label="off"]) .scw-slot.is-unrolled:not(.is-defeated) .scw-portrait:has(> .scw-hp-label:not([hidden])) > .scw-flag-unrolled {
+  top: calc(var(--scw-pair-center) - 1px - (var(--scw-hp-label-line) + 2px) / 2);
+}
+/* Either cut, the badges' or the numbers': this rule outweighs the badges' own. */
+.sc-combat-wheel.scw-view-track[data-scw-hp-label-at="center"]:not([data-scw-hp-label="off"]) .scw-slot:not(.is-defeated) .scw-portrait:has(> .scw-hp-label:not([hidden])) > .scw-name-tag {
+  clip-path: inset(max(var(--scw-name-cut, 0px), calc(var(--scw-center-name-off) * 1000)) 0 0 0);
+}
+/* Bottom (and in the bar, on a sector): on the wheel, on the foot line, above
+ * the round's badge or the roll die when the slice shows one. */
+.sc-combat-wheel:not(.scw-view-track):is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot { --scw-hp-label-bottom: var(--scw-foot-line); }
+.sc-combat-wheel:not(.scw-view-track):is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot:has(.scw-badge-round:not([hidden])) { --scw-hp-label-bottom: calc(var(--scw-foot-line) + 16px); }
+.sc-combat-wheel:not(.scw-view-track):is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-slot.is-unrolled { --scw-hp-label-bottom: calc(var(--scw-foot-line) + 25px); }
+/* Bottom, on a card: above the name and the bar, and above a badge pinned to the bottom
+ * edge. --scw-hp-label-room joins the card's room count (A small card's room,
+ * below), so a card too short drops its name first; the numbers never leave
+ * the card, and the marks, drawn over them, stay readable in the last resort. */
+.sc-combat-wheel.scw-view-track .scw-portrait { --scw-hp-label-room: 0px; }
+.sc-combat-wheel.scw-view-track[data-scw-hp-label-at="bottom"]:not([data-scw-hp-label="off"]) .scw-slot:not(.is-defeated) .scw-portrait:has(> .scw-hp-label:not([hidden])) {
+  --scw-hp-label-room: calc(var(--scw-hp-label-line) + 5px);
+}
+.sc-combat-wheel.scw-view-track:is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"]) .scw-portrait { --scw-hp-label-bottom: var(--scw-init-bottom); }
+.sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-hp-label-at="bottom"], [data-scw-hp-label-at="bar"])[data-scw-initiative-position^="bottom"] .scw-portrait:has(> .scw-badge-init:not([hidden])) {
+  --scw-hp-label-bottom: min(
+    calc(var(--scw-init-bottom) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + max(0px, -1 * var(--scw-initiative-y, 0px)) + 3px),
+    calc(100% - var(--scw-hp-label-line) - 6px)
+  );
+}
+/* In the bar: the numbers sit inside the bar along the foot, which grows to
+ * hold them; on a sector, on the middle of its arc, whose bow over the
+ * numbers' width is about a pixel. WheelAppearance turns "bar" into "bottom"
+ * when the foot has no bar. */
+.sc-combat-wheel[data-scw-health="bottom"][data-scw-hp-label-at="bar"] .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  bottom: var(--scw-hp-bar-bottom, var(--scw-rim-width));
+  padding: 0 4px;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  line-height: var(--scw-hp-foot);
+  text-shadow: 0 0 2px #000, 0 1px 2px #000;
 }
 
 /* ---------- virtual positions (RF-67) ---------- */
@@ -1496,7 +1729,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
+  /* On the health bar along the foot, when there is one: its gradient never dims the bar. */
+  bottom: var(--scw-hp-foot-top, 0px);
   display: block;
   overflow: hidden;
   padding: 12px 4px 3px;
@@ -1529,7 +1763,7 @@
 .sc-combat-wheel .scw-badge-init { display: none; }
 .sc-combat-wheel.scw-show-initiative .scw-badge-init:not([hidden]) {
   position: absolute;
-  top: var(--scw-init-top, 6px);
+  top: calc(var(--scw-init-top, 6px) + var(--scw-init-push, 0px));
   left: 50%;
   display: block;
   min-width: 18px;
@@ -1546,7 +1780,7 @@
 .sc-combat-wheel.scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) { top: 4px; left: 4px; transform: none; }
 /* The hidden mark sits under the number, however tall the badge is drawn and however far it is nudged down. */
 .sc-combat-wheel.scw-show-initiative:not(.scw-view-track) .scw-slot.is-hidden .scw-flag-hidden {
-  top: calc(var(--scw-init-top, 6px) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + max(0px, var(--scw-initiative-y, 0px)) + 2px);
+  top: calc(var(--scw-init-top, 6px) + var(--scw-init-push, 0px) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + max(0px, var(--scw-initiative-y, 0px)) + 2px);
 }
 
 /* Explicit choices override only the badge, while "theme" keeps its original design.
@@ -1610,13 +1844,14 @@
 /* Initiative position on the cards (initiativeBadgePosition); the wheel keeps
    its slice's top. ".scw-slot .scw-portrait >" outweighs the themes' own place. */
 /* The bottom edge holds the name when it is shown (--scw-name-h, its text and
-   bottom padding): the badge sits above it. */
+   bottom padding, over the health bar along the foot, --scw-hp-foot-top): the
+   badge sits above them. */
 .sc-combat-wheel.scw-view-track .scw-slot {
   --scw-name-h: 0px;
-  --scw-init-bottom: max(4px, calc(var(--scw-name-h) + 3px));
+  --scw-init-bottom: max(calc(4px + var(--scw-hp-foot-top)), calc(var(--scw-name-h) + 3px));
 }
 .sc-combat-wheel.scw-view-track[data-scw-names="all"] .scw-slot,
-.sc-combat-wheel.scw-view-track[data-scw-names="acting"] .scw-slot.is-active { --scw-name-h: calc(10px * var(--scw-name-size, 1) * 1.15 + 3px); }
+.sc-combat-wheel.scw-view-track[data-scw-names="acting"] .scw-slot.is-active { --scw-name-h: calc(10px * var(--scw-name-size, 1) * 1.15 + 3px + var(--scw-hp-foot-top)); }
 .sc-combat-wheel.scw-show-initiative.scw-view-track:not([data-scw-initiative-position="theme"]) .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) {
   inset: auto;
   transform: none;
@@ -1680,9 +1915,9 @@
 .sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-marks-below] .scw-portrait { --scw-badge-gap: max(0px, var(--scw-initiative-y, 0px)); }
 .sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position^="bottom"] .scw-portrait { --scw-badge-gap: 3px; }
 .sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-marks-below], [data-scw-initiative-position^="bottom"]) .scw-portrait:has(> .scw-badge-init:not([hidden])) {
-  --scw-name-off: clamp(0px, (4px + var(--scw-marks-room) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + var(--scw-badge-gap) + var(--scw-name-h) - var(--scw-card-h)) * 10000, 1px);
+  --scw-name-off: clamp(0px, (4px + var(--scw-marks-room) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + var(--scw-badge-gap) + var(--scw-hp-label-room, 0px) + var(--scw-name-h) - var(--scw-card-h)) * 10000, 1px);
   --scw-name-cut: calc(var(--scw-name-off) * 1000);
-  --scw-init-bottom: max(4px, calc(var(--scw-name-h) + 3px - var(--scw-name-off) * 1000));
+  --scw-init-bottom: max(calc(4px + var(--scw-hp-foot-top)), calc(var(--scw-name-h) + 3px - var(--scw-name-off) * 1000));
 }
 .sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-marks-below], [data-scw-initiative-position^="bottom"]) .scw-portrait:has(> .scw-badge-init:not([hidden])) > .scw-name-tag {
   clip-path: inset(var(--scw-name-cut) 0 0 0);

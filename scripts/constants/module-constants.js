@@ -72,6 +72,9 @@ export const SETTINGS = Object.freeze({
   hpInverted: "hpInverted",
   hpOverlay: "hpOverlay",
   hpOverlayOpacity: "hpOverlayOpacity",
+  hpLabel: "hpLabel",
+  hpLabelPlacement: "hpLabelPlacement",
+  hpLabelSize: "hpLabelSize",
   view: "view",
   trackSize: "trackSize",
   trackReach: "trackReach",
@@ -248,6 +251,9 @@ export const INITIATIVE_BADGE_SIZE_RANGE = Object.freeze({ min: 50, max: 150, st
 export const INITIATIVE_FONT_RANGE = Object.freeze({ min: 50, max: 200, step: 5 });
 /** A nudge from the chosen place, in pixels; positive moves right and down. */
 export const INITIATIVE_OFFSET_RANGE = Object.freeze({ min: -40, max: 40, step: 1 });
+
+/** The hit points numbers on a portrait (#9), in percent of their own font size. */
+export const HP_LABEL_SIZE_RANGE = Object.freeze({ min: 70, max: 160, step: 5 });
 
 /**
  * RF-104: the split bar's two columns beside the portraits — the gap to the

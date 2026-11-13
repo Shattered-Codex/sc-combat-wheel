@@ -1636,6 +1636,8 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   box-shadow: inset 0 0 2px #000;
   opacity: 1;
 }
+/* The numbers in the bar (#9) run up it from the very edge. */
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-band-left: 0px; }
 /* The initiative over a faint outline d20, top left beside the bar. */
 .sc-combat-wheel[data-scw-theme="obsidian"][data-scw-initiative-badge="theme"].scw-view-track { --scw-initiative-height: 22px; }
 .sc-combat-wheel[data-scw-theme="obsidian"][data-scw-initiative-badge="theme"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
@@ -1808,6 +1810,16 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
     linear-gradient(to right, var(--scw-health-color) 0 calc(var(--scw-health, 1) * 100%), rgba(238, 238, 238, 0.15) calc(var(--scw-health, 1) * 100%) 100%);
   box-shadow: none;
   opacity: 1;
+}
+/* The numbers in the bar (#9): the line grows to hold them, level, and the name stands on it. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-foot-top: calc(4px + var(--scw-hp-band)); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-health { width: auto; height: var(--scw-hp-band); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  z-index: 3;
+  top: auto;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 /* The initiative in a small dark tag, top left, shown when the card is pointed at. */
 .sc-combat-wheel[data-scw-theme="tide"][data-scw-initiative-badge="theme"].scw-view-track { --scw-initiative-height: calc(11px * var(--scw-initiative-font-scale, 1) + 8px); }

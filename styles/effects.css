@@ -43,7 +43,7 @@
 
 /* The acting art keeps its overlays to itself, under its badges. */
 .sc-combat-wheel .scw-slot.is-active .scw-portrait { isolation: isolate; }
-.sc-combat-wheel .scw-slot.is-active .scw-portrait > :is(.scw-flag, .scw-health, .scw-badge-round, .scw-badge-turn, .scw-name-tag, .scw-badge-init) {
+.sc-combat-wheel .scw-slot.is-active .scw-portrait > :is(.scw-flag, .scw-health, .scw-hp-label, .scw-badge-round, .scw-badge-turn, .scw-name-tag, .scw-badge-init) {
   z-index: 3;
 }
 

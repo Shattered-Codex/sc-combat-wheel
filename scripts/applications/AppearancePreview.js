@@ -20,7 +20,7 @@ const LAYOUT_KEYS = Object.freeze([
   "orientation", "trackSize", "trackShape", "trackReach", "trackSpacing",
 ]);
 /** Settings that never change the bar's size: dragging their sliders or pickers skips measuring it. */
-const UNMEASURED_KEYS = new Set([...Object.values(COLOR_SETTINGS), "scale", "restOpacity", "hpOverlayOpacity", "animationSpeed"]);
+const UNMEASURED_KEYS = new Set([...Object.values(COLOR_SETTINGS), "scale", "restOpacity", "hpOverlayOpacity", "hpLabelSize", "animationSpeed"]);
 
 /**
  * The live wheel of the appearance editor (RF-73): the real renderer,

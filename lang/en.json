@@ -331,11 +331,35 @@
           "off": "Off",
           "drain": "Lost health tints red from the top",
           "fill": "Health left fills from the bottom (green → red)",
-          "band": "Thin gauge on the side"
+          "band": "Thin gauge on the side",
+          "bottom": "Bar along the bottom"
         }
       },
       "hpOverlayOpacity": {
         "Name": "Health overlay strength",
+        "Hint": "In percent."
+      },
+      "hpLabel": {
+        "Name": "Hit points numbers",
+        "Hint": "Prints the hit points on each portrait. Only shown to whoever may read the exact value: the GM, owners and friendly combatants, or everyone when enemy hit points are shown as numbers.",
+        "Choices": {
+          "off": "Off",
+          "fraction": "Current / max (25/40)",
+          "current": "Current only (25)",
+          "percent": "Percent (63%)"
+        }
+      },
+      "hpLabelPlacement": {
+        "Name": "Numbers placement",
+        "Hint": "In the bar, they sit inside the bar along the bottom or run up the side gauge (with fill or drain, they go to the bottom). At the bottom, they stand above the name, the bar and any badge on that edge.",
+        "Choices": {
+          "bar": "In the bar",
+          "bottom": "Bottom",
+          "center": "Centre"
+        }
+      },
+      "hpLabelSize": {
+        "Name": "Numbers size",
         "Hint": "In percent."
       },
       "view": {
@@ -1342,6 +1366,7 @@
         "placement": "Placement",
         "portrait": "Portrait",
         "info": "Information",
+        "health": "Health",
         "panels": "Panels",
         "sides": "Sides",
         "acting": "Effects",

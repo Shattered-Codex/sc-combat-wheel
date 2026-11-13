@@ -4,8 +4,8 @@ import { LOOK_FILE_TYPE, lookFile, lookFileName, readLookFile } from "../scripts
 
 describe("look files (RF-120)", () => {
   it("round-trips a look through its file", () => {
-    const text = JSON.stringify(lookFile({ theme: "gothic", scale: 120 }, { name: "Gothic", exported: "2026-10-26T00:00:00Z" }));
-    assert.deepEqual(readLookFile(text), { name: "Gothic", values: { theme: "gothic", scale: 120 } });
+    const text = JSON.stringify(lookFile({ theme: "gothic", scale: 120, initiativeBadge: "d20" }, { name: "Gothic", exported: "2026-10-26T00:00:00Z" }));
+    assert.deepEqual(readLookFile(text), { name: "Gothic", values: { theme: "gothic", scale: 120, initiativeBadge: "d20" } });
     assert.equal(JSON.parse(text).type, LOOK_FILE_TYPE);
   });
 

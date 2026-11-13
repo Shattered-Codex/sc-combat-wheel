@@ -1,4 +1,4 @@
-import { BAR_ITEMS, DEFAULT_PRESET, LAYOUT_PRESETS, PHASE_STRIP_SIZES, SETTINGS, TRACK_SHAPES, TRACK_SIZES, VIEWS } from "./module-constants.js";
+import { BAR_BUTTON_RANGE, BAR_BUTTON_SIZES, BAR_ITEMS, INITIATIVE_BADGE_SIZE_RANGE, INITIATIVE_FONT_RANGE, INITIATIVE_OFFSET_RANGE, DEFAULT_PRESET, LAYOUT_PRESETS, PHASE_STRIP_SIZES, SETTINGS, TRACK_SHAPES, TRACK_SIZES, VIEWS } from "./module-constants.js";
 import { SOUND_CHOICES } from "../helpers/sound-presets.js";
 import { FOLLOW_SYSTEM, THEMES } from "../helpers/themes.js";
 import { ORIENTATIONS } from "../helpers/orientation.js";
@@ -6,6 +6,7 @@ import { MAX_REACH, MAX_SPACING, MIN_REACH, MIN_SPACING } from "../helpers/track
 import { VENAERYS_ID } from "../helpers/venaerys-phases.js";
 import { PARTICLE_INTENSITIES, PARTICLE_MOTIONS, PARTICLE_SPEEDS, PARTICLE_TYPES } from "../helpers/particle-presets.js";
 import { STYLE_CHOICES } from "../helpers/theme-style.js";
+import { INITIATIVE_BADGES, INITIATIVE_POSITIONS } from "../helpers/initiative-badges.js";
 
 /**
  * Sections of the settings screen (RF-70), in rail order. Each one holds
@@ -83,6 +84,14 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.theme, scope: "user", type: "choice", choices: [FOLLOW_SYSTEM, ...THEMES], default: THEMES[0], section: "appearance", react: "data", panel: "theme" },
   { key: SETTINGS.trackNames, scope: "user", type: "choice", choices: ["none", "acting", "all"], default: "acting", section: "appearance", react: "data", group: "info", panel: "portraits", visibleWhen: { key: SETTINGS.view, notIn: ["wheel"] } },
   { key: SETTINGS.showInitiative, scope: "user", type: "boolean", default: false, section: "appearance", react: "data", group: "info", panel: "portraits" },
+  { key: SETTINGS.initiativeBadge, scope: "user", type: "choice", choices: Object.keys(INITIATIVE_BADGES), default: "theme", section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
+  { key: SETTINGS.initiativeBadgeSize, scope: "user", type: "number", range: INITIATIVE_BADGE_SIZE_RANGE, default: 100, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
+  { key: SETTINGS.initiativeBadgeFontSize, scope: "user", type: "number", range: INITIATIVE_FONT_RANGE, default: 100, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
+  // The wheel's slices taper toward the hub and are cut by their arc: only the cards have corners to pick.
+  { key: SETTINGS.initiativeBadgePosition, scope: "user", type: "choice", choices: INITIATIVE_POSITIONS, default: "theme", section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: [{ key: SETTINGS.showInitiative, in: [true] }, { key: SETTINGS.view, notIn: ["wheel"] }] },
+  // The nudges work in every view, the wheel included: they move the badge from wherever it sits.
+  { key: SETTINGS.initiativeBadgeOffsetX, scope: "user", type: "number", range: INITIATIVE_OFFSET_RANGE, default: 0, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
+  { key: SETTINGS.initiativeBadgeOffsetY, scope: "user", type: "number", range: INITIATIVE_OFFSET_RANGE, default: 0, section: "appearance", react: "data", group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.showInitiative, in: [true] } },
   { key: SETTINGS.restOpacity, scope: "user", type: "number", range: { min: 40, max: 100, step: 5 }, default: 100, section: "appearance", react: "data", advanced: true, group: "portrait", panel: "portraits" },
   { key: SETTINGS.hpOverlay, scope: "user", type: "choice", choices: ["off", "drain", "fill", "band"], default: "drain", section: "appearance", react: "data", group: "info", panel: "portraits" },
   { key: SETTINGS.hpOverlayOpacity, scope: "user", type: "number", range: { min: 10, max: 90, step: 5 }, default: 45, section: "appearance", react: "data", advanced: true, group: "info", nested: true, panel: "portraits", visibleWhen: { key: SETTINGS.hpOverlay, notIn: ["off"] } },
@@ -90,6 +99,9 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.barLayout, scope: "user", type: "choice", choices: ["bar", "split"], default: "bar", section: "appearance", react: "layout", group: "display", panel: "bar" },
   { key: SETTINGS.barControls, scope: "user", type: "choice", choices: ["inline", "menu"], default: "menu", section: "appearance", react: "data", group: "display", panel: "bar" },
   { key: SETTINGS.barSize, scope: "user", type: "choice", choices: ["normal", "compact"], default: "compact", section: "appearance", react: "layout", group: "display", panel: "bar" },
+  { key: SETTINGS.barButtonSize, scope: "user", type: "choice", choices: ["auto", ...Object.keys(BAR_BUTTON_SIZES), "custom"], default: "auto", section: "appearance", react: "data", group: "display", panel: "bar" },
+  { key: SETTINGS.barButtonWidth, scope: "user", type: "number", range: BAR_BUTTON_RANGE, default: BAR_BUTTON_SIZES.normal, section: "appearance", react: "data", group: "display", nested: true, panel: "bar", visibleWhen: { key: SETTINGS.barButtonSize, in: ["custom"] } },
+  { key: SETTINGS.barButtonHeight, scope: "user", type: "number", range: BAR_BUTTON_RANGE, default: BAR_BUTTON_SIZES.normal, section: "appearance", react: "data", group: "display", nested: true, panel: "bar", visibleWhen: { key: SETTINGS.barButtonSize, in: ["custom"] } },
   // A lean bar by default: the tools behind "More", and the rarely used items off.
   { key: SETTINGS.barHidden, scope: "user", type: "multi", choices: BAR_ITEMS, default: ["details", "direction", "appearance"], section: "appearance", react: "data", group: "items", panel: "bar" },
   { key: SETTINGS.phaseStripPlacement, scope: "user", type: "choice", choices: ["beyond", "end", "over"], default: "beyond", section: "appearance", react: "data", group: "strip", panel: "phases" },

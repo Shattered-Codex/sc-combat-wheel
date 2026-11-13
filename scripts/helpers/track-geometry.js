@@ -123,6 +123,8 @@ export function trackLayout({ view, size, shape, reach, spacing = DEFAULT_SPACIN
     poses,
     focus: poses[offset + HW].center,
     depth: gap + out * maxScale,
+    // Split controls sit beside the visible edge cards, not the larger acting card.
+    edgeDepths: { start: gap + out * style.scale(Math.abs(first)), end: gap + out * style.scale(Math.abs(last)) },
     across,
     barWidth: Math.max(Math.ceil(2 * across), BAR_MIN_WIDTH),
     Rm,

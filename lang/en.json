@@ -559,15 +559,84 @@
       },
       "barSize": {
         "Name": "Bar size",
-        "Hint": "Compact makes the bar slimmer, with smaller buttons and the turn button as an icon.",
+        "Hint": "Compact makes the bar slimmer and shows the turn button as an icon. Button size can be set separately.",
         "Choices": {
           "normal": "Normal",
           "compact": "Compact"
         }
       },
+      "barButtonSize": {
+        "Name": "Button size",
+        "Hint": "Size of the controls in the bar and split side panels. Automatic follows the bar size. Larger buttons may need more space.",
+        "Choices": {
+          "auto": "Automatic (follow bar size)",
+          "compact": "Compact",
+          "normal": "Normal",
+          "large": "Large",
+          "custom": "Custom"
+        }
+      },
+      "barButtonWidth": {
+        "Name": "Button width",
+        "Hint": "Minimum width in pixels, from 24 to 64. Buttons with text may be wider."
+      },
+      "barButtonHeight": {
+        "Name": "Button height",
+        "Hint": "Height in pixels, from 24 to 64. Adjust independently of the width."
+      },
       "showInitiative": {
         "Name": "Initiative on portraits",
         "Hint": "Shows each combatant's initiative, as the core tracker does."
+      },
+      "initiativeBadge": {
+        "Name": "Initiative badge shape",
+        "Hint": "Choose a backdrop for initiative numbers in any layout. Theme default keeps the theme's original badge.",
+        "Choices": {
+          "theme": "Theme default",
+          "tag": "Tag",
+          "pill": "Pill",
+          "circle": "Circle",
+          "square": "Square",
+          "diamond": "Diamond",
+          "hexagon": "Hexagon",
+          "shield": "Shield",
+          "d4": "d4",
+          "d6": "d6",
+          "d8": "d8",
+          "d10": "d10",
+          "d12": "d12",
+          "d20": "d20",
+          "text": "Text only"
+        }
+      },
+      "initiativeBadgeSize": {
+        "Name": "Initiative badge size",
+        "Hint": "Size of the initiative badge, in percent of its shape's own size, from 50 to 150."
+      },
+      "initiativeBadgeFontSize": {
+        "Name": "Initiative number size",
+        "Hint": "Size of the number itself, in percent of the shape's or theme's font, from 50 to 200. The badge's size scales it again."
+      },
+      "initiativeBadgeOffsetX": {
+        "Name": "Initiative horizontal offset",
+        "Hint": "Moves the badge from its place, in pixels, from -40 to 40. Positive moves it right. Works in every view, the wheel included."
+      },
+      "initiativeBadgeOffsetY": {
+        "Name": "Initiative vertical offset",
+        "Hint": "Moves the badge from its place, in pixels, from -40 to 40. Positive moves it down. Works in every view, the wheel included."
+      },
+      "initiativeBadgePosition": {
+        "Name": "Initiative badge position",
+        "Hint": "Where the badge sits on Carousel and Slider cards. The wheel always shows it at the top of the slice. Theme default keeps the theme's own place.",
+        "Choices": {
+          "theme": "Theme default",
+          "top-left": "Top left",
+          "top": "Top",
+          "top-right": "Top right",
+          "bottom-left": "Bottom left",
+          "bottom": "Bottom",
+          "bottom-right": "Bottom right"
+        }
       },
       "styleFont": {
         "Name": "Name font",

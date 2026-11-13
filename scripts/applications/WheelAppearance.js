@@ -1,9 +1,10 @@
-import { BAR_HEIGHT, COLOR_SETTINGS, PHASE_STRIP_ROOM, PHASE_STRIP_SIZES, SPLIT_POD, STYLE_SETTINGS, VIEWS } from "../constants/module-constants.js";
+import { BAR_BUTTON_RANGE, BAR_BUTTON_SIZES, BAR_HEIGHT, COLOR_SETTINGS, PHASE_STRIP_ROOM, PHASE_STRIP_SIZES, SPLIT_POD, STYLE_SETTINGS, VIEWS } from "../constants/module-constants.js";
 import { OVERRIDE_PROPERTIES, colorOverrides } from "../helpers/theme-colors.js";
 import { STYLE_PROPERTIES, styleOverrides } from "../helpers/theme-style.js";
 import { particleBox } from "../helpers/view-layout.js";
 import { FX_BOOST, INTENSITY_AMOUNTS, PARTICLE_INTENSITIES, PARTICLE_PRESETS, PARTICLE_SPEEDS, particleReach } from "../helpers/particle-presets.js";
 import { ORIENTATIONS, isSideOrientation } from "../helpers/orientation.js";
+import { initiativeBadgeAppearance, initiativePosition, marksBelowInitiative } from "../helpers/initiative-badges.js";
 
 /** How long a turn-change effect may run (effects.css keeps them shorter). */
 const TURN_FX_MS = 1200;
@@ -54,8 +55,6 @@ export default class WheelAppearance {
     // RF-104: the split bar's columns stand just past the portraits, not past the bar.
     style.setProperty("--scw-span", `${Math.ceil(2 * layout.across)}px`);
     style.setProperty("--scw-depth", `${Math.ceil(layout.depth)}px`);
-    style.setProperty("--scw-bar-h-expanded", `${BAR_HEIGHT.expanded}px`);
-    style.setProperty("--scw-bar-h-expanded-side", `${BAR_HEIGHT.expandedSide}px`);
     style.setProperty("--scw-scale", String(scale));
   }
 
@@ -78,9 +77,17 @@ export default class WheelAppearance {
     element.classList.toggle("scw-btn-filled", look.styleButtons === "filled");
     const data = element.dataset;
     data.scwTheme = theme;
+    const initiativeBadge = initiativeBadgeAppearance(look.initiativeBadge);
+    data.scwInitiativeBadge = initiativeBadge.shape;
+    data.scwInitiativePosition = initiativePosition(look.initiativeBadgePosition);
+    if (marksBelowInitiative(look)) data.scwMarksBelow = "";
+    else delete data.scwMarksBelow;
     data.scwHealth = look.hpOverlay;
     data.scwNames = look.trackNames;
     data.scwBar = look.barVisibility ?? "always";
+    // Only an explicit size is marked: automatic keeps the bar's own normal/compact design.
+    if (WheelAppearance.hasExplicitButtons(look)) data.scwButtonSize = look.barButtonSize;
+    else delete data.scwButtonSize;
     data.scwFinish = look.styleFinish ?? "theme";
     data.scwActingFx = look.actingEffect ?? "none";
     data.scwTurnFx = look.turnEffect ?? "none";
@@ -88,7 +95,20 @@ export default class WheelAppearance {
     data.scwStripFrame = look.phaseStripFrame;
     data.scwStripNames = look.phaseStripNames === false ? "off" : "on";
     const style = element.style;
-    style.setProperty("--scw-bar-h-collapsed", `${WheelAppearance.barThickness(orientation, false, look.barSize)}px`);
+    style.setProperty("--scw-initiative-fill-mask", initiativeBadge.fill);
+    style.setProperty("--scw-initiative-outline-mask", initiativeBadge.outline);
+    style.setProperty("--scw-initiative-scale", String((Number(look.initiativeBadgeSize) || 100) / 100));
+    style.setProperty("--scw-initiative-font-scale", String((Number(look.initiativeBadgeFontSize) || 100) / 100));
+    style.setProperty("--scw-initiative-x", `${Number(look.initiativeBadgeOffsetX) || 0}px`);
+    style.setProperty("--scw-initiative-y", `${Number(look.initiativeBadgeOffsetY) || 0}px`);
+    const button = WheelAppearance.barButtonDimensions(look);
+    style.setProperty("--scw-bar-button-width", `${button.width}px`);
+    style.setProperty("--scw-bar-button-height", `${button.height}px`);
+    style.setProperty("--scw-bar-button-font-size", `${Math.min(18, Math.round(Math.min(button.width, button.height) / 4 + 5))}px`);
+    style.setProperty("--scw-bar-h-collapsed", `${WheelAppearance.barThickness(orientation, false, look)}px`);
+    // Both expanded depths, since the class picks the side one: each keeps the details' room under a taller button row.
+    style.setProperty("--scw-bar-h-expanded", `${WheelAppearance.barThickness("up", true, look)}px`);
+    style.setProperty("--scw-bar-h-expanded-side", `${WheelAppearance.barThickness("right", true, look)}px`);
     style.setProperty("--scw-strip-size", `${PHASE_STRIP_SIZES[look.phaseStripSize] ?? PHASE_STRIP_SIZES.medium}px`);
     style.setProperty("--scw-health-opacity", String(look.hpOverlayOpacity / 100));
     style.setProperty("--scw-rest-opacity", String(look.restOpacity / 100));
@@ -241,32 +261,91 @@ export default class WheelAppearance {
   }
 
   /**
-   * RF-104: the outer zone of a split bar's column stacks as many buttons as
-   * the portraits are deep and opens another row of them outward for the
-   * rest; then both columns take the size of the larger, so they frame the
-   * portraits evenly. Called after the bar renders: it counts what the
-   * template drew.
+   * Fits split controls after the bar renders. Slider controls follow each
+   * edge card and wrap outward rather than shrinking their click targets.
+   * Returns their largest outward reach, including the gap to the portraits.
+   * All writes come before one read of the pods' sizes, so a render forces a
+   * single layout.
    */
-  static fitPods(element, layout) {
-    const cells = Math.max(2, Math.floor(layout.depth / SPLIT_POD.cell));
-    for (const zone of element.querySelectorAll(".scw-pod-more")) {
-      const items = [...zone.children].flatMap((child) => (child.classList.contains("scw-tools") ? [...child.children] : [child]))
-        .filter((child) => !child.classList.contains("scw-bar-rule"));
-      zone.style.setProperty("--scw-pod-cells", String(Math.max(1, Math.min(items.length, cells))));
-    }
+  static fitPods(element, layout, look, orientation) {
     const pods = [...element.querySelectorAll(".scw-pod")];
-    if (!pods.length) return;
-    const height = Math.max(...pods.map((pod) => pod.offsetHeight));
-    const width = Math.max(...pods.map((pod) => pod.offsetWidth));
+    if (!pods.length) return WheelAppearance.splitReach();
+    const slider = layout.view === "slider";
+    const side = isSideOrientation(orientation);
+    const wrap = slider || WheelAppearance.hasExplicitButtons(look);
+    const dimensions = WheelAppearance.barButtonDimensions(look);
+    const button = side ? dimensions.width : dimensions.height;
+    // Discard previous measurements so a live size change can shrink again.
     for (const pod of pods) {
-      pod.style.setProperty("--scw-pod-h", `${height}px`);
-      pod.style.setProperty("--scw-pod-w", `${width}px`);
+      pod.style.removeProperty("--scw-pod-h");
+      pod.style.removeProperty("--scw-pod-w");
+      const edge = pod.classList.contains("scw-pod--start") ? "start" : "end";
+      const depth = slider ? layout.edgeDepths[edge] : layout.depth;
+      // Wrapped cells include a 2px gap; leave 10px for panel padding and border.
+      const cells = wrap ? Math.max(1, Math.floor((depth - 10 + 2) / (button + 2))) : Math.max(2, Math.floor(depth / SPLIT_POD.cell));
+      const zones = pod.querySelectorAll(wrap ? ".scw-pod-main, .scw-pod-more" : ".scw-pod-more");
+      for (const zone of zones) {
+        const items = [...zone.children].flatMap((child) => (child.classList.contains("scw-tools") ? [...child.children] : [child]))
+          .filter((child) => !child.classList.contains("scw-bar-rule"));
+        zone.style.setProperty("--scw-pod-cells", String(Math.max(1, Math.min(items.length, cells))));
+      }
+      if (slider) pod.style.setProperty(side ? "--scw-pod-w" : "--scw-pod-h", `${Math.ceil(depth)}px`);
     }
+    const sizes = pods.map((pod) => ({ pod, height: pod.offsetHeight, width: pod.offsetWidth }));
+    const height = Math.max(...sizes.map((size) => size.height));
+    const width = Math.max(...sizes.map((size) => size.width));
+    if (!slider) {
+      for (const pod of pods) {
+        pod.style.setProperty("--scw-pod-h", `${height}px`);
+        pod.style.setProperty("--scw-pod-w", `${width}px`);
+      }
+    }
+    // Evening the columns only stretches them along the portraits: the end column reaches out as measured.
+    const end = sizes.find((size) => size.pod.classList.contains("scw-pod--end"));
+    const endSize = end ? (side ? end.height : end.width) : 0;
+    element.style.setProperty("--scw-pod-end-reach", `${SPLIT_POD.gap + endSize}px`);
+    return SPLIT_POD.gap + (side ? height : width);
   }
 
-  /** How deep the bar is, for fitting: the side rail's details column is wider; the compact bar is slimmer. */
-  static barThickness(orientation, expanded, barSize = "normal") {
-    if (!expanded) return barSize === "compact" ? BAR_HEIGHT.compact : BAR_HEIGHT.collapsed;
-    return isSideOrientation(orientation) ? BAR_HEIGHT.expandedSide : BAR_HEIGHT.expanded;
+  /**
+   * How deep the bar is, for fitting: the side rail's details column is wider;
+   * the compact bar is slimmer. The button row grows to hold large buttons,
+   * and an expanded bar grows with it, so its details keep their room.
+   */
+  static barThickness(orientation, expanded, look = {}) {
+    const side = isSideOrientation(orientation);
+    const base = look.barSize === "compact" ? BAR_HEIGHT.compact : BAR_HEIGHT.collapsed;
+    const button = WheelAppearance.barButtonDimensions(look);
+    const collapsed = Math.max(base, (side ? button.width : button.height) + 8);
+    if (!expanded) return collapsed;
+    return (side ? BAR_HEIGHT.expandedSide : BAR_HEIGHT.expanded) + collapsed - base;
+  }
+
+  /** Whether the user picked a button size, rather than the one the bar's size gives. */
+  static hasExplicitButtons(look) {
+    return look.barButtonSize === "custom" || Object.hasOwn(BAR_BUTTON_SIZES, look.barButtonSize ?? "");
+  }
+
+  static barButtonSize(barSize = "normal", buttonSize = "auto") {
+    if (Object.hasOwn(BAR_BUTTON_SIZES, buttonSize)) return BAR_BUTTON_SIZES[buttonSize];
+    return barSize === "compact" ? BAR_BUTTON_SIZES.compact : BAR_BUTTON_SIZES.normal;
+  }
+
+  static barButtonDimensions({ barSize = "normal", barButtonSize = "auto", barButtonWidth, barButtonHeight } = {}) {
+    if (barButtonSize !== "custom") {
+      const size = WheelAppearance.barButtonSize(barSize, barButtonSize);
+      return { width: size, height: size };
+    }
+    const bounded = (value) => Number.isFinite(Number(value))
+      ? Math.min(BAR_BUTTON_RANGE.max, Math.max(BAR_BUTTON_RANGE.min, Math.round(Number(value))))
+      : BAR_BUTTON_SIZES.normal;
+    return { width: bounded(barButtonWidth), height: bounded(barButtonHeight) };
+  }
+
+  /** Inline controls can make the bar longer than the portraits, particularly with large buttons. */
+  static barSpan(element, layout) {
+    const bar = element.querySelector(".scw-bar");
+    const measured = element.classList.contains("scw-side") ? bar?.offsetHeight : bar?.offsetWidth;
+    return Math.max(layout.barWidth, measured ?? 0);
   }
 }

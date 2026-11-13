@@ -18,6 +18,7 @@ import { currentStyleId, getSetting, lockedKeys, ownAppearance, savedStyles, set
 import { lookFile, lookFileName, readLookFile } from "../helpers/look-file.js";
 import { upsertStyle } from "../helpers/combat-styles.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
+import StyleLoader from "../services/StyleLoader.js";
 import ScreenBanner from "../services/ScreenBanner.js";
 import TurnAnnouncer from "../services/TurnAnnouncer.js";
 import { announcementFor } from "../helpers/turn-announcement.js";
@@ -160,6 +161,8 @@ export default class CombatWheelAppearanceApp extends HandlebarsApplicationMixin
   }
 
   async _prepareContext() {
+    // Foundry's settings menu can render this class directly, bypassing open().
+    await StyleLoader.ensureLoaded();
     this.#sharing ??= CombatWheelAppearanceApp.#savedSharing();
     this.#draft ??= this.#following() ? withTableLook(ownAppearance()) : ownAppearance();
     this.#enforceLocks();

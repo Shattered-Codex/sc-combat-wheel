@@ -638,6 +638,61 @@
 .sc-combat-wheel.scw-side .scw-pod--start .scw-pod-main:has(> *) + .scw-pod-more { margin: 0 0 4px; padding: 0 0 6px; border-right: none; border-bottom: 1px solid var(--scw-divider); }
 .sc-combat-wheel.scw-side .scw-pod--end .scw-pod-main:has(> *) + .scw-pod-more { margin: 4px 0 0; padding: 6px 0 0; border-left: none; border-top: 1px solid var(--scw-divider); }
 
+/* Slider edges taper independently. Keep usable targets and wrap excess tools
+   outward instead of stretching the columns to the acting card's height.
+   Explicit button sizes use the same wrapping in the other views. */
+.sc-combat-wheel:is(.scw-view-slider, [data-scw-button-size]) .scw-pod-main,
+.sc-combat-wheel:is(.scw-view-slider, [data-scw-button-size]) .scw-pod-more {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--scw-pod-cells, 1), auto);
+  align-content: space-evenly;
+  place-items: center;
+  gap: 2px;
+}
+.sc-combat-wheel:is(.scw-view-slider, [data-scw-button-size]).scw-side :is(.scw-pod-main, .scw-pod-more) {
+  grid-auto-flow: row;
+  grid-template-rows: none;
+  grid-template-columns: repeat(var(--scw-pod-cells, 1), auto);
+  justify-content: space-evenly;
+}
+.sc-combat-wheel:is(.scw-view-slider, [data-scw-button-size]) :is(.scw-pod-main, .scw-pod-more):not(:has(> *)) { display: none; }
+.sc-combat-wheel:is(.scw-view-slider, [data-scw-button-size]) .scw-pod :is(.scw-pod-main, .scw-tools) > .scw-btn {
+  width: var(--scw-bar-button-width);
+  min-width: var(--scw-bar-button-width);
+  height: var(--scw-bar-button-height);
+  min-height: var(--scw-bar-button-height);
+}
+/* Reading the round horizontally avoids a tall label setting the panel depth. */
+.sc-combat-wheel.scw-view-slider.scw-split .scw-pod .scw-round {
+  writing-mode: horizontal-tb;
+  transform: none;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+}
+
+/* Explicit sizes affect the bar's controls; popover and detail controls keep their own sizes. */
+.sc-combat-wheel[data-scw-button-size] :is(.scw-bar-row, .scw-pod-main, .scw-tools) > .scw-btn {
+  flex: none;
+  width: var(--scw-bar-button-width);
+  min-width: var(--scw-bar-button-width);
+  height: var(--scw-bar-button-height);
+  min-height: var(--scw-bar-button-height);
+  font-size: var(--scw-bar-button-font-size);
+}
+/* Keep measurements immediate even when switching from Custom back to Auto:
+   Foundry's default button transition also animates dimensions and font size. */
+.sc-combat-wheel :is(.scw-bar-row, .scw-pod-main, .scw-tools) > .scw-btn {
+  transition-property: color, background-color, border-color, box-shadow;
+}
+.sc-combat-wheel.scw-preview .scw-bar,
+.sc-combat-wheel.scw-preview.scw-side .scw-bar { transition: none; }
+.sc-combat-wheel[data-scw-button-size]:not(.scw-bar-compact):not(.scw-side) .scw-bar-row > .scw-btn--label {
+  width: auto;
+  padding: 0 10px;
+}
+
 /* The zones already set the tools apart from the turn: no rule among them. */
 .sc-combat-wheel.scw-split .scw-pod .scw-bar-rule { display: none; }
 /* A column is narrow: the turn button keeps its icon (its name is the tooltip), the round reads like a book spine. */
@@ -656,8 +711,8 @@
 .sc-combat-wheel.scw-split.scw-right .scw-pod .scw-roll-menu { left: 0; }
 .sc-combat-wheel.scw-split.scw-left .scw-pod .scw-roll-menu { right: 0; }
 /* The Venaerys strip at the bar's end makes way for the end column. */
-.sc-combat-wheel.scw-split[data-scw-strip="end"]:is(.scw-up, .scw-down) .scw-strip { left: calc(100% + 60px); }
-.sc-combat-wheel.scw-split[data-scw-strip="end"].scw-side .scw-strip { top: calc(100% + 60px); }
+.sc-combat-wheel.scw-split[data-scw-strip="end"]:is(.scw-up, .scw-down) .scw-strip { left: calc(100% + var(--scw-pod-end-reach, 48px) + 12px); }
+.sc-combat-wheel.scw-split[data-scw-strip="end"].scw-side .scw-strip { top: calc(100% + var(--scw-pod-end-reach, 48px) + 12px); }
 
 /* ---------- direction picker in the More menu (RF-13) ---------- */
 .sc-combat-wheel .scw-menu-segments { display: flex; gap: 4px; padding: 0 6px 4px; }
@@ -1484,12 +1539,154 @@
   background: color-mix(in srgb, var(--scw-bg) 82%, transparent);
   box-shadow: 0 0 0 1px var(--scw-divider);
   color: var(--scw-text);
-  font: 600 10px/1.3 var(--scw-font-mono);
+  font: 600 calc(10px * var(--scw-initiative-font-scale, 1))/1.3 var(--scw-font-mono);
   text-align: center;
   pointer-events: none;
 }
 .sc-combat-wheel.scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) { top: 4px; left: 4px; transform: none; }
-.sc-combat-wheel.scw-show-initiative:not(.scw-view-track) .scw-slot.is-hidden .scw-flag-hidden { top: calc(var(--scw-init-top, 6px) + 20px); }
+/* The hidden mark sits under the number, however tall the badge is drawn and however far it is nudged down. */
+.sc-combat-wheel.scw-show-initiative:not(.scw-view-track) .scw-slot.is-hidden .scw-flag-hidden {
+  top: calc(var(--scw-init-top, 6px) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + max(0px, var(--scw-initiative-y, 0px)) + 2px);
+}
+
+/* Explicit choices override only the badge, while "theme" keeps its original design.
+   Mask the decorations, never the number: negative and decimal initiative must stay readable. */
+:where(.sc-combat-wheel)[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) { --scw-initiative-height: 28px; }
+.sc-combat-wheel.scw-show-initiative[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) .scw-badge-init:not([hidden]) {
+  isolation: isolate;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: var(--scw-initiative-min-width, 28px);
+  height: var(--scw-initiative-height);
+  padding: var(--scw-initiative-padding-top, 0) var(--scw-initiative-padding-x, 4px) 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--scw-initiative-text);
+  font: 600 calc(10px * var(--scw-initiative-font-scale, 1))/1 var(--scw-font-mono);
+  text-shadow: 0 0 2px var(--scw-initiative-bg), 0 0 4px var(--scw-initiative-bg);
+  opacity: 1;
+}
+.sc-combat-wheel.scw-show-initiative[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) .scw-badge-init:not([hidden])::before,
+.sc-combat-wheel.scw-show-initiative[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) .scw-badge-init:not([hidden])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+.sc-combat-wheel[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) .scw-badge-init::before {
+  z-index: -2;
+  background: var(--scw-initiative-bg);
+  mask-image: var(--scw-initiative-fill-mask);
+}
+.sc-combat-wheel[data-scw-initiative-badge]:not([data-scw-initiative-badge="theme"]) .scw-badge-init::after {
+  z-index: -1;
+  background: var(--scw-initiative-edge);
+  mask-image: var(--scw-initiative-outline-mask);
+}
+.sc-combat-wheel:is([data-scw-initiative-badge="tag"], [data-scw-initiative-badge="pill"], [data-scw-initiative-badge="text"]) { --scw-initiative-height: 20px; }
+.sc-combat-wheel:is([data-scw-initiative-badge="tag"], [data-scw-initiative-badge="pill"]) { --scw-initiative-min-width: 30px; }
+.sc-combat-wheel[data-scw-initiative-badge="d4"] { --scw-initiative-padding-top: 7px; }
+.sc-combat-wheel[data-scw-initiative-badge="text"] { --scw-initiative-min-width: 0px; --scw-initiative-padding-x: 2px; }
+.sc-combat-wheel[data-scw-initiative-badge="text"] .scw-badge-init::before,
+.sc-combat-wheel[data-scw-initiative-badge="text"] .scw-badge-init::after { display: none; }
+
+/* Initiative size (initiativeBadgeSize), theme badges included: the badge
+   grows from the edge it is pinned to, so it never runs off the portrait.
+   The origin is taken before the transform: a badge centred by
+   translateX(-50%) keeps its centre with an origin at its own left edge.
+   The nudges (initiativeBadgeOffsetX/Y) move it in screen pixels, unscaled. */
+.sc-combat-wheel.scw-show-initiative .scw-badge-init:not([hidden]) {
+  translate: var(--scw-initiative-x, 0px) var(--scw-initiative-y, 0px);
+  scale: var(--scw-initiative-scale, 1);
+  transform-origin: 0 0;
+}
+
+/* Initiative position on the cards (initiativeBadgePosition); the wheel keeps
+   its slice's top. ".scw-slot .scw-portrait >" outweighs the themes' own place. */
+/* The bottom edge holds the name when it is shown (--scw-name-h, its text and
+   bottom padding): the badge sits above it. */
+.sc-combat-wheel.scw-view-track .scw-slot {
+  --scw-name-h: 0px;
+  --scw-init-bottom: max(4px, calc(var(--scw-name-h) + 3px));
+}
+.sc-combat-wheel.scw-view-track[data-scw-names="all"] .scw-slot,
+.sc-combat-wheel.scw-view-track[data-scw-names="acting"] .scw-slot.is-active { --scw-name-h: calc(10px * var(--scw-name-size, 1) * 1.15 + 3px); }
+.sc-combat-wheel.scw-show-initiative.scw-view-track:not([data-scw-initiative-position="theme"]) .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) {
+  inset: auto;
+  transform: none;
+}
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="top-left"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { top: 4px; left: 4px; transform-origin: 0 0; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="top"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { top: 4px; left: 50%; transform: translateX(-50%); transform-origin: 0 0; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="top-right"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { top: 4px; right: 4px; transform-origin: 100% 0; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="bottom-left"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { bottom: var(--scw-init-bottom); left: 4px; transform-origin: 0 100%; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="bottom"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { bottom: var(--scw-init-bottom); left: 50%; transform: translateX(-50%); transform-origin: 0 100%; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position="bottom-right"] .scw-slot .scw-portrait > .scw-badge-init:not([hidden]) { bottom: var(--scw-init-bottom); right: 4px; transform-origin: 100% 100%; }
+/* What already sits where the badge goes makes way, on the line below it: a
+   narrow card has no room for two badges side by side. That line is
+   --scw-init-line; on a card too short for it, what goes there drops to the
+   card's bottom edge instead (min()), always in sight. */
+.sc-combat-wheel.scw-view-track .scw-slot {
+  --scw-init-line: min(calc(6px + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + max(0px, var(--scw-initiative-y, 0px))), calc(100% - 16px));
+}
+/* Below a changed badge in the top row (data-scw-marks-below) the hidden and
+   virtual marks take the line's left end and the round's badge its right end;
+   each theme's own badge keeps its design. The round's line height is fixed
+   so the 12px kept for it is exact. */
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-marks-below] .scw-portrait:has(> .scw-badge-init:not([hidden])) > :is(.scw-flag-hidden, .scw-flag-virtual) {
+  top: var(--scw-init-line);
+  left: 4px;
+  transform: none;
+}
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-marks-below] .scw-portrait:has(> .scw-badge-init:not([hidden])) > .scw-badge-round {
+  top: var(--scw-init-line);
+  line-height: 10px;
+}
+/* A badge at the bottom leaves the top row to the marks, as on the line under
+   a top badge: hidden and virtual at its left end, the round at its right. */
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position^="bottom"] .scw-slot :is(.scw-flag-hidden, .scw-flag-virtual) {
+  top: 4px;
+  left: 4px;
+  transform: none;
+}
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position^="bottom"] .scw-badge-round { line-height: 10px; }
+/* A card too short for the badge and the marks' row (a small card with a
+   large badge) leaves them no free place: the min() above, or the top row
+   under a bottom badge, puts them over the badge. They are drawn above it
+   then (its z-index 2, and the acting card's 3 in effects.css), so the round
+   boundary and the hidden/virtual marks never disappear behind it. */
+.sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-marks-below], [data-scw-initiative-position^="bottom"]) .scw-portrait:has(> .scw-badge-init:not([hidden])) > :is(.scw-badge-round, .scw-flag-hidden, .scw-flag-virtual) {
+  z-index: 4;
+}
+
+/* A small card's room. From the top: the marks (round, hidden, virtual: a
+   12px row plus its gap, --scw-marks-room, only on a card that shows one),
+   the badge, the name. A card too short for all of them drops the name,
+   which stays in the portrait's tooltip, and a bottom badge returns to the
+   bottom edge. --scw-name-off is that switch, 0 or 1px: the height missing
+   on this card, scaled far up and clamped, so any real shortfall (layout
+   works in 1/64px) turns it fully on. The cut and the badge's place both
+   follow it, so a name is never moved over before it is gone. Each theme's
+   own badge, beside the round, never needs it. */
+.sc-combat-wheel.scw-view-track .scw-slot { --scw-marks-room: 0px; }
+.sc-combat-wheel.scw-view-track .scw-slot:is(.is-hidden, .is-virtual),
+.sc-combat-wheel.scw-view-track .scw-slot:has(.scw-badge-round:not([hidden])) { --scw-marks-room: 14px; }
+/* Between a top badge and the name only its downward nudge; a bottom badge keeps 3px above the name. */
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-marks-below] .scw-portrait { --scw-badge-gap: max(0px, var(--scw-initiative-y, 0px)); }
+.sc-combat-wheel.scw-show-initiative.scw-view-track[data-scw-initiative-position^="bottom"] .scw-portrait { --scw-badge-gap: 3px; }
+.sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-marks-below], [data-scw-initiative-position^="bottom"]) .scw-portrait:has(> .scw-badge-init:not([hidden])) {
+  --scw-name-off: clamp(0px, (4px + var(--scw-marks-room) + var(--scw-initiative-height) * var(--scw-initiative-scale, 1) + var(--scw-badge-gap) + var(--scw-name-h) - var(--scw-card-h)) * 10000, 1px);
+  --scw-name-cut: calc(var(--scw-name-off) * 1000);
+  --scw-init-bottom: max(4px, calc(var(--scw-name-h) + 3px - var(--scw-name-off) * 1000));
+}
+.sc-combat-wheel.scw-show-initiative.scw-view-track:is([data-scw-marks-below], [data-scw-initiative-position^="bottom"]) .scw-portrait:has(> .scw-badge-init:not([hidden])) > .scw-name-tag {
+  clip-path: inset(var(--scw-name-cut) 0 0 0);
+}
 
 /* ---------- the editor points at what a color changes (RF-102) ----------
  * Hovering a color row in the appearance editor sets data-scw-highlight on

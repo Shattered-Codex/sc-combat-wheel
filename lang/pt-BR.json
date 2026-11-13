@@ -559,15 +559,84 @@
       },
       "barSize": {
         "Name": "Tamanho da barra",
-        "Hint": "Compacta deixa a barra mais fina, com botões menores e o botão de turno só com ícone.",
+        "Hint": "Compacta deixa a barra mais fina e mostra o botão de turno como ícone. O tamanho dos botões pode ser definido separadamente.",
         "Choices": {
           "normal": "Normal",
           "compact": "Compacta"
         }
       },
+      "barButtonSize": {
+        "Name": "Tamanho dos botões",
+        "Hint": "Tamanho dos controles na barra e nos painéis laterais separados. Automático acompanha o tamanho da barra. Botões maiores podem precisar de mais espaço.",
+        "Choices": {
+          "auto": "Automático (acompanhar a barra)",
+          "compact": "Compacto",
+          "normal": "Normal",
+          "large": "Grande",
+          "custom": "Personalizado"
+        }
+      },
+      "barButtonWidth": {
+        "Name": "Largura dos botões",
+        "Hint": "Largura mínima em pixels, de 24 a 64. Botões com texto podem ser mais largos."
+      },
+      "barButtonHeight": {
+        "Name": "Altura dos botões",
+        "Hint": "Altura em pixels, de 24 a 64. Ajuste independentemente da largura."
+      },
       "showInitiative": {
         "Name": "Iniciativa nos retratos",
         "Hint": "Mostra a iniciativa de cada combatente, como o tracker nativo."
+      },
+      "initiativeBadge": {
+        "Name": "Formato da iniciativa",
+        "Hint": "Escolha um fundo para os números de iniciativa em qualquer layout. Padrão do tema mantém o visual original do tema.",
+        "Choices": {
+          "theme": "Padrão do tema",
+          "tag": "Etiqueta",
+          "pill": "Cápsula",
+          "circle": "Círculo",
+          "square": "Quadrado",
+          "diamond": "Losango",
+          "hexagon": "Hexágono",
+          "shield": "Escudo",
+          "d4": "d4",
+          "d6": "d6",
+          "d8": "d8",
+          "d10": "d10",
+          "d12": "d12",
+          "d20": "d20",
+          "text": "Somente texto"
+        }
+      },
+      "initiativeBadgeSize": {
+        "Name": "Tamanho da iniciativa",
+        "Hint": "Tamanho do selo de iniciativa, em porcentagem do tamanho próprio do formato, de 50 a 150."
+      },
+      "initiativeBadgeFontSize": {
+        "Name": "Tamanho do número da iniciativa",
+        "Hint": "Tamanho do próprio número, em porcentagem da fonte do formato ou do tema, de 50 a 200. O tamanho do selo o escala de novo."
+      },
+      "initiativeBadgeOffsetX": {
+        "Name": "Deslocamento horizontal da iniciativa",
+        "Hint": "Move o selo a partir do seu lugar, em pixels, de -40 a 40. Positivo move para a direita. Funciona em todas as vistas, inclusive na roda."
+      },
+      "initiativeBadgeOffsetY": {
+        "Name": "Deslocamento vertical da iniciativa",
+        "Hint": "Move o selo a partir do seu lugar, em pixels, de -40 a 40. Positivo move para baixo. Funciona em todas as vistas, inclusive na roda."
+      },
+      "initiativeBadgePosition": {
+        "Name": "Posição da iniciativa",
+        "Hint": "Onde o selo fica nos cards do Carrossel e do Slider. Na roda ele fica sempre no topo da fatia. Padrão do tema mantém o lugar próprio do tema.",
+        "Choices": {
+          "theme": "Padrão do tema",
+          "top-left": "Superior esquerdo",
+          "top": "Topo",
+          "top-right": "Superior direito",
+          "bottom-left": "Inferior esquerdo",
+          "bottom": "Base",
+          "bottom-right": "Inferior direito"
+        }
       },
       "styleFont": {
         "Name": "Fonte dos nomes",

@@ -148,6 +148,17 @@ describe("appearance editor (RF-73)", () => {
     assert.equal(isSettingShown(row("trackSize"), { view: "wheel" }), false);
   });
 
+  it("shows independent button dimensions only for custom sizing", () => {
+    for (const key of ["barButtonWidth", "barButtonHeight"]) {
+      const entry = SETTINGS_SCHEMA.find((row) => row.key === key);
+      assert.equal(entry.panel, "bar");
+      for (const barButtonSize of ["auto", "compact", "normal", "large"]) assert.equal(isSettingShown(entry, { barButtonSize }), false);
+      assert.equal(isSettingShown(entry, { barButtonSize: "custom" }), true);
+      assert.equal(coerceSetting(entry, 1), 24);
+      assert.equal(coerceSetting(entry, 100), 64);
+    }
+  });
+
   it("keeps the Venaerys tab for worlds that run it (RF-82)", () => {
     const phases = APPEARANCE_PANELS.find((panel) => panel.id === "phases");
     assert.equal(phases.module, "sc-venaerys-initiative");

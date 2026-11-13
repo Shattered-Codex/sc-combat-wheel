@@ -99,6 +99,31 @@ describe("trackLayout (RF-90)", () => {
     assert.ok(end.focus.x > 0);
   });
 
+  it("sizes split controls from each visible edge, including asymmetric anchors and side rails", () => {
+    for (const orientation of ["up", "down", "left", "right"]) {
+      for (const shape of ["square", "tall", "wide"]) {
+        for (const size of ["small", "medium", "large"]) {
+          for (const reach of [MIN_REACH, 3, MAX_REACH]) {
+            for (const anchor of ["middle", "left", "end"]) {
+              const layout = trackLayout({ view: "slider", orientation, shape, size, reach, anchor, spacing: -16 });
+              const out = ["left", "right"].includes(orientation) ? layout.cardWidth : layout.cardHeight;
+              const start = poseAt(layout, -layout.V);
+              const end = poseAt(layout, layout.V);
+              const gap = layout.depth - out * poseAt(layout, layout.offset).scale;
+              assert.ok(Math.abs(layout.edgeDepths.start - (gap + out * start.scale)) < 0.01);
+              assert.ok(Math.abs(layout.edgeDepths.end - (gap + out * end.scale)) < 0.01);
+              assert.ok(layout.edgeDepths.start < layout.depth);
+              assert.ok(layout.edgeDepths.end < layout.depth);
+              if (anchor === "middle") assert.equal(layout.edgeDepths.start, layout.edgeDepths.end);
+              if (anchor === "left") assert.ok(layout.edgeDepths.start > layout.edgeDepths.end);
+              if (anchor === "end") assert.ok(layout.edgeDepths.start < layout.edgeDepths.end);
+            }
+          }
+        }
+      }
+    }
+  });
+
   it("makes the bar span the cards and keeps the overview's tiles inside its square", () => {
     assert.ok(carousel.barWidth >= BAR_MIN_WIDTH);
     assert.ok(carousel.barWidth >= 2 * carousel.across - 1);

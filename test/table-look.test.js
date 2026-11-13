@@ -55,4 +55,15 @@ describe("locking some options for the table (RF-119)", () => {
     useStore({ ...table, lockedLook: [], tableLook: { portraitImage: "actor" }, portraitImage: "token", portraitSource: "token" });
     assert.equal(portraitSource(), "token");
   });
+
+  it("shares and locks the initiative badge without changing the player's theme", () => {
+    game.user.isGM = false;
+    useStore({ ...table, theme: "paper", initiativeBadge: "circle", lockedLook: ["initiativeBadge"], tableLook: { theme: "obsidian", initiativeBadge: "d20" } });
+    assert.equal(appearanceValues().initiativeBadge, "d20");
+    assert.equal(appearanceValues().theme, "paper");
+    useStore({ ...table, initiativeBadge: "circle", lockedLook: ["initiativeBadge"], tableLook: {} });
+    assert.equal(appearanceValues().initiativeBadge, "circle", "older table looks keep the user's choice");
+    useStore({ ...table, initiativeBadge: "circle", lockedLook: ["initiativeBadge"], tableLook: { initiativeBadge: "removed-shape" } });
+    assert.equal(appearanceValues().initiativeBadge, "circle", "invalid shared values do not override the user's choice");
+  });
 });

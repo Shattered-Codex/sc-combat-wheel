@@ -73,6 +73,11 @@
   --scw-tag-weight: 400;
   --scw-tag-transform: none;
   --scw-tag-spacing: 0.02em;
+  --scw-initiative-bg: color-mix(in srgb, var(--scw-bg) 94%, var(--scw-surface));
+  --scw-initiative-edge: color-mix(in srgb, var(--scw-accent) 70%, var(--scw-text));
+  --scw-initiative-text: var(--scw-text);
+  /* The theme badge's room: its 1.3 line of the number plus its padding, never under the original 18px. */
+  --scw-initiative-height: max(18px, calc(13px * var(--scw-initiative-font-scale, 1) + 2px));
 }
 
 /*

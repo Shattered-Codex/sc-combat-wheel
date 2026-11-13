@@ -1,6 +1,7 @@
 import { BAR_ITEMS, I18N_ROOT } from "../constants/module-constants.js";
 import CombatControls from "../services/CombatControls.js";
 import { ORIENTATIONS, isSideOrientation, normalizeOrientation, oppositeOf } from "../helpers/orientation.js";
+import { initiativeLabel } from "../helpers/initiative-reveal.js";
 
 const t = (key) => game.i18n.localize(`${I18N_ROOT}.${key}`);
 const f = (key, data) => game.i18n.format(`${I18N_ROOT}.${key}`, data);
@@ -303,7 +304,7 @@ export default class WheelViewData {
       viewing,
       name: vm.name,
       subtitle: [t(`Disposition.${vm.dispositionKey}`), ...vm.players].join(" · "),
-      initiative: vm.initiative ?? "—",
+      initiative: initiativeLabel(vm),
       hp: WheelViewData.hp(vm.hp),
       effects: vm.effects.map((effect) => ({
         ...effect,

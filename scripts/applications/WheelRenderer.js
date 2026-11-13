@@ -1,6 +1,7 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
 import { trackPose } from "../helpers/track-geometry.js";
 import { portraitHpLabel } from "../helpers/visibility-rules.js";
+import { initiativeLabel } from "../helpers/initiative-reveal.js";
 import { windowSlots } from "../helpers/wheel-geometry.js";
 
 /**
@@ -223,7 +224,7 @@ export default class WheelRenderer {
   /** Only rewrites the slice's content when what it shows actually changed. */
   #applyContent(slot, vm, round) {
     const signature = vm
-      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
+      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
       : "";
     if (signature === slot.signature) return;
     slot.signature = signature;
@@ -250,8 +251,8 @@ export default class WheelRenderer {
     slot.initials.textContent = vm?.initials ?? "";
     // Shown by the card views only (RF-90); the name is already what this viewer may see.
     slot.nameTag.textContent = vm?.name ?? "";
-    // RF-94: the initiative the core tracker already shows; nothing for phases or before a roll.
-    const initiative = vm?.kind === "phase" ? null : vm?.initiative ?? null;
+    // RF-94: the initiative the core tracker already shows; nothing for phases or before a roll, "?" while hidden (#11).
+    const initiative = vm?.kind === "phase" ? null : initiativeLabel(vm, null);
     slot.initiative.textContent = initiative === null ? "" : String(initiative);
     slot.initiative.hidden = initiative === null;
     if (vm?.img) {
@@ -313,7 +314,7 @@ export default class WheelRenderer {
       if (vm.memberCount) parts.push(i18n("Phase.Progress", { done: vm.finishedCount, total: vm.memberCount }));
       return foundry.utils.escapeHTML(parts.join(" · "));
     }
-    const parts = [vm.name, i18n("Tooltip.Initiative", { value: vm.initiative ?? "—" })];
+    const parts = [vm.name, i18n("Tooltip.Initiative", { value: initiativeLabel(vm) })];
     if (vm.hp.mode === "number") parts.push(i18n("Tooltip.Hp", { value: vm.hp.text }));
     else if (vm.hp.stateKey) parts.push(game.i18n.localize(`${I18N_ROOT}.HealthState.${vm.hp.stateKey}`));
     parts.push(game.i18n.localize(vm.virtual ? `${I18N_ROOT}.Slice.Virtual` : `${I18N_ROOT}.Disposition.${vm.dispositionKey}`));

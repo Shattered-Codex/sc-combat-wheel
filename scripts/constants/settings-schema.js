@@ -173,6 +173,8 @@ export const SETTINGS_SCHEMA = Object.freeze([
   // Behaviour (this browser)
   { key: SETTINGS.openOnStart, scope: "client", type: "boolean", default: true, section: "behavior", react: null },
   { key: SETTINGS.hideNativeTracker, scope: "client", type: "boolean", default: false, section: "behavior", react: "data" },
+  // #10: Foundry's core never switches by itself; a system or module may, as a combat starts (SidebarTabGuard).
+  { key: SETTINGS.keepSidebarTab, scope: "client", type: "boolean", default: false, section: "behavior", react: null },
   { key: SETTINGS.clickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "pan", section: "behavior", react: null },
   // RF-31: like the core tracker, a double click opens the sheet unless told otherwise; the right click opens the slice's menu (RF-122), which any of them may open.
   { key: SETTINGS.doubleClickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "sheet", section: "behavior", react: null },
@@ -209,6 +211,8 @@ export const SETTINGS_SCHEMA = Object.freeze([
   // What players see (world)
   { key: SETTINGS.hpForPlayers, scope: "world", type: "choice", choices: ["number", "bar", "state", "hidden"], default: "state", section: "players", react: "data" },
   { key: SETTINGS.npcNames, scope: "world", type: "choice", choices: ["always", "token"], default: "always", section: "players", react: "data" },
+  // #11: the same line as the exact hit points (RF-42): the GM, owners and friendly combatants always see it.
+  { key: SETTINGS.hideEnemyInitiative, scope: "world", type: "boolean", default: false, section: "players", react: "data" },
   { key: SETTINGS.concealment, scope: "world", type: "choice", choices: ["hidden", "tokenHidden", "invisible"], default: "tokenHidden", section: "players", react: "data" },
 
   // Combat rules (world)

@@ -13,6 +13,10 @@
         "Name": "Esconder a aba nativa de combate",
         "Hint": "Esconde a aba do Combat Tracker na lateral enquanto a roda estiver aberta."
       },
+      "keepSidebarTab": {
+        "Name": "Manter a aba da barra lateral",
+        "Hint": "Algo além do seu próprio clique pode trocar a barra lateral para a aba Combate, como um sistema ou um módulo quando um combate começa. Com isto ligado, a barra lateral fica na aba que você tinha aberta, como o Chat, e não se abre sozinha. A aba Combate continua abrindo quando você clica nela, e o botão direito continua destacando-a numa janela."
+      },
       "layoutPreset": {
         "Name": "Layout da roda",
         "Hint": "Tamanho da roda e quantas fatias ficam visíveis.",
@@ -145,6 +149,10 @@
           "always": "Sempre mostrar (como o tracker nativo)",
           "token": "Seguir a exibição de nome do token"
         }
+      },
+      "hideEnemyInitiative": {
+        "Name": "Esconder a iniciativa dos inimigos até o turno deles",
+        "Hint": "Os jogadores não veem a iniciativa de um combatente que não é amigável e que não é deles até o primeiro turno dele chegar: um \"?\" fica no lugar na roda, nos detalhes, na visão geral e no rastreador de combate do Foundry, e uma rolagem pública de iniciativa dele vai só para o Mestre. Depois de mostrada, continua visível, também após recarregar, até essa iniciativa ser rolada de novo ou alterada. O Mestre sempre vê todos os números, e a ordem dos turnos continua visível."
       },
       "nextUpNotice": {
         "Name": "Aviso \"a seguir\"",
@@ -1057,6 +1065,7 @@
       "LookImportFailed": "Esse arquivo não é um visual da Roda de Combate."
     },
     "Slice": {
+      "InitiativeHidden": "Iniciativa escondida até o turno",
       "RollOne": "Rolar iniciativa",
       "Unknown": "Desconhecido",
       "Defeated": "Derrotado",

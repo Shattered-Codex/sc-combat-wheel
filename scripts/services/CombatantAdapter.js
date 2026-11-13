@@ -1,6 +1,7 @@
 import { DISPOSITION, DISPOSITION_KEYS, MODULE_ID } from "../constants/module-constants.js";
 import { hpView, initialsOf, isConcealed, isDeadForViewer, visibleName } from "../helpers/visibility-rules.js";
 import { virtualFlagOf } from "../helpers/virtual-positions.js";
+import { INITIATIVE_SHOWN_FLAG, isInitiativeHidden } from "../helpers/initiative-reveal.js";
 import { healthTone, readHealth } from "../helpers/health-source.js";
 
 const DEFAULT_HEALTH_SOURCE = { kind: "bar", bar: "bar1" };
@@ -18,7 +19,7 @@ export default class CombatantAdapter {
    * @param {object} context
    * @param {boolean} context.isGM
    * @param {number} context.round            current combat round, for effect durations
-   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames }
+   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative }
    * @param {string} context.unknownName      label for names the viewer may not read
    * @param {(src: string) => boolean} [context.isVideo]
    * @param {object} [context.healthSource]   from healthSourceFor(); token bar 1 by default
@@ -38,6 +39,12 @@ export default class CombatantAdapter {
     const revealActor = isGM || CombatantAdapter.#canSeeActor(combatant);
     const portrait = CombatantAdapter.portraitFor(combatant, settings.portraitSource, context.isVideo, { revealActor });
     const initiative = Number.isFinite(combatant.initiative) ? combatant.initiative : null;
+    const virtual = virtualFlagOf(combatant) !== null;
+    // #11: an enemy's number stays the GM's until its turn shows it; the turn order itself is Foundry's to show.
+    const initiativeHidden = isInitiativeHidden(
+      { initiative, shown: combatant.flags?.[MODULE_ID]?.[INITIATIVE_SHOWN_FLAG], disposition, isOwner, virtual },
+      { isGM, hideEnemyInitiative: settings.hideEnemyInitiative },
+    );
     const health = readHealth(combatant, context.healthSource ?? DEFAULT_HEALTH_SOURCE);
     const hp = hpView(health, {
       isGM,
@@ -54,7 +61,7 @@ export default class CombatantAdapter {
 
     return {
       id: combatant.id,
-      virtual: virtualFlagOf(combatant) !== null,
+      virtual,
       name,
       img: portrait.src,
       imgPosition: portrait.position,
@@ -63,7 +70,8 @@ export default class CombatantAdapter {
       // RF-121: the character's own art for the turn announcement, the token's when this user may not see it.
       artImg: CombatantAdapter.portraitFor(combatant, "actor", context.isVideo, { revealActor }).src,
       initials: initialsOf(name),
-      initiative,
+      initiative: initiativeHidden ? null : initiative,
+      initiativeHidden,
       hasInitiative: initiative !== null,
       disposition,
       dispositionKey: DISPOSITION_KEYS[disposition] ?? "neutral",

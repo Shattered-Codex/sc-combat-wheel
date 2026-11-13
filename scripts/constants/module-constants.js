@@ -24,6 +24,8 @@ export const STYLESHEETS = Object.freeze([
 export const SETTINGS = Object.freeze({
   openOnStart: "openOnStart",
   hideNativeTracker: "hideNativeTracker",
+  keepSidebarTab: "keepSidebarTab",
+  hideEnemyInitiative: "hideEnemyInitiative",
   layoutPreset: "layoutPreset",
   orientation: "orientation",
   anchor: "anchor",

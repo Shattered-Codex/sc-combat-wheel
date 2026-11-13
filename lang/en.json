@@ -13,6 +13,10 @@
         "Name": "Hide the native combat tab",
         "Hint": "Hides the Combat Tracker tab in the sidebar while the wheel is open."
       },
+      "keepSidebarTab": {
+        "Name": "Stay on your sidebar tab",
+        "Hint": "Something other than your own click may switch the sidebar to the Combat tab, a system or a module as a combat starts, for example. With this on, the sidebar stays on the tab you had open, such as Chat, and does not open by itself. The Combat tab still opens when you click it, and right-clicking it still pops it out."
+      },
       "layoutPreset": {
         "Name": "Wheel layout",
         "Hint": "Size of the wheel and how many slices are visible.",
@@ -145,6 +149,10 @@
           "always": "Always show (like the core tracker)",
           "token": "Follow the token's name display"
         }
+      },
+      "hideEnemyInitiative": {
+        "Name": "Hide enemy initiative until their turn",
+        "Hint": "Players do not see the initiative of a combatant that is not friendly and that they do not own until its turn comes up for the first time: a \"?\" stands in for it on the wheel, in its details, in the overview and in Foundry's combat tracker, and a public initiative roll for it goes to the GM only. Once shown it stays shown, after a reload too, until that initiative is rolled again or changed. The GM always sees every number, and the turn order itself stays visible."
       },
       "nextUpNotice": {
         "Name": "Up-next notice",
@@ -1057,6 +1065,7 @@
       "LookImportFailed": "That file is not a Combat Wheel look."
     },
     "Slice": {
+      "InitiativeHidden": "Initiative hidden until its turn",
       "RollOne": "Roll initiative",
       "Unknown": "Unknown",
       "Defeated": "Defeated",

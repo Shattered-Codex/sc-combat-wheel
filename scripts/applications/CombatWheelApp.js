@@ -160,7 +160,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** Everything an overview tile and its header draw: the order, the turn, and each portrait's content. */
   static #ringSignature(model) {
-    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
+    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.initiativeHidden, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
     return [CombatWheelApp.#turnKey(model), model.currentIndex, model.activeHidden, ...tiles].join("|");
   }
 

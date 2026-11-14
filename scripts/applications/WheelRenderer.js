@@ -1,5 +1,7 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
 import { trackPose } from "../helpers/track-geometry.js";
+import { portraitHpLabel } from "../helpers/visibility-rules.js";
+import { initiativeLabel } from "../helpers/initiative-reveal.js";
 import { windowSlots } from "../helpers/wheel-geometry.js";
 
 /**
@@ -96,6 +98,7 @@ export default class WheelRenderer {
         <img class="scw-portrait-img" alt="" draggable="false" loading="lazy">
         <span class="scw-phase-face" aria-hidden="true"><i class="scw-phase-icon"></i><span class="scw-phase-name"></span></span>
         <span class="scw-health" aria-hidden="true"></span>
+        <span class="scw-hp-label" aria-hidden="true" hidden></span>
         <i class="scw-flag scw-flag-hidden fa-solid fa-eye-slash" aria-hidden="true"></i>
         <i class="scw-flag scw-flag-defeated fa-solid fa-skull" aria-hidden="true"></i>
         <i class="scw-flag scw-flag-virtual fa-solid fa-bolt" aria-hidden="true"></i>
@@ -122,6 +125,7 @@ export default class WheelRenderer {
       turnBadge: element.querySelector(".scw-badge-turn"),
       nameTag: element.querySelector(".scw-name-tag"),
       initiative: element.querySelector(".scw-badge-init"),
+      hpLabel: element.querySelector(".scw-hp-label"),
       s: null,
       signature: "",
       combatantId: null,
@@ -220,7 +224,7 @@ export default class WheelRenderer {
   /** Only rewrites the slice's content when what it shows actually changed. */
   #applyContent(slot, vm, round) {
     const signature = vm
-      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
+      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
       : "";
     if (signature === slot.signature) return;
     slot.signature = signature;
@@ -240,16 +244,22 @@ export default class WheelRenderer {
     // On the slice, not the portrait: the wheel's arc gauge is drawn by the rim, a sibling of the portrait.
     if (tone) element.style.setProperty("--scw-health", String(vm.hp.pct));
     else element.style.removeProperty("--scw-health");
+    this.#applyHpLabel(slot, vm);
     slot.roll.disabled = !vm?.isOwner;
     slot.roll.setAttribute("aria-label", game.i18n.localize(`${I18N_ROOT}.Slice.RollOne`));
 
     slot.initials.textContent = vm?.initials ?? "";
     // Shown by the card views only (RF-90); the name is already what this viewer may see.
     slot.nameTag.textContent = vm?.name ?? "";
-    // RF-94: the initiative the core tracker already shows; nothing for phases or before a roll.
-    const initiative = vm?.kind === "phase" ? null : vm?.initiative ?? null;
+    // RF-94: the initiative the core tracker already shows; nothing for phases or before a roll, "?" while hidden (#11).
+    const initiative = vm?.kind === "phase" ? null : initiativeLabel(vm, null);
     slot.initiative.textContent = initiative === null ? "" : String(initiative);
     slot.initiative.hidden = initiative === null;
+    // #12: the art's own outline masks what is drawn over it once the card is gone (styles: image-only portraits).
+    // Absolute: a url() inside a custom property resolves against the stylesheet that uses it
+    // (styles/module.css), not the page, so "worlds/…" would be fetched as "styles/worlds/…".
+    if (vm?.img) slot.portrait.style.setProperty("--scw-art", `url(${JSON.stringify(new URL(vm.img, document.baseURI).href)})`);
+    else slot.portrait.style.removeProperty("--scw-art");
     if (vm?.img) {
       if (slot.img.getAttribute("src") !== vm.img) {
         slot.img.classList.remove("is-broken");
@@ -277,6 +287,20 @@ export default class WheelRenderer {
     }
   }
 
+  /**
+   * #9: every format the look may pick is kept on the label and the stylesheet
+   * prints the chosen one (data-scw-hp-label), so a format change redraws
+   * nothing. Empty unless this viewer may read the exact hit points.
+   */
+  #applyHpLabel(slot, vm) {
+    const label = vm && !vm.virtual && vm.kind !== "phase" ? portraitHpLabel(vm.hp) : null;
+    const { dataset } = slot.hpLabel;
+    dataset.fraction = label?.fraction ?? "";
+    dataset.current = label?.current ?? "";
+    dataset.percent = label?.percent ?? "";
+    slot.hpLabel.hidden = label === null;
+  }
+
   /** RF-80: a Venaerys phase shows its icon and name on its own color instead of a portrait. */
   #applyPhase(slot, vm) {
     const phase = vm?.kind === "phase";
@@ -295,7 +319,7 @@ export default class WheelRenderer {
       if (vm.memberCount) parts.push(i18n("Phase.Progress", { done: vm.finishedCount, total: vm.memberCount }));
       return foundry.utils.escapeHTML(parts.join(" · "));
     }
-    const parts = [vm.name, i18n("Tooltip.Initiative", { value: vm.initiative ?? "—" })];
+    const parts = [vm.name, i18n("Tooltip.Initiative", { value: initiativeLabel(vm) })];
     if (vm.hp.mode === "number") parts.push(i18n("Tooltip.Hp", { value: vm.hp.text }));
     else if (vm.hp.stateKey) parts.push(game.i18n.localize(`${I18N_ROOT}.HealthState.${vm.hp.stateKey}`));
     parts.push(game.i18n.localize(vm.virtual ? `${I18N_ROOT}.Slice.Virtual` : `${I18N_ROOT}.Disposition.${vm.dispositionKey}`));

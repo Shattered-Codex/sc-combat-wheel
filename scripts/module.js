@@ -7,6 +7,8 @@ import CombatWheelSettingsApp from "./applications/CombatWheelSettingsApp.js";
 import CommunityLinks from "./applications/CommunityLinks.js";
 import AnnouncementCards from "./services/AnnouncementCards.js";
 import CombatWatcher from "./services/CombatWatcher.js";
+import InitiativeReveal from "./services/InitiativeReveal.js";
+import SidebarTabGuard from "./services/SidebarTabGuard.js";
 import StylePicker from "./services/StylePicker.js";
 import StyleLoader from "./services/StyleLoader.js";
 
@@ -25,6 +27,8 @@ Hooks.once("init", () => {
   });
   registerKeybindings(watcher);
   registerTrackerMenu(watcher);
+  SidebarTabGuard.install();
+  InitiativeReveal.install();
   Hooks.on("renderSettingsConfig", (application, html) => CommunityLinks.inject(html));
 });
 
@@ -45,6 +49,8 @@ Hooks.once("ready", () => {
     },
   };
   watcher.start();
+  SidebarTabGuard.start();
+  InitiativeReveal.start();
   void AnnouncementCards.sync();
   migrateBrowserAppearance().catch((error) => console.error(`${MODULE_ID} | appearance migration failed`, error));
 });

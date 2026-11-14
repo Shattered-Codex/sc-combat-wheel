@@ -24,6 +24,8 @@ export const STYLESHEETS = Object.freeze([
 export const SETTINGS = Object.freeze({
   openOnStart: "openOnStart",
   hideNativeTracker: "hideNativeTracker",
+  keepSidebarTab: "keepSidebarTab",
+  hideEnemyInitiative: "hideEnemyInitiative",
   layoutPreset: "layoutPreset",
   orientation: "orientation",
   anchor: "anchor",
@@ -45,6 +47,7 @@ export const SETTINGS = Object.freeze({
   animationSpeed: "animationSpeed",
   portraitShape: "portraitShape",
   portraitImage: "portraitImage",
+  portraitFrame: "portraitFrame",
   sliceGap: "sliceGap",
   scale: "scale",
   restOpacity: "restOpacity",
@@ -72,6 +75,9 @@ export const SETTINGS = Object.freeze({
   hpInverted: "hpInverted",
   hpOverlay: "hpOverlay",
   hpOverlayOpacity: "hpOverlayOpacity",
+  hpLabel: "hpLabel",
+  hpLabelPlacement: "hpLabelPlacement",
+  hpLabelSize: "hpLabelSize",
   view: "view",
   trackSize: "trackSize",
   trackReach: "trackReach",
@@ -95,7 +101,16 @@ export const SETTINGS = Object.freeze({
   phaseStripSize: "phaseStripSize",
   phaseStripNames: "phaseStripNames",
   barSize: "barSize",
+  barButtonSize: "barButtonSize",
+  barButtonWidth: "barButtonWidth",
+  barButtonHeight: "barButtonHeight",
   showInitiative: "showInitiative",
+  initiativeBadge: "initiativeBadge",
+  initiativeBadgeSize: "initiativeBadgeSize",
+  initiativeBadgePosition: "initiativeBadgePosition",
+  initiativeBadgeFontSize: "initiativeBadgeFontSize",
+  initiativeBadgeOffsetX: "initiativeBadgeOffsetX",
+  initiativeBadgeOffsetY: "initiativeBadgeOffsetY",
   colorAccent: "colorAccent",
   colorBackground: "colorBackground",
   colorSurface: "colorSurface",
@@ -228,6 +243,20 @@ export const ANIMATION_SPEED = Object.freeze({
 
 /** Bar thickness; `expandedSide` is the vertical rail's, whose details need a wider column; `compact` the slim bar's. */
 export const BAR_HEIGHT = Object.freeze({ collapsed: 44, compact: 32, expanded: 256, expandedSide: 320 });
+
+/** Explicit button sizes; automatic keeps the bar's existing normal/compact design. */
+export const BAR_BUTTON_SIZES = Object.freeze({ compact: 24, normal: 28, large: 36 });
+export const BAR_BUTTON_RANGE = Object.freeze({ min: 24, max: 64, step: 1 });
+
+/** Initiative badge size, in percent of its shape's own size. */
+export const INITIATIVE_BADGE_SIZE_RANGE = Object.freeze({ min: 50, max: 150, step: 5 });
+/** The number's own size, in percent of the shape's or theme's font size. */
+export const INITIATIVE_FONT_RANGE = Object.freeze({ min: 50, max: 200, step: 5 });
+/** A nudge from the chosen place, in pixels; positive moves right and down. */
+export const INITIATIVE_OFFSET_RANGE = Object.freeze({ min: -40, max: 40, step: 1 });
+
+/** The hit points numbers on a portrait (#9), in percent of their own font size. */
+export const HP_LABEL_SIZE_RANGE = Object.freeze({ min: 70, max: 160, step: 5 });
 
 /**
  * RF-104: the split bar's two columns beside the portraits — the gap to the

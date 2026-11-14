@@ -29,7 +29,7 @@ function sampleViewModel(entry, name) {
   const [value, max] = entry.hp ?? [0, 0];
   const hp = entry.virtual
     ? { mode: "none", pct: 0, critical: false }
-    : { mode: "number", text: `${value}/${max}`, pct: value / max, critical: value / max <= 0.25, stateKey: healthState(value, max) };
+    : { mode: "number", text: `${value}/${max}`, value, max, pct: value / max, critical: value / max <= 0.25, stateKey: healthState(value, max) };
   const dead = !entry.virtual && value <= 0;
   return {
     id: `sample-${entry.key}`,

@@ -1,6 +1,7 @@
 import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-constants.js";
 import { DEFAULT_VIRTUAL_IMAGE } from "../helpers/virtual-positions.js";
 import { landingSlot, lastReachableSlot } from "../helpers/initiative-order.js";
+import { initiativeLabel } from "../helpers/initiative-reveal.js";
 import { OVERVIEW_GRID, gridClip, gridLayout, shortestOffset } from "../helpers/wheel-geometry.js";
 import { wheelRotation } from "../helpers/orientation.js";
 import { cardClip, trackPose } from "../helpers/track-geometry.js";
@@ -330,7 +331,7 @@ export default class OverviewLayer {
     });
     label.innerHTML = `<span class="scw-grid-name"></span><span class="scw-grid-init"></span>`;
     label.firstElementChild.textContent = vm.name;
-    label.lastElementChild.textContent = vm.initiative ?? "—";
+    label.lastElementChild.textContent = initiativeLabel(vm);
     tile.label = label;
     return tile;
   }

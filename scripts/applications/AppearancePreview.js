@@ -1,4 +1,4 @@
-import { ANIMATION_SPEED, TEMPLATE_ROOT } from "../constants/module-constants.js";
+import { ANIMATION_SPEED, COLOR_SETTINGS, TEMPLATE_ROOT } from "../constants/module-constants.js";
 import { widgetBounds } from "../helpers/wheel-geometry.js";
 import { layoutFromSettings } from "../helpers/view-layout.js";
 import { normalizeOrientation } from "../helpers/orientation.js";
@@ -19,6 +19,8 @@ const LAYOUT_KEYS = Object.freeze([
   "view", "layoutPreset", "customOuter", "customInner", "customStep", "anchor", "portraitShape", "sliceGap",
   "orientation", "trackSize", "trackShape", "trackReach", "trackSpacing",
 ]);
+/** Settings that never change the bar's size: dragging their sliders or pickers skips measuring it. */
+const UNMEASURED_KEYS = new Set([...Object.values(COLOR_SETTINGS), "scale", "restOpacity", "hpOverlayOpacity", "hpLabelSize", "animationSpeed"]);
 
 /**
  * The live wheel of the appearance editor (RF-73): the real renderer,
@@ -38,6 +40,9 @@ export default class AppearancePreview {
   #lastT = null;
   #animator = new WheelAnimator(this.#renderer);
   #layout = null;
+  #splitReach = WheelAppearance.splitReach();
+  #barWidth = 0;
+  #measureSignature = "";
   #layoutSignature = "";
   #state = null;
   #partsSignature = "";
@@ -90,6 +95,17 @@ export default class AppearancePreview {
 
     WheelAppearance.applyGeometry(this.#root, this.#layout);
     WheelAppearance.applyLook(this.#root, values, { orientation, theme, expanded });
+    const bar = { controls: values.barControls, layout: values.barLayout, details: !(values.barHidden ?? []).includes("details"), stripImage: values.phaseStripImage, barHidden: values.barHidden };
+    // The layout too: the split bar's pods are sized from its depth (fitPods).
+    const partsSignature = JSON.stringify([model.combatId, model.T, model.N, orientation, Boolean(expanded), bar, Boolean(phase), this.#layoutSignature]);
+    const partsChanged = partsSignature !== this.#partsSignature;
+    // Visibility, fonts and borders can change measurements without changing the templates;
+    // new templates are measured once drawn (#renderParts).
+    const measureSignature = JSON.stringify(Object.entries(values).filter(([key]) => !UNMEASURED_KEYS.has(key)).concat([[theme]]));
+    if (measureSignature !== this.#measureSignature) {
+      this.#measureSignature = measureSignature;
+      if (!partsChanged) this.#measure();
+    }
     this.#particles.update(this.#root, WheelAppearance.particleOptions(values, this.#layout, orientation, model));
     this.#widgetFx.update(this.#root, WheelAppearance.widgetFxOptions(values, this.#layout, orientation));
     this.#actingFx.update(this.#root, WheelAppearance.actingFxOptions(values, this.#layout, orientation));
@@ -102,10 +118,7 @@ export default class AppearancePreview {
       reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
 
-    const bar = { controls: values.barControls, layout: values.barLayout, details: !(values.barHidden ?? []).includes("details"), stripImage: values.phaseStripImage, barHidden: values.barHidden };
-    // The layout too: the split bar's pods are sized from its depth (fitPods).
-    const partsSignature = JSON.stringify([model.combatId, model.T, model.N, orientation, Boolean(expanded), bar, Boolean(phase), this.#layoutSignature]);
-    if (partsSignature !== this.#partsSignature) {
+    if (partsChanged) {
       this.#partsSignature = partsSignature;
       void this.#renderParts(model, { orientation, expanded: Boolean(expanded), phase, ...bar });
     }
@@ -158,7 +171,15 @@ export default class AppearancePreview {
     if (token !== this.#partsToken) return;
     this.#hub.innerHTML = hub;
     this.#bar.innerHTML = bar;
-    WheelAppearance.fitPods(this.#bar, this.#layout);
+    this.#measure();
+    this.#fit();
+  }
+
+  /** One layout read: the split columns' reach, or the inline bar's length. #fit only reads these back. */
+  #measure() {
+    const { values, orientation } = this.#state;
+    this.#splitReach = WheelAppearance.fitPods(this.#root, this.#layout, values, orientation);
+    this.#barWidth = WheelAppearance.isSplit(values) ? 0 : WheelAppearance.barSpan(this.#root, this.#layout);
   }
 
   /** Grows `bounds` in place to hold the sample strip: its depth, or roughly its length past the bar's end. */
@@ -180,8 +201,8 @@ export default class AppearancePreview {
   }
 
   /** Grows `bounds` in place to hold a split bar's two columns, one past each end of the portraits. */
-  static #withSplitColumns(bounds, orientation, layout) {
-    const reach = layout.across + WheelAppearance.splitReach();
+  static #withSplitColumns(bounds, orientation, layout, splitReach) {
+    const reach = layout.across + splitReach;
     if (orientation === "left" || orientation === "right") {
       bounds.minY = Math.min(bounds.minY, -reach);
       bounds.maxY = Math.max(bounds.maxY, reach);
@@ -201,10 +222,11 @@ export default class AppearancePreview {
 
     const barShown = values.barVisibility !== "hidden";
     const split = barShown && WheelAppearance.isSplit(values);
-    const thickness = barShown && !split ? WheelAppearance.barThickness(orientation, expanded, values.barSize) : 0;
+    const thickness = barShown && !split ? WheelAppearance.barThickness(orientation, expanded, values) : 0;
     // A split bar lies beside the portraits, not across them: only its columns count (RF-104).
-    const bounds = widgetBounds(split ? { ...this.#layout, barWidth: 0 } : this.#layout, orientation, thickness);
-    if (split) AppearancePreview.#withSplitColumns(bounds, orientation, this.#layout);
+    const barWidth = split ? 0 : Math.max(this.#layout.barWidth, this.#barWidth);
+    const bounds = widgetBounds({ ...this.#layout, barWidth }, orientation, thickness);
+    if (split) AppearancePreview.#withSplitColumns(bounds, orientation, this.#layout, this.#splitReach);
     if (strip) AppearancePreview.#withStrip(bounds, orientation, values);
     // RF-116: the effects and particles stay inside the stage too, wherever this layout puts them.
     const fx = WheelAppearance.fxBounds(values, this.#layout, orientation);

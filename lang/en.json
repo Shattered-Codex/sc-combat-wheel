@@ -13,6 +13,10 @@
         "Name": "Hide the native combat tab",
         "Hint": "Hides the Combat Tracker tab in the sidebar while the wheel is open."
       },
+      "keepSidebarTab": {
+        "Name": "Stay on your sidebar tab",
+        "Hint": "Something other than your own click may switch the sidebar to the Combat tab, a system or a module as a combat starts, for example. With this on, the sidebar stays on the tab you had open, such as Chat, and does not open by itself. The Combat tab still opens when you click it, and right-clicking it still pops it out."
+      },
       "layoutPreset": {
         "Name": "Wheel layout",
         "Hint": "Size of the wheel and how many slices are visible.",
@@ -146,6 +150,10 @@
           "token": "Follow the token's name display"
         }
       },
+      "hideEnemyInitiative": {
+        "Name": "Hide enemy initiative until their turn",
+        "Hint": "Players do not see the initiative of a combatant that is not friendly and that they do not own until its turn comes up for the first time: a \"?\" stands in for it on the wheel, in its details, in the overview and in Foundry's combat tracker, and a public initiative roll for it goes to the GM only. Once shown it stays shown, after a reload too, until that initiative is rolled again or changed. The GM always sees every number, and the turn order itself stays visible."
+      },
       "nextUpNotice": {
         "Name": "Up-next notice",
         "Hint": "The player whose combatant acts next gets a notice and their slice pulses."
@@ -169,6 +177,14 @@
           "table": "As the table",
           "token": "Token",
           "actor": "Character portrait"
+        }
+      },
+      "portraitFrame": {
+        "Name": "Portrait frame",
+        "Hint": "Image only shows the whole artwork, transparency kept, straight over the scene: no card background, frame, shadow or cropping. The art's outline takes the side's colour; the acting one's effect follows its silhouette (glow, halo, aura, flames' light), and shaped effects such as rays or runes go round it. For Carousel and Slider; on the wheel the slices are the layout itself and keep their shape.",
+        "Choices": {
+          "card": "Card",
+          "image": "Image only"
         }
       },
       "sliceGap": {
@@ -331,11 +347,35 @@
           "off": "Off",
           "drain": "Lost health tints red from the top",
           "fill": "Health left fills from the bottom (green → red)",
-          "band": "Thin gauge on the side"
+          "band": "Thin gauge on the side",
+          "bottom": "Bar along the bottom"
         }
       },
       "hpOverlayOpacity": {
         "Name": "Health overlay strength",
+        "Hint": "In percent."
+      },
+      "hpLabel": {
+        "Name": "Hit points numbers",
+        "Hint": "Prints the hit points on each portrait. Only shown to whoever may read the exact value: the GM, owners and friendly combatants, or everyone when enemy hit points are shown as numbers.",
+        "Choices": {
+          "off": "Off",
+          "fraction": "Current / max (25/40)",
+          "current": "Current only (25)",
+          "percent": "Percent (63%)"
+        }
+      },
+      "hpLabelPlacement": {
+        "Name": "Numbers placement",
+        "Hint": "In the bar, they sit inside the bar along the bottom or run up the side gauge (with fill or drain, they go to the bottom). At the bottom, they stand above the name, the bar and any badge on that edge.",
+        "Choices": {
+          "bar": "In the bar",
+          "bottom": "Bottom",
+          "center": "Centre"
+        }
+      },
+      "hpLabelSize": {
+        "Name": "Numbers size",
         "Hint": "In percent."
       },
       "view": {
@@ -559,15 +599,84 @@
       },
       "barSize": {
         "Name": "Bar size",
-        "Hint": "Compact makes the bar slimmer, with smaller buttons and the turn button as an icon.",
+        "Hint": "Compact makes the bar slimmer and shows the turn button as an icon. Button size can be set separately.",
         "Choices": {
           "normal": "Normal",
           "compact": "Compact"
         }
       },
+      "barButtonSize": {
+        "Name": "Button size",
+        "Hint": "Size of the controls in the bar and split side panels. Automatic follows the bar size. Larger buttons may need more space.",
+        "Choices": {
+          "auto": "Automatic (follow bar size)",
+          "compact": "Compact",
+          "normal": "Normal",
+          "large": "Large",
+          "custom": "Custom"
+        }
+      },
+      "barButtonWidth": {
+        "Name": "Button width",
+        "Hint": "Minimum width in pixels, from 24 to 64. Buttons with text may be wider."
+      },
+      "barButtonHeight": {
+        "Name": "Button height",
+        "Hint": "Height in pixels, from 24 to 64. Adjust independently of the width."
+      },
       "showInitiative": {
         "Name": "Initiative on portraits",
         "Hint": "Shows each combatant's initiative, as the core tracker does."
+      },
+      "initiativeBadge": {
+        "Name": "Initiative badge shape",
+        "Hint": "Choose a backdrop for initiative numbers in any layout. Theme default keeps the theme's original badge.",
+        "Choices": {
+          "theme": "Theme default",
+          "tag": "Tag",
+          "pill": "Pill",
+          "circle": "Circle",
+          "square": "Square",
+          "diamond": "Diamond",
+          "hexagon": "Hexagon",
+          "shield": "Shield",
+          "d4": "d4",
+          "d6": "d6",
+          "d8": "d8",
+          "d10": "d10",
+          "d12": "d12",
+          "d20": "d20",
+          "text": "Text only"
+        }
+      },
+      "initiativeBadgeSize": {
+        "Name": "Initiative badge size",
+        "Hint": "Size of the initiative badge, in percent of its shape's own size, from 50 to 150."
+      },
+      "initiativeBadgeFontSize": {
+        "Name": "Initiative number size",
+        "Hint": "Size of the number itself, in percent of the shape's or theme's font, from 50 to 200. The badge's size scales it again."
+      },
+      "initiativeBadgeOffsetX": {
+        "Name": "Initiative horizontal offset",
+        "Hint": "Moves the badge from its place, in pixels, from -40 to 40. Positive moves it right. Works in every view, the wheel included."
+      },
+      "initiativeBadgeOffsetY": {
+        "Name": "Initiative vertical offset",
+        "Hint": "Moves the badge from its place, in pixels, from -40 to 40. Positive moves it down. Works in every view, the wheel included."
+      },
+      "initiativeBadgePosition": {
+        "Name": "Initiative badge position",
+        "Hint": "Where the badge sits on Carousel and Slider cards. The wheel always shows it at the top of the slice. Theme default keeps the theme's own place.",
+        "Choices": {
+          "theme": "Theme default",
+          "top-left": "Top left",
+          "top": "Top",
+          "top-right": "Top right",
+          "bottom-left": "Bottom left",
+          "bottom": "Bottom",
+          "bottom-right": "Bottom right"
+        }
       },
       "styleFont": {
         "Name": "Name font",
@@ -603,12 +712,13 @@
       },
       "styleRim": {
         "Name": "Portrait border",
-        "Hint": "How thick the colored border of each portrait is.",
+        "Hint": "How thick the colored border of each portrait is. None hides it, the acting portrait's too, which keeps its glow and size.",
         "Choices": {
           "theme": "From the theme",
           "thin": "Thin",
           "normal": "Normal",
-          "thick": "Thick"
+          "thick": "Thick",
+          "none": "None"
         }
       },
       "styleNames": {
@@ -964,6 +1074,7 @@
       "LookImportFailed": "That file is not a Combat Wheel look."
     },
     "Slice": {
+      "InitiativeHidden": "Initiative hidden until its turn",
       "RollOne": "Roll initiative",
       "Unknown": "Unknown",
       "Defeated": "Defeated",
@@ -1262,7 +1373,7 @@
         "effects": "Particles are drawn by the browser with CSS animations only, and stop when the system asks for reduced motion.",
         "presets": "Pick a complete look to start from, then change anything in the other sections. Nothing is saved until you press Save.",
         "sounds": "These apply to this browser only: ready-made looks and the table look never change them. Turn the preview with Sounds on to hear them in combat order.",
-        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
+        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text and panels. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
         "announce": "A message on screen when a turn comes up — yours, or everyone's — with an effect and particles around the portrait. Under SC Venaerys's Initiative it shows the phase with all its members."
       },
       "Sections": "Sections",
@@ -1273,6 +1384,7 @@
         "placement": "Placement",
         "portrait": "Portrait",
         "info": "Information",
+        "health": "Health",
         "panels": "Panels",
         "sides": "Sides",
         "acting": "Effects",

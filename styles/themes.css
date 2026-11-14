@@ -1636,8 +1636,11 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   box-shadow: inset 0 0 2px #000;
   opacity: 1;
 }
+/* The numbers in the bar (#9) run up it from the very edge. */
+.sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-band-left: 0px; }
 /* The initiative over a faint outline d20, top left beside the bar. */
-.sc-combat-wheel[data-scw-theme="obsidian"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
+.sc-combat-wheel[data-scw-theme="obsidian"][data-scw-initiative-badge="theme"].scw-view-track { --scw-initiative-height: 22px; }
+.sc-combat-wheel[data-scw-theme="obsidian"][data-scw-initiative-badge="theme"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
   top: 3px;
   left: calc(max(4px, 6%) + 3px);
   /* Its own layer, so the die drawn behind the number stays above the portrait. */
@@ -1651,11 +1654,11 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   background: none;
   box-shadow: none;
   color: #fff;
-  font: 600 11px/1 var(--scw-font-body);
+  font: 600 calc(11px * var(--scw-initiative-font-scale, 1))/1 var(--scw-font-body);
   text-shadow: 0 0 5px #000, 0 0 2px #000;
   opacity: 0.85;
 }
-.sc-combat-wheel[data-scw-theme="obsidian"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden])::before {
+.sc-combat-wheel[data-scw-theme="obsidian"][data-scw-initiative-badge="theme"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden])::before {
   content: "\f6cf";
   position: absolute;
   inset: 0;
@@ -1808,8 +1811,19 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   box-shadow: none;
   opacity: 1;
 }
+/* The numbers in the bar (#9): the line grows to hold them, level, and the name stands on it. */
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) { --scw-hp-foot-top: calc(4px + var(--scw-hp-band)); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-health { width: auto; height: var(--scw-hp-band); }
+.sc-combat-wheel[data-scw-theme="tide"].scw-view-track[data-scw-health="band"][data-scw-hp-label-at="bar"]:not([data-scw-hp-label="off"]) .scw-slot:is(.is-health-good, .is-health-warn, .is-health-danger) .scw-hp-label:not([hidden]) {
+  z-index: 3;
+  top: auto;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 /* The initiative in a small dark tag, top left, shown when the card is pointed at. */
-.sc-combat-wheel[data-scw-theme="tide"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
+.sc-combat-wheel[data-scw-theme="tide"][data-scw-initiative-badge="theme"].scw-view-track { --scw-initiative-height: calc(11px * var(--scw-initiative-font-scale, 1) + 8px); }
+.sc-combat-wheel[data-scw-theme="tide"][data-scw-initiative-badge="theme"].scw-show-initiative.scw-view-track .scw-badge-init:not([hidden]) {
   top: 1px;
   left: 1px;
   min-width: 32px;
@@ -1818,11 +1832,11 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   background: rgba(11, 10, 19, 0.95);
   box-shadow: none;
   color: #f3f7f7;
-  font: 500 11px/1 var(--scw-font-body);
+  font: 500 calc(11px * var(--scw-initiative-font-scale, 1))/1 var(--scw-font-body);
   opacity: 0;
   transition: opacity 300ms ease-out;
 }
-.sc-combat-wheel[data-scw-theme="tide"].scw-show-initiative.scw-view-track .scw-slot:is(:hover, :focus-visible) .scw-badge-init:not([hidden]) { opacity: 1; }
+.sc-combat-wheel[data-scw-theme="tide"][data-scw-initiative-badge="theme"].scw-show-initiative.scw-view-track .scw-slot:is(:hover, :focus-visible) .scw-badge-init:not([hidden]) { opacity: 1; }
 .sc-combat-wheel[data-scw-theme="tide"].scw-view-track .scw-badge-round {
   border-radius: 2px;
   background: rgba(11, 10, 19, 0.95);

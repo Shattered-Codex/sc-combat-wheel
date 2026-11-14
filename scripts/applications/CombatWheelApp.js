@@ -6,6 +6,7 @@ import { initiativeAtSlot, initiativeForMove } from "../helpers/initiative-order
 import { activeTheme, appearanceValues, currentStyleId, getSetting, savedStyles, setSetting } from "../hooks/register-settings.js";
 import { projectCombat } from "../services/project-combat.js";
 import CombatControls from "../services/CombatControls.js";
+import StyleLoader from "../services/StyleLoader.js";
 import StylePicker from "../services/StylePicker.js";
 import TokenInteractions from "../services/TokenInteractions.js";
 import VirtualPositions from "../services/VirtualPositions.js";
@@ -86,6 +87,10 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   #ui = { menu: null, rolling: false };
   /** Room the phase strip takes beyond the bar (RF-80); the widget is kept on screen with it. */
   #trayDepth = 0;
+  #splitReach = WheelAppearance.splitReach();
+  #barWidth = 0;
+  /** The sizes the widget was last kept on screen with (#placementKey). */
+  #placedFor = "";
   #onResize = () => this.#placeWidget();
 
   /** The combat currently drawn; `game.combat` may already point elsewhere. */
@@ -155,7 +160,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** Everything an overview tile and its header draw: the order, the turn, and each portrait's content. */
   static #ringSignature(model) {
-    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
+    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.initiativeHidden, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
     return [CombatWheelApp.#turnKey(model), model.currentIndex, model.activeHidden, ...tiles].join("|");
   }
 
@@ -191,6 +196,8 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   /* -------------------------------------------- */
 
   async _prepareContext(options) {
+    // The bar is measured once drawn: a wheel opened at `ready` must not measure unstyled controls.
+    await StyleLoader.ensureLoaded();
     this.#look = appearanceValues();
     if (options.parts.includes("wheel")) this.#readLayout();
     const previous = this.#model;
@@ -315,15 +322,13 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
     if (options.parts.includes("wheel")) this.#mountWheel();
     if (options.parts.includes("bar")) {
+      this.#measureBar();
       this.#bindBar(context.ui);
-      WheelAppearance.fitPods(element, this.#layout);
     }
     // Only a strip beyond the bar pushes the widget away from the screen edge.
-    const trayDepth = this.#model?.phase && look.phaseStripPlacement === "beyond" ? WheelAppearance.stripDepth(look) : 0;
-    if (trayDepth !== this.#trayDepth) {
-      this.#trayDepth = trayDepth;
-      this.#placeWidget();
-    }
+    this.#trayDepth = this.#model?.phase && look.phaseStripPlacement === "beyond" ? WheelAppearance.stripDepth(look) : 0;
+    // Re-placing reads the saved spot: done only when the room the widget needs on screen changed.
+    if (this.#placementKey() !== this.#placedFor) this.#placeWidget();
 
     this.#animator.show(this.#model ?? CombatWheelApp.#emptyModel(), this.#motion(), this.#viewT());
     this.#particles.update(element, WheelAppearance.particleOptions(look, this.#layout, this.#orientation, this.#model));
@@ -460,19 +465,32 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       trayDepth: this.#trayDepth,
     });
     WidgetPosition.apply(this.element, anchor);
+    this.#placedFor = this.#placementKey();
+  }
+
+  /** What the widget is kept on screen with. */
+  #placementKey() {
+    return [this.#orientation, this.#barSpan(), this.#barThickness(), this.#trayDepth].join("|");
+  }
+
+  /** One layout read per bar render: a split bar is as long as its columns reach, an inline one as it measures. */
+  #measureBar() {
+    const look = this.#look;
+    this.#splitReach = WheelAppearance.fitPods(this.element, this.#layout, look, this.#orientation);
+    this.#barWidth = WheelAppearance.isSplit(look) ? 0 : WheelAppearance.barSpan(this.element, this.#layout);
   }
 
   /** How long the bar lies across the anchor, for keeping it on screen: a split bar's columns stand past the portraits (RF-104). */
   #barSpan() {
-    if (!WheelAppearance.isSplit(this.#look)) return this.#layout.barWidth;
-    return 2 * (this.#layout.across + WheelAppearance.splitReach());
+    if (!WheelAppearance.isSplit(this.#look)) return Math.max(this.#layout.barWidth, this.#barWidth);
+    return 2 * (this.#layout.across + this.#splitReach);
   }
 
   /** How far the bar reaches past the anchor, away from the portraits: nothing when split beside them or hidden. */
   #barThickness() {
     const look = this.#look;
     if (look.barVisibility === "hidden" || WheelAppearance.isSplit(look)) return 0;
-    return WheelAppearance.barThickness(this.#orientation, false, look.barSize);
+    return WheelAppearance.barThickness(this.#orientation, false, look);
   }
 
   #bindBar(ui) {

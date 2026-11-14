@@ -8,6 +8,7 @@ import {
   isConcealed,
   isDeadForViewer,
   isOnRing,
+  portraitHpLabel,
   shouldSkipTurn,
 } from "../scripts/helpers/visibility-rules.js";
 
@@ -97,6 +98,48 @@ describe("hpView", () => {
   it("returns none when the token has no usable bar", () => {
     assert.equal(hpView(null, { ...foe, hpForPlayers: "number" }).mode, "none");
     assert.equal(hpView({ value: 3, max: 0 }, { ...foe, hpForPlayers: "number" }).mode, "none");
+  });
+
+  it("hands out the exact values only in the number mode", () => {
+    const hp = { value: 3, max: 10 };
+    const exact = hpView(hp, { ...foe, hpForPlayers: "number" });
+    assert.deepEqual([exact.value, exact.max], [3, 10]);
+    for (const hpForPlayers of ["bar", "state", "hidden"]) {
+      const view = hpView(hp, { ...foe, hpForPlayers });
+      assert.equal(view.value, undefined, hpForPlayers);
+      assert.equal(view.max, undefined, hpForPlayers);
+      assert.equal(view.text, undefined, hpForPlayers);
+    }
+  });
+});
+
+describe("portraitHpLabel (#9)", () => {
+  const foe = { isGM: false, isOwner: false, disposition: DISPOSITION.HOSTILE };
+
+  it("prints every format for whoever may read the exact hit points", () => {
+    assert.deepEqual(portraitHpLabel(hpView({ value: 25, max: 40 }, { ...foe, isGM: true, hpForPlayers: "hidden" })), {
+      fraction: "25/40",
+      current: "25",
+      percent: "63%",
+    });
+    assert.deepEqual(portraitHpLabel(hpView({ value: 25, max: 40 }, { ...foe, hpForPlayers: "number" })).fraction, "25/40");
+  });
+
+  it("keeps the percentage inside 0–100 when the value runs past the maximum or below zero", () => {
+    assert.equal(portraitHpLabel(hpView({ value: 50, max: 40 }, { ...foe, isOwner: true })).percent, "100%");
+    assert.equal(portraitHpLabel(hpView({ value: -5, max: 40 }, { ...foe, isOwner: true })).percent, "0%");
+  });
+
+  it("never turns a bar, a state or hidden health into numbers", () => {
+    for (const hpForPlayers of ["bar", "state", "hidden"]) {
+      assert.equal(portraitHpLabel(hpView({ value: 25, max: 40 }, { ...foe, hpForPlayers })), null, hpForPlayers);
+    }
+  });
+
+  it("prints nothing without usable hit points", () => {
+    assert.equal(portraitHpLabel(hpView(null, { ...foe, isGM: true })), null);
+    assert.equal(portraitHpLabel(undefined), null);
+    assert.equal(portraitHpLabel({ mode: "none" }), null);
   });
 });
 

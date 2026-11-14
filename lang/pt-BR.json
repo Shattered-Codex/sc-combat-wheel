@@ -13,6 +13,10 @@
         "Name": "Esconder a aba nativa de combate",
         "Hint": "Esconde a aba do Combat Tracker na lateral enquanto a roda estiver aberta."
       },
+      "keepSidebarTab": {
+        "Name": "Manter a aba da barra lateral",
+        "Hint": "Algo além do seu próprio clique pode trocar a barra lateral para a aba Combate, como um sistema ou um módulo quando um combate começa. Com isto ligado, a barra lateral fica na aba que você tinha aberta, como o Chat, e não se abre sozinha. A aba Combate continua abrindo quando você clica nela, e o botão direito continua destacando-a numa janela."
+      },
       "layoutPreset": {
         "Name": "Layout da roda",
         "Hint": "Tamanho da roda e quantas fatias ficam visíveis.",
@@ -146,6 +150,10 @@
           "token": "Seguir a exibição de nome do token"
         }
       },
+      "hideEnemyInitiative": {
+        "Name": "Esconder a iniciativa dos inimigos até o turno deles",
+        "Hint": "Os jogadores não veem a iniciativa de um combatente que não é amigável e que não é deles até o primeiro turno dele chegar: um \"?\" fica no lugar na roda, nos detalhes, na visão geral e no rastreador de combate do Foundry, e uma rolagem pública de iniciativa dele vai só para o Mestre. Depois de mostrada, continua visível, também após recarregar, até essa iniciativa ser rolada de novo ou alterada. O Mestre sempre vê todos os números, e a ordem dos turnos continua visível."
+      },
       "nextUpNotice": {
         "Name": "Aviso \"a seguir\"",
         "Hint": "O jogador cujo combatente age em seguida recebe um aviso e a fatia dele pulsa."
@@ -169,6 +177,14 @@
           "table": "Como a mesa",
           "token": "Token",
           "actor": "Retrato do personagem"
+        }
+      },
+      "portraitFrame": {
+        "Name": "Moldura do retrato",
+        "Hint": "Só a imagem mostra a arte inteira, com a transparência, direto sobre a cena: sem fundo, moldura, sombra ou recorte do cartão. O contorno da arte leva a cor do lado; o efeito de quem está agindo segue a silhueta (brilho, halo, aura, a luz das chamas), e efeitos com forma, como raios ou runas, ficam em volta dela. Vale para o Carrossel e o Slider; na roda, as fatias são o próprio desenho e mantêm a forma.",
+        "Choices": {
+          "card": "Cartão",
+          "image": "Só a imagem"
         }
       },
       "sliceGap": {
@@ -331,11 +347,35 @@
           "off": "Desligado",
           "drain": "A vida perdida tinge de vermelho a partir do topo",
           "fill": "A vida restante preenche a partir da base (verde → vermelho)",
-          "band": "Medidor fino na lateral"
+          "band": "Medidor fino na lateral",
+          "bottom": "Barra na base"
         }
       },
       "hpOverlayOpacity": {
         "Name": "Intensidade da vida no retrato",
+        "Hint": "Em porcentagem."
+      },
+      "hpLabel": {
+        "Name": "Números de PV",
+        "Hint": "Escreve os PV em cada retrato. Só aparece para quem pode ver o valor exato: o Mestre, os donos e os combatentes amigáveis, ou todos quando os PV dos inimigos aparecem como número.",
+        "Choices": {
+          "off": "Desligado",
+          "fraction": "Atual / máximo (25/40)",
+          "current": "Só o atual (25)",
+          "percent": "Porcentagem (63%)"
+        }
+      },
+      "hpLabelPlacement": {
+        "Name": "Posição dos números",
+        "Hint": "Na barra, ficam dentro da barra na base ou sobem pelo medidor lateral (com preencher ou tingir, vão para a base). Na base, ficam acima do nome, da barra e de qualquer selo nessa borda.",
+        "Choices": {
+          "bar": "Na barra",
+          "bottom": "Base",
+          "center": "Centro"
+        }
+      },
+      "hpLabelSize": {
+        "Name": "Tamanho dos números",
         "Hint": "Em porcentagem."
       },
       "view": {
@@ -559,15 +599,84 @@
       },
       "barSize": {
         "Name": "Tamanho da barra",
-        "Hint": "Compacta deixa a barra mais fina, com botões menores e o botão de turno só com ícone.",
+        "Hint": "Compacta deixa a barra mais fina e mostra o botão de turno como ícone. O tamanho dos botões pode ser definido separadamente.",
         "Choices": {
           "normal": "Normal",
           "compact": "Compacta"
         }
       },
+      "barButtonSize": {
+        "Name": "Tamanho dos botões",
+        "Hint": "Tamanho dos controles na barra e nos painéis laterais separados. Automático acompanha o tamanho da barra. Botões maiores podem precisar de mais espaço.",
+        "Choices": {
+          "auto": "Automático (acompanhar a barra)",
+          "compact": "Compacto",
+          "normal": "Normal",
+          "large": "Grande",
+          "custom": "Personalizado"
+        }
+      },
+      "barButtonWidth": {
+        "Name": "Largura dos botões",
+        "Hint": "Largura mínima em pixels, de 24 a 64. Botões com texto podem ser mais largos."
+      },
+      "barButtonHeight": {
+        "Name": "Altura dos botões",
+        "Hint": "Altura em pixels, de 24 a 64. Ajuste independentemente da largura."
+      },
       "showInitiative": {
         "Name": "Iniciativa nos retratos",
         "Hint": "Mostra a iniciativa de cada combatente, como o tracker nativo."
+      },
+      "initiativeBadge": {
+        "Name": "Formato da iniciativa",
+        "Hint": "Escolha um fundo para os números de iniciativa em qualquer layout. Padrão do tema mantém o visual original do tema.",
+        "Choices": {
+          "theme": "Padrão do tema",
+          "tag": "Etiqueta",
+          "pill": "Cápsula",
+          "circle": "Círculo",
+          "square": "Quadrado",
+          "diamond": "Losango",
+          "hexagon": "Hexágono",
+          "shield": "Escudo",
+          "d4": "d4",
+          "d6": "d6",
+          "d8": "d8",
+          "d10": "d10",
+          "d12": "d12",
+          "d20": "d20",
+          "text": "Somente texto"
+        }
+      },
+      "initiativeBadgeSize": {
+        "Name": "Tamanho da iniciativa",
+        "Hint": "Tamanho do selo de iniciativa, em porcentagem do tamanho próprio do formato, de 50 a 150."
+      },
+      "initiativeBadgeFontSize": {
+        "Name": "Tamanho do número da iniciativa",
+        "Hint": "Tamanho do próprio número, em porcentagem da fonte do formato ou do tema, de 50 a 200. O tamanho do selo o escala de novo."
+      },
+      "initiativeBadgeOffsetX": {
+        "Name": "Deslocamento horizontal da iniciativa",
+        "Hint": "Move o selo a partir do seu lugar, em pixels, de -40 a 40. Positivo move para a direita. Funciona em todas as vistas, inclusive na roda."
+      },
+      "initiativeBadgeOffsetY": {
+        "Name": "Deslocamento vertical da iniciativa",
+        "Hint": "Move o selo a partir do seu lugar, em pixels, de -40 a 40. Positivo move para baixo. Funciona em todas as vistas, inclusive na roda."
+      },
+      "initiativeBadgePosition": {
+        "Name": "Posição da iniciativa",
+        "Hint": "Onde o selo fica nos cards do Carrossel e do Slider. Na roda ele fica sempre no topo da fatia. Padrão do tema mantém o lugar próprio do tema.",
+        "Choices": {
+          "theme": "Padrão do tema",
+          "top-left": "Superior esquerdo",
+          "top": "Topo",
+          "top-right": "Superior direito",
+          "bottom-left": "Inferior esquerdo",
+          "bottom": "Base",
+          "bottom-right": "Inferior direito"
+        }
       },
       "styleFont": {
         "Name": "Fonte dos nomes",
@@ -603,12 +712,13 @@
       },
       "styleRim": {
         "Name": "Borda dos retratos",
-        "Hint": "A espessura da borda colorida de cada retrato.",
+        "Hint": "A espessura da borda colorida de cada retrato. Nenhuma esconde a borda, inclusive a de quem está agindo, que mantém o brilho e o tamanho.",
         "Choices": {
           "theme": "Do tema",
           "thin": "Fina",
           "normal": "Normal",
-          "thick": "Grossa"
+          "thick": "Grossa",
+          "none": "Nenhuma"
         }
       },
       "styleNames": {
@@ -964,6 +1074,7 @@
       "LookImportFailed": "Esse arquivo não é um visual da Roda de Combate."
     },
     "Slice": {
+      "InitiativeHidden": "Iniciativa escondida até o turno",
       "RollOne": "Rolar iniciativa",
       "Unknown": "Desconhecido",
       "Defeated": "Derrotado",
@@ -1262,7 +1373,7 @@
         "effects": "As partículas são desenhadas pelo navegador só com animações CSS, e param quando o sistema pede movimento reduzido.",
         "presets": "Escolha um visual completo para começar e depois mude o que quiser nas outras seções. Nada é salvo até você apertar Salvar.",
         "sounds": "Valem só para este navegador: estilos prontos e o visual da mesa nunca mexem neles. Avance a prévia com Sons ligado para ouvir na ordem do combate.",
-        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto, os painéis e os retratos. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta.",
+        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto e os painéis. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta.",
         "announce": "Um aviso na tela quando chega uma vez — a sua, ou a de todos — com efeito e partículas em volta do retrato. Sob o SC Venaerys's Initiative, mostra a fase com todos os seus membros."
       },
       "Sections": "Seções",
@@ -1273,6 +1384,7 @@
         "placement": "Posição",
         "portrait": "Retrato",
         "info": "Informação",
+        "health": "Vida",
         "panels": "Painéis",
         "sides": "Lados",
         "acting": "Efeitos",

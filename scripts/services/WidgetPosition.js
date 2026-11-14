@@ -15,15 +15,27 @@ const EDGE_MARGIN = 8;
  * per user (RF-124): each player finds the wheel where they left it, on any browser.
  */
 export default class WidgetPosition {
+  /** The state being written: the setting reads the old one until the server answers. */
+  static #pending = null;
+
   static state() {
+    if (WidgetPosition.#pending) return WidgetPosition.#pending;
     const own = getSetting(SETTINGS.userWidgetState) ?? {};
     // Before RF-124 the place was this browser's: it stands until this user saves their own, and the first save carries it over.
     const legacy = Object.keys(own).length ? {} : getSetting(SETTINGS.widgetState) ?? {};
     return { position: null, locked: false, expanded: false, ...legacy, ...own };
   }
 
+  /**
+   * Read back at once: a render or a second save meanwhile (a re-placement,
+   * the lock right after a drag) must not see, nor write back, the old place.
+   */
   static save(patch) {
-    return setSetting(SETTINGS.userWidgetState, { ...WidgetPosition.state(), ...patch });
+    const next = { ...WidgetPosition.state(), ...patch };
+    WidgetPosition.#pending = next;
+    return Promise.resolve(setSetting(SETTINGS.userWidgetState, next)).finally(() => {
+      if (WidgetPosition.#pending === next) WidgetPosition.#pending = null;
+    });
   }
 
   /** Forgets where the wheel was dragged, so it opens in its default place again (lock and details stay). */

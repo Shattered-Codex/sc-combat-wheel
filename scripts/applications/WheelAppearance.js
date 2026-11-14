@@ -109,6 +109,8 @@ export default class WheelAppearance {
     if (WheelAppearance.hasExplicitButtons(look)) data.scwButtonSize = look.barButtonSize;
     else delete data.scwButtonSize;
     data.scwFinish = look.styleFinish ?? "theme";
+    data.scwRim = look.styleRim ?? "theme";
+    data.scwPortraitFrame = look.portraitFrame ?? "card";
     data.scwActingFx = look.actingEffect ?? "none";
     data.scwTurnFx = look.turnEffect ?? "none";
     data.scwStrip = look.phaseStripPlacement;
@@ -172,7 +174,8 @@ export default class WheelAppearance {
   static actingFxOptions(look, layout, orientation) {
     return {
       box: particleBox(layout, orientation, "acting"),
-      shape: layout.view === "wheel" ? "round" : "card",
+      // #12: image-only cards have no box to outline: their effects go round the art, as the wheel's slices do.
+      shape: layout.view === "wheel" || look.portraitFrame === "image" ? "round" : "card",
       effect: look.actingEffect ?? "none",
       waves: look.actingWaves ?? "none",
       scale: WheelAppearance.#boost(look),

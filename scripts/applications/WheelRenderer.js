@@ -255,6 +255,11 @@ export default class WheelRenderer {
     const initiative = vm?.kind === "phase" ? null : initiativeLabel(vm, null);
     slot.initiative.textContent = initiative === null ? "" : String(initiative);
     slot.initiative.hidden = initiative === null;
+    // #12: the art's own outline masks what is drawn over it once the card is gone (styles: image-only portraits).
+    // Absolute: a url() inside a custom property resolves against the stylesheet that uses it
+    // (styles/module.css), not the page, so "worlds/…" would be fetched as "styles/worlds/…".
+    if (vm?.img) slot.portrait.style.setProperty("--scw-art", `url(${JSON.stringify(new URL(vm.img, document.baseURI).href)})`);
+    else slot.portrait.style.removeProperty("--scw-art");
     if (vm?.img) {
       if (slot.img.getAttribute("src") !== vm.img) {
         slot.img.classList.remove("is-broken");

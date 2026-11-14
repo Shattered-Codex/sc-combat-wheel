@@ -1754,6 +1754,147 @@
 
 .sc-combat-wheel.scw-view-track .scw-hub-clip { display: none; }
 
+/* ---------- no portrait border (styleRim "none") ----------
+ * Every view: the coloured border goes, the acting portrait's too, which keeps
+ * its glow, its size and its place. The rim keeps its width, so nothing that
+ * stands inside it moves. A theme's own border colours are overruled. */
+.sc-combat-wheel[data-scw-rim="none"] .scw-slot:not(:focus-visible) .scw-rim { border-color: transparent !important; }
+/* The border also shows keyboard focus, so it comes back for it: an outline
+ * would go round the slot's square, which the wheel's clip-path cuts away. */
+.sc-combat-wheel[data-scw-rim="none"] .scw-slot:focus-visible .scw-rim { border-color: var(--scw-accent-300) !important; }
+
+/* ---------- image-only portraits (#12, portraitFrame "image") ----------
+ * Card views only: the art alone, whole (contain, never cropped) and with its
+ * transparency, over the scene. No card background, frame, shadow, veil or
+ * clipping, whatever the theme draws (hence !important). The side colour and
+ * the acting one follow the art's own silhouette as an outline
+ * (drop-shadows, --scw-art-outline), as wide as half the border would be; the
+ * acting portrait also glows, past ones are darkened instead of veiled.
+ * Overlays drawn over the art (drain, fill) are masked by it (--scw-art, set
+ * by WheelRenderer); bars, badges and names keep their places and rules. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot {
+  --scw-art-line: max(1px, calc(var(--scw-rim-width) / 2));
+  --scw-art-color: var(--scw-rim-color, var(--scw-neutral-500));
+  --scw-art-outline:
+    drop-shadow(var(--scw-art-line) 0 0 var(--scw-art-color))
+    drop-shadow(calc(-1 * var(--scw-art-line)) 0 0 var(--scw-art-color))
+    drop-shadow(0 var(--scw-art-line) 0 var(--scw-art-color))
+    drop-shadow(0 calc(-1 * var(--scw-art-line)) 0 var(--scw-art-color));
+  --scw-art-glow: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+  /* Last in every filter, so it tones the outline too: past ones darkened, defeated ones grey as on the wheel. */
+  --scw-art-tone: brightness(1);
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-past { --scw-art-tone: brightness(0.5); }
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-defeated {
+  --scw-art-color: var(--scw-neutral-500);
+  --scw-art-tone: grayscale(1) brightness(0.75) contrast(1.1);
+}
+/* The acting art's light follows its own silhouette, in the effect's colour
+ * (--scw-fx-c, the acting one): a glow, a bright halo hugging the figure, a
+ * wide aura, or a fiery one; the shapes of the other effects go round it. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-active {
+  --scw-art-color: var(--scw-active);
+  --scw-art-glow: drop-shadow(0 0 6px var(--scw-fx-c, var(--scw-active))) drop-shadow(0 0 2px var(--scw-fx-c, var(--scw-active)));
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-acting-fx="halo"] .scw-slot.is-active {
+  --scw-art-glow:
+    drop-shadow(0 0 1px color-mix(in srgb, var(--scw-fx-c) 45%, white))
+    drop-shadow(0 0 3px color-mix(in srgb, var(--scw-fx-c) 60%, white))
+    drop-shadow(0 0 10px var(--scw-fx-c));
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"]:is([data-scw-acting-fx="aura"], [data-scw-acting-fx="void"]) .scw-slot.is-active {
+  --scw-art-glow:
+    drop-shadow(0 0 4px var(--scw-fx-c))
+    drop-shadow(0 0 14px var(--scw-fx-c))
+    drop-shadow(0 0 24px color-mix(in srgb, var(--scw-fx-c) 60%, transparent));
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"]:is([data-scw-acting-fx="flicker"], [data-scw-acting-fx="flames"], [data-scw-acting-fx="inferno"]) .scw-slot.is-active {
+  --scw-art-glow:
+    drop-shadow(0 -1px 4px color-mix(in srgb, var(--scw-fx-c) 50%, #ffd27a))
+    drop-shadow(0 -4px 12px color-mix(in srgb, var(--scw-fx-c) 45%, #ff7a2a));
+}
+/* Reflection: its sweep crosses the figure only, never the empty corners
+ * around it. The mask goes with the layer, so the layer stays on the portrait's
+ * box (where the art is laid out) and only its light moves, through the
+ * background's position rather than the layer's own (scw-art-sheen). */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-acting-fx="shine"] .scw-slot.is-active .scw-portrait::before {
+  inset: 0;
+  background: linear-gradient(105deg, transparent 45%, color-mix(in srgb, white 65%, var(--scw-fx-c)) 50%, transparent 55%) 100% 0 / 300% 100% no-repeat;
+  -webkit-mask: var(--scw-art, none) 50% 100% / contain no-repeat;
+  mask: var(--scw-art, none) 50% 100% / contain no-repeat;
+}
+@keyframes scw-art-sheen {
+  0% { opacity: var(--scw-fx-strength); background-position: 100% 0; }
+  35%, 100% { opacity: var(--scw-fx-strength); background-position: 0 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-acting-fx="shine"] .scw-slot.is-active .scw-portrait::before {
+    animation-name: scw-art-sheen;
+  }
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-rim="none"] .scw-slot { --scw-art-outline: drop-shadow(0 0 0 transparent); }
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-track .scw-slot {
+  overflow: visible !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot :is(.scw-slot-bg, .scw-rim) { display: none !important; }
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-track .scw-slot::after { display: none !important; }
+/* High contrast draws its side shapes (●, ■, ▲, ◆) there: a mark, not a decoration, so it stays. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"]:not([data-scw-theme="contrast"]) .scw-slot .scw-portrait::after { display: none !important; }
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot .scw-portrait {
+  overflow: visible !important;
+  background: none !important;
+  opacity: 1 !important;
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot .scw-portrait-img {
+  object-fit: contain !important;
+  object-position: 50% 100% !important;
+  transition: filter 300ms ease;
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot:not(.is-active) .scw-portrait-img {
+  filter: var(--scw-art-outline) var(--scw-art-glow) var(--scw-art-tone) !important;
+}
+/* The acting art: still, or breathing under Pulse (an animation never overrides !important, hence its own rule). */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"]:not([data-scw-acting-fx="pulse"]) .scw-slot.is-active .scw-portrait-img {
+  filter: var(--scw-art-outline) var(--scw-art-glow) var(--scw-art-tone) !important;
+}
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-acting-fx="pulse"] .scw-slot.is-active .scw-portrait-img {
+  filter: var(--scw-art-outline) var(--scw-art-glow) var(--scw-art-tone);
+}
+@keyframes scw-art-breathe {
+  from { filter: var(--scw-art-outline) drop-shadow(0 0 3px var(--scw-fx-c, var(--scw-active))) var(--scw-art-tone); }
+  to { filter: var(--scw-art-outline) drop-shadow(0 0 10px var(--scw-fx-c, var(--scw-active))) drop-shadow(0 0 3px var(--scw-fx-c, var(--scw-active))) var(--scw-art-tone); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"][data-scw-acting-fx="pulse"] .scw-slot.is-active .scw-portrait-img {
+    animation: scw-art-breathe calc(1.4s * var(--scw-fx-speed, 1)) ease-in-out infinite alternate;
+  }
+}
+/* The acting effects are drawn around a box, the card's: without the card it
+ * would show as a frame. Their light (glow, halo, aura, void) goes, the art's
+ * own silhouette light above stands for it; the shapes (flames, rays, storm,
+ * runes, waves) are laid out round, as on the wheel, about the figure, never a
+ * square. The layer keeps its own stacking behind the cards (the wheel lets a
+ * round one over). */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-afx--acting > :is(.scw-afx-glow, .scw-afx-halo, .scw-afx-aura, .scw-afx-void) { display: none !important; }
+.sc-combat-wheel.scw-view-track .scw-afx--acting[data-shape="round"] { z-index: 0; }
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot .scw-name-tag { background: none !important; }
+/* contain leaves room around the art: the initials behind it would show there, so they stay for a missing or broken image only. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-portrait:has(> .scw-portrait-img:not([hidden], .is-broken)) > .scw-initials {
+  color: transparent;
+  text-shadow: none;
+}
+/* Turn-change Flash (drawn on the initials, see effects.css) lights the art only, never the empty room round it; hiding the initials above clears their text, not this layer. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot .scw-initials::after,
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"]:is([data-scw-health="drain"], [data-scw-health="fill"]) .scw-slot .scw-health {
+  -webkit-mask: var(--scw-art, none) 50% 100% / contain no-repeat;
+  mask: var(--scw-art, none) 50% 100% / contain no-repeat;
+}
+/* The card's border showed keyboard focus: an outline around the portrait does it now. */
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot:focus-visible { outline: 2px solid var(--scw-accent-300); outline-offset: 2px; }
+
 .sc-combat-wheel .scw-bar-roll.is-rolling i { animation: scw-spin 850ms linear infinite; }
 /* RF-16: the GM's group rolls keep the bar's button size; how many each one rolls sits in the corner. */
 .sc-combat-wheel .scw-setup-roll { position: relative; }

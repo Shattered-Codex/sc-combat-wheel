@@ -179,6 +179,14 @@
           "actor": "Character portrait"
         }
       },
+      "portraitFrame": {
+        "Name": "Portrait frame",
+        "Hint": "Image only shows the whole artwork, transparency kept, straight over the scene: no card background, frame, shadow or cropping. The art's outline takes the side's colour; the acting one's effect follows its silhouette (glow, halo, aura, flames' light), and shaped effects such as rays or runes go round it. For Carousel and Slider; on the wheel the slices are the layout itself and keep their shape.",
+        "Choices": {
+          "card": "Card",
+          "image": "Image only"
+        }
+      },
       "sliceGap": {
         "Name": "Gap between slices",
         "Hint": "Angle between slices, in degrees."
@@ -704,12 +712,13 @@
       },
       "styleRim": {
         "Name": "Portrait border",
-        "Hint": "How thick the colored border of each portrait is.",
+        "Hint": "How thick the colored border of each portrait is. None hides it, the acting portrait's too, which keeps its glow and size.",
         "Choices": {
           "theme": "From the theme",
           "thin": "Thin",
           "normal": "Normal",
-          "thick": "Thick"
+          "thick": "Thick",
+          "none": "None"
         }
       },
       "styleNames": {
@@ -1364,7 +1373,7 @@
         "effects": "Particles are drawn by the browser with CSS animations only, and stop when the system asks for reduced motion.",
         "presets": "Pick a complete look to start from, then change anything in the other sections. Nothing is saved until you press Save.",
         "sounds": "These apply to this browser only: ready-made looks and the table look never change them. Turn the preview with Sounds on to hear them in combat order.",
-        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text, panels and portraits. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
+        "visual": "Your own colours over the theme (or a whole palette from one colour), then the finish, text and panels. \"From the theme\" keeps the theme's own; point at a colour to see in the preview what it paints.",
         "announce": "A message on screen when a turn comes up — yours, or everyone's — with an effect and particles around the portrait. Under SC Venaerys's Initiative it shows the phase with all its members."
       },
       "Sections": "Sections",

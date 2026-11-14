@@ -47,6 +47,7 @@ export const SETTINGS = Object.freeze({
   animationSpeed: "animationSpeed",
   portraitShape: "portraitShape",
   portraitImage: "portraitImage",
+  portraitFrame: "portraitFrame",
   sliceGap: "sliceGap",
   scale: "scale",
   restOpacity: "restOpacity",

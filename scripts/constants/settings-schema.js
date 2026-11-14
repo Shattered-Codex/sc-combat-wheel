@@ -79,6 +79,10 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.portraitShape, scope: "user", type: "choice", choices: ["sector", "square"], default: "sector", section: "appearance", react: "layout", group: "portrait", panel: "portraits", visibleWhen: { key: SETTINGS.view, in: ["wheel"] } },
   // RF-117: the token's art or the character's; "table" keeps what the GM set for the world.
   { key: SETTINGS.portraitImage, scope: "user", type: "choice", choices: ["table", "token", "actor"], default: "table", section: "appearance", react: "data", group: "portrait", panel: "portraits" },
+  // #12: the art alone, its transparency kept, in the card views; the wheel's slices are its layout, so they keep their shape.
+  { key: SETTINGS.portraitFrame, scope: "user", type: "choice", choices: ["card", "image"], default: "card", section: "appearance", react: "data", group: "portrait", panel: "portraits", visibleWhen: { key: SETTINGS.view, notIn: ["wheel"] } },
+  // Beside the frame: "none" takes the border away in every view (it stays a style tweak, RF-98).
+  { key: SETTINGS.styleRim, scope: "user", type: "choice", choices: STYLE_CHOICES.rim, default: "theme", section: "appearance", react: "data", group: "portrait", panel: "portraits" },
   { key: SETTINGS.sliceGap, scope: "user", type: "number", range: { min: 0, max: 3, step: 0.1 }, default: 0.8, section: "appearance", react: "layout", advanced: true, group: "portrait", panel: "portraits", visibleWhen: { key: SETTINGS.view, in: ["wheel"] } },
   { key: SETTINGS.scale, scope: "user", type: "number", range: { min: 70, max: 150, step: 5 }, default: 100, section: "appearance", react: "layout", group: "size", panel: "layout" },
   { key: SETTINGS.theme, scope: "user", type: "choice", choices: [FOLLOW_SYSTEM, ...THEMES], default: THEMES[0], section: "appearance", react: "data", panel: "theme" },
@@ -135,7 +139,6 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.styleFont, scope: "user", type: "choice", choices: STYLE_CHOICES.font, default: "theme", section: "appearance", react: "data", group: "text", panel: "visual" },
   { key: SETTINGS.styleCorners, scope: "user", type: "choice", choices: STYLE_CHOICES.corners, default: "theme", section: "appearance", react: "data", group: "panels", panel: "visual" },
   { key: SETTINGS.stylePanels, scope: "user", type: "choice", choices: STYLE_CHOICES.panels, default: "theme", section: "appearance", react: "data", group: "panels", panel: "visual" },
-  { key: SETTINGS.styleRim, scope: "user", type: "choice", choices: STYLE_CHOICES.rim, default: "theme", section: "appearance", react: "data", group: "portrait", panel: "visual" },
   { key: SETTINGS.styleNames, scope: "user", type: "choice", choices: STYLE_CHOICES.names, default: "theme", section: "appearance", react: "data", advanced: true, group: "text", panel: "visual" },
   { key: SETTINGS.styleButtons, scope: "user", type: "choice", choices: STYLE_CHOICES.buttons, default: "theme", section: "appearance", react: "data", advanced: true, group: "panels", panel: "visual" },
   { key: SETTINGS.particleType, scope: "user", type: "choice", choices: PARTICLE_TYPES, default: "none", section: "appearance", react: "data", group: "particles", panel: "effects" },

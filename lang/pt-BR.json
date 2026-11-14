@@ -179,6 +179,14 @@
           "actor": "Retrato do personagem"
         }
       },
+      "portraitFrame": {
+        "Name": "Moldura do retrato",
+        "Hint": "Só a imagem mostra a arte inteira, com a transparência, direto sobre a cena: sem fundo, moldura, sombra ou recorte do cartão. O contorno da arte leva a cor do lado; o efeito de quem está agindo segue a silhueta (brilho, halo, aura, a luz das chamas), e efeitos com forma, como raios ou runas, ficam em volta dela. Vale para o Carrossel e o Slider; na roda, as fatias são o próprio desenho e mantêm a forma.",
+        "Choices": {
+          "card": "Cartão",
+          "image": "Só a imagem"
+        }
+      },
       "sliceGap": {
         "Name": "Espaço entre fatias",
         "Hint": "Ângulo entre as fatias, em graus."
@@ -704,12 +712,13 @@
       },
       "styleRim": {
         "Name": "Borda dos retratos",
-        "Hint": "A espessura da borda colorida de cada retrato.",
+        "Hint": "A espessura da borda colorida de cada retrato. Nenhuma esconde a borda, inclusive a de quem está agindo, que mantém o brilho e o tamanho.",
         "Choices": {
           "theme": "Do tema",
           "thin": "Fina",
           "normal": "Normal",
-          "thick": "Grossa"
+          "thick": "Grossa",
+          "none": "Nenhuma"
         }
       },
       "styleNames": {
@@ -1364,7 +1373,7 @@
         "effects": "As partículas são desenhadas pelo navegador só com animações CSS, e param quando o sistema pede movimento reduzido.",
         "presets": "Escolha um visual completo para começar e depois mude o que quiser nas outras seções. Nada é salvo até você apertar Salvar.",
         "sounds": "Valem só para este navegador: estilos prontos e o visual da mesa nunca mexem neles. Avance a prévia com Sons ligado para ouvir na ordem do combate.",
-        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto, os painéis e os retratos. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta.",
+        "visual": "Suas cores por cima do tema (ou uma paleta inteira a partir de uma cor), depois o acabamento, o texto e os painéis. \"Do tema\" mantém o do tema; aponte para uma cor para ver na prévia o que ela pinta.",
         "announce": "Um aviso na tela quando chega uma vez — a sua, ou a de todos — com efeito e partículas em volta do retrato. Sob o SC Venaerys's Initiative, mostra a fase com todos os seus membros."
       },
       "Sections": "Seções",

@@ -178,6 +178,18 @@ describe("appearance editor (RF-73)", () => {
     assert.equal(coerceSetting(row("hpLabelPlacement"), "nowhere"), null, "an unknown place is rejected");
   });
 
+  it("offers image-only portraits in the card views, and no border anywhere, leaving every look as it was (#12)", () => {
+    const row = (key) => SETTINGS_SCHEMA.find((entry) => entry.key === key);
+    const frame = row("portraitFrame");
+    assert.deepEqual([frame.choices, frame.default, frame.panel, frame.scope], [["card", "image"], "card", "portraits", "user"]);
+    assert.equal(isSettingShown(frame, { view: "wheel" }), false, "the wheel's slices keep their shape");
+    for (const view of ["carousel", "slider"]) assert.equal(isSettingShown(frame, { view }), true, view);
+    const rim = row("styleRim");
+    assert.equal(rim.default, "theme");
+    assert.ok(rim.choices.includes("none"));
+    assert.equal(rim.panel, "portraits", "beside the frame");
+  });
+
   it("keeps the Venaerys tab for worlds that run it (RF-82)", () => {
     const phases = APPEARANCE_PANELS.find((panel) => panel.id === "phases");
     assert.equal(phases.module, "sc-venaerys-initiative");

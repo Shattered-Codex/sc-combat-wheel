@@ -7,7 +7,8 @@ export const STYLE_CHOICES = Object.freeze({
   font: Object.freeze(["theme", "sans", "serif", "display", "futuristic", "mono"]),
   corners: Object.freeze(["theme", "sharp", "soft", "round"]),
   panels: Object.freeze(["theme", "solid", "translucent", "glass"]),
-  rim: Object.freeze(["theme", "thin", "normal", "thick"]),
+  // "none" hides the coloured border, the acting portrait's included; it keeps its glow (styles: data-scw-rim).
+  rim: Object.freeze(["theme", "thin", "normal", "thick", "none"]),
   names: Object.freeze(["theme", "normal", "uppercase"]),
   buttons: Object.freeze(["theme", "outline", "filled"]),
 });

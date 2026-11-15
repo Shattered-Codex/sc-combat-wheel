@@ -29,7 +29,11 @@ export function isConcealed({ hidden, tokenHidden, invisible }, concealment) {
  * points they are allowed to see. Secret hit points never give it away.
  */
 export function isDeadForViewer({ defeated }, hp) {
-  if (defeated) return true;
+  return Boolean(defeated) || isDownForViewer(hp);
+}
+
+/** Whether the hit points this viewer may know say 0 (#15 reads it apart from Foundry's defeated mark). */
+export function isDownForViewer(hp) {
   if (hp.stateKey) return hp.stateKey === "down";
   return hp.mode === "bar" && hp.pct === 0;
 }

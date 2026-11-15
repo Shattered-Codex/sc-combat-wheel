@@ -13,6 +13,10 @@
         "Name": "Esconder a aba nativa de combate",
         "Hint": "Esconde a aba do Combat Tracker na lateral enquanto a roda estiver aberta."
       },
+      "showSettingHints": {
+        "Name": "Mostrar as descrições das configurações",
+        "Hint": "Mostra a descrição embaixo de cada opção desta janela. Desligado, cada uma vira um (i) ao lado do nome da opção, com a descrição como tooltip."
+      },
       "keepSidebarTab": {
         "Name": "Manter a aba da barra lateral",
         "Hint": "Algo além do seu próprio clique pode trocar a barra lateral para a aba Combate, como um sistema ou um módulo quando um combate começa. Com isto ligado, a barra lateral fica na aba que você tinha aberta, como o Chat, e não se abre sozinha. A aba Combate continua abrindo quando você clica nela, e o botão direito continua destacando-a numa janela."
@@ -136,10 +140,48 @@
       },
       "defeatedMode": {
         "Name": "Combatentes mortos",
-        "Hint": "Derrotados, ou com 0 PV até onde cada um pode saber. O retrato fica sempre em preto e branco.",
+        "Hint": "Derrotados, ou com 0 PV até onde cada um pode saber. A aparência dos que ficam é escolhida abaixo, para NPCs e para personagens dos jogadores.",
         "Choices": {
-          "fade": "Manter, em preto e branco",
+          "fade": "Manter na roda",
           "remove": "Tirar da roda"
+        }
+      },
+      "defeatedLookNpc": {
+        "Name": "Aparência de NPCs derrotados",
+        "Hint": "Para todos, na roda, no Carrossel, no Slider e na visão geral: uma caveira sobre o retrato, o retrato em preto e branco, os dois, ou nada. NPCs são combatentes que nenhum jogador possui. Só a imagem muda: PV, a marca de derrotado do Foundry, a ordem dos turnos, pular turnos de mortos e tirar mortos da roda continuam como estão.",
+        "Choices": {
+          "skullGrey": "Caveira e preto e branco",
+          "skull": "Só a caveira",
+          "grey": "Só preto e branco",
+          "none": "Nada: ficam como qualquer outro"
+        }
+      },
+      "defeatedTriggerNpc": {
+        "Name": "NPCs derrotados: quando",
+        "Hint": "O que mostra essa aparência: a marca de derrotado do Foundry (a caveira do rastreador de combate), 0 PV, ou qualquer um dos dois. 0 PV só conta até onde cada um pode saber: PV que um jogador não vê nunca a mostram.",
+        "Choices": {
+          "either": "Marca de derrotado ou 0 PV",
+          "flag": "Só a marca de derrotado",
+          "hp": "Só 0 PV"
+        }
+      },
+      "defeatedLookPc": {
+        "Name": "Aparência de personagens derrotados",
+        "Hint": "O mesmo, para combatentes que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. 0 PV não quer dizer morto (testes contra a morte, por exemplo): escolha nada, ou só a marca de derrotado, para mantê-los coloridos.",
+        "Choices": {
+          "skullGrey": "Caveira e preto e branco",
+          "skull": "Só a caveira",
+          "grey": "Só preto e branco",
+          "none": "Nada: ficam como qualquer outro"
+        }
+      },
+      "defeatedTriggerPc": {
+        "Name": "Personagens derrotados: quando",
+        "Hint": "O que mostra essa aparência para personagens dos jogadores: a marca de derrotado do Foundry, 0 PV, ou qualquer um dos dois.",
+        "Choices": {
+          "either": "Marca de derrotado ou 0 PV",
+          "flag": "Só a marca de derrotado",
+          "hp": "Só 0 PV"
         }
       },
       "npcNames": {

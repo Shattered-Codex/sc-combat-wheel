@@ -158,8 +158,9 @@
   max-width: none;
 }
 .sc-combat-wheel .scw-portrait-img.is-broken { visibility: hidden; }
-.sc-combat-wheel .scw-slot.is-defeated .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
-.sc-combat-wheel .scw-slot.is-defeated .scw-rim { border-color: var(--scw-neutral-500); }
+/* #15: the skull and the grey are the table's choice, apart (is-defeated-skull, is-defeated-grey). */
+.sc-combat-wheel .scw-slot.is-defeated-grey .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
+.sc-combat-wheel .scw-slot.is-defeated-grey .scw-rim { border-color: var(--scw-neutral-500); }
 
 .sc-combat-wheel .scw-rim {
   position: absolute;
@@ -199,7 +200,7 @@
   color: var(--scw-neutral-100);
   text-shadow: 0 0 4px #000;
 }
-.sc-combat-wheel .scw-slot.is-defeated .scw-flag-defeated {
+.sc-combat-wheel .scw-slot.is-defeated-skull .scw-flag-defeated {
   display: block;
   left: 50%;
   top: 50%;
@@ -955,8 +956,8 @@
 .sc-combat-wheel .scw-strip-actor.is-own.is-acting .scw-strip-portrait {
   box-shadow: 0 0 0 2px var(--scw-active), 0 0 6px 1px color-mix(in srgb, var(--scw-active) 60%, transparent);
 }
-.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated) .scw-strip-portrait img { filter: grayscale(0.85) brightness(0.6); }
-.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated) .scw-strip-name { color: var(--scw-text-muted); }
+.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated-grey) .scw-strip-portrait img { filter: grayscale(0.85) brightness(0.6); }
+.sc-combat-wheel .scw-strip-actor:is(.is-done, .is-defeated-grey) .scw-strip-name { color: var(--scw-text-muted); }
 .sc-combat-wheel .scw-strip-badge {
   position: absolute;
   right: -3px;
@@ -1103,7 +1104,7 @@
 .sc-combat-wheel .scw-grid-tile .scw-portrait { transform-origin: center; }
 .sc-combat-wheel .scw-grid-tile.is-dragging { z-index: 5; cursor: grabbing; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6)); }
 .sc-combat-wheel .scw-grid-tile.is-hidden .scw-flag-hidden,
-.sc-combat-wheel .scw-grid-tile.is-defeated .scw-flag-defeated {
+.sc-combat-wheel .scw-grid-tile.is-defeated-skull .scw-flag-defeated {
   display: block;
   left: 50%;
   top: 50%;
@@ -1111,7 +1112,7 @@
   color: var(--scw-neutral-100);
   text-shadow: 0 0 4px #000;
 }
-.sc-combat-wheel .scw-grid-tile.is-defeated .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
+.sc-combat-wheel .scw-grid-tile.is-defeated-grey .scw-portrait-img { filter: grayscale(1) brightness(0.75) contrast(1.1); }
 .sc-combat-wheel .scw-grid-rim {
   position: absolute;
   border: 2px solid var(--scw-rim-color, var(--scw-neutral-500));
@@ -1785,7 +1786,7 @@
   --scw-art-tone: brightness(1);
 }
 .sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-past { --scw-art-tone: brightness(0.5); }
-.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-defeated {
+.sc-combat-wheel.scw-view-track[data-scw-portrait-frame="image"] .scw-slot.is-defeated-grey {
   --scw-art-color: var(--scw-neutral-500);
   --scw-art-tone: grayscale(1) brightness(0.75) contrast(1.1);
 }

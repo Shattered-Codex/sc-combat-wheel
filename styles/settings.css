@@ -301,6 +301,62 @@
   cursor: pointer;
 }
 
+/* The (i) by an option's name: its own button, beside the label (never in it), only while the descriptions are tooltips. */
+.sc-combat-wheel-settings .scw-config-row__title,
+.sc-combat-wheel-settings .scw-config-field__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sc-combat-wheel-settings .scw-config .scw-config-info {
+  display: none;
+  flex: none;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0 0 0 6px;
+  padding: 2px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  box-shadow: none;
+  color: var(--scw-cfg-text-mute);
+  font-size: 10.5px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.sc-combat-wheel-settings .scw-config-row__title .scw-config-info,
+.sc-combat-wheel-settings .scw-config-field__name .scw-config-info {
+  margin-left: 0;
+}
+
+.sc-combat-wheel-settings .scw-config.is-hints-tooltip .scw-config-info {
+  display: inline-flex;
+}
+
+.sc-combat-wheel-settings .scw-config .scw-config-info:is(:hover, :focus-visible) {
+  color: var(--scw-cfg-accent);
+}
+
+.sc-combat-wheel-settings .scw-config .scw-config-info:focus-visible {
+  outline: 2px solid var(--scw-cfg-accent);
+  outline-offset: 1px;
+}
+
+/* The description itself stays for screen readers, out of sight. */
+.sc-combat-wheel-settings .scw-config.is-hints-tooltip :is(.scw-config-row__hint, .scw-config__panel-hint, .scw-config__section-hint, .scw-config-field__hint) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .sc-combat-wheel-settings .scw-config-row__hint {
   color: var(--scw-cfg-text-mute);
   font-size: 11px;
@@ -511,7 +567,8 @@
   font-size: 11px;
 }
 
-.sc-combat-wheel-settings .scw-config-field > label {
+.sc-combat-wheel-settings .scw-config-field > label,
+.sc-combat-wheel-settings .scw-config-field__name > label {
   color: var(--scw-cfg-text-dim);
   font-size: 12px;
 }

@@ -1,5 +1,6 @@
 import { DISPOSITION, DISPOSITION_KEYS, MODULE_ID } from "../constants/module-constants.js";
-import { hpView, initialsOf, isConcealed, isDeadForViewer, shouldSkipTurn, visibleName } from "../helpers/visibility-rules.js";
+import { hpView, initialsOf, isConcealed, isDeadForViewer, isDownForViewer, shouldSkipTurn, visibleName } from "../helpers/visibility-rules.js";
+import { defeatedGroupOf, defeatedLook } from "../helpers/defeated-look.js";
 import { virtualFlagOf } from "../helpers/virtual-positions.js";
 import { INITIATIVE_SHOWN_FLAG, isInitiativeHidden } from "../helpers/initiative-reveal.js";
 import { IDENTITY_REVEALED_FLAG, isIdentityHidden, unidentifiedViewModel } from "../helpers/identity-reveal.js";
@@ -20,7 +21,8 @@ export default class CombatantAdapter {
    * @param {object} context
    * @param {boolean} context.isGM
    * @param {number} context.round            current combat round, for effect durations
-   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity }
+   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedLook }
+   *   defeatedLook: { npc: { look, trigger }, pc: { look, trigger } } (#15)
    * @param {string} context.unknownName      label for names the viewer may not read
    * @param {(src: string) => boolean} [context.isVideo]
    * @param {object} [context.healthSource]   from healthSourceFor(); token bar 1 by default
@@ -72,6 +74,11 @@ export default class CombatantAdapter {
       },
       { isGM, concealEnemyIdentity: settings.concealEnemyIdentity },
     );
+    // #15: the table's look for its side (NPC or player character); a placeholder's hit points say nothing.
+    const look = defeatedLook(
+      { defeated, down: !identityHidden && isDownForViewer(hp) },
+      settings.defeatedLook?.[defeatedGroupOf({ hasPlayerOwner })],
+    );
 
     const vm = {
       id: combatant.id,
@@ -96,6 +103,9 @@ export default class CombatantAdapter {
       defeated,
       dead,
       alive: !dead,
+      defeatedShown: look.shown,
+      defeatedSkull: look.skull,
+      defeatedGrey: look.grey,
       isOwner,
       hasPlayerOwner,
       players: players.map((user) => user.name),

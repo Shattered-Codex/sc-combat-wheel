@@ -258,6 +258,10 @@ export function projectionSettings({ portraitImage } = {}) {
     concealEnemyIdentity: concealModeOf(getSetting(SETTINGS.concealEnemyIdentity)),
     skipDead: getSetting(SETTINGS.skipDead),
     defeatedMode: getSetting(SETTINGS.defeatedMode),
+    defeatedLook: {
+      npc: { look: getSetting(SETTINGS.defeatedLookNpc), trigger: getSetting(SETTINGS.defeatedTriggerNpc) },
+      pc: { look: getSetting(SETTINGS.defeatedLookPc), trigger: getSetting(SETTINGS.defeatedTriggerPc) },
+    },
     concealment: getSetting(SETTINGS.concealment),
     secondsPerRound: getSetting(SETTINGS.secondsPerRound),
   };

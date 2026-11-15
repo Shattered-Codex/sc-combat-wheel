@@ -13,6 +13,10 @@
         "Name": "Hide the native combat tab",
         "Hint": "Hides the Combat Tracker tab in the sidebar while the wheel is open."
       },
+      "showSettingHints": {
+        "Name": "Show setting descriptions",
+        "Hint": "Shows the description under each option of this window. Turned off, each one becomes an (i) by the option's name, with the description as its tooltip."
+      },
       "keepSidebarTab": {
         "Name": "Stay on your sidebar tab",
         "Hint": "Something other than your own click may switch the sidebar to the Combat tab, a system or a module as a combat starts, for example. With this on, the sidebar stays on the tab you had open, such as Chat, and does not open by itself. The Combat tab still opens when you click it, and right-clicking it still pops it out."
@@ -136,10 +140,48 @@
       },
       "defeatedMode": {
         "Name": "Dead combatants",
-        "Hint": "Defeated, or at 0 hit points as far as each viewer may know. Their portrait always turns black and white.",
+        "Hint": "Defeated, or at 0 hit points as far as each viewer may know. How the ones kept look is set below, for NPCs and for player characters.",
         "Choices": {
-          "fade": "Keep them, in black and white",
+          "fade": "Keep them on the wheel",
           "remove": "Remove them from the wheel"
+        }
+      },
+      "defeatedLookNpc": {
+        "Name": "Defeated NPCs look",
+        "Hint": "For everyone, on the wheel, the Carousel, the Slider and the overview: a skull over the portrait, the portrait in black and white, both, or neither. NPCs are combatants no player owns. Only the picture changes: hit points, Foundry's defeated mark, the turn order, skipping dead turns and removing the dead stay as they are.",
+        "Choices": {
+          "skullGrey": "Skull and black and white",
+          "skull": "Skull only",
+          "grey": "Black and white only",
+          "none": "Nothing: they look like anyone else"
+        }
+      },
+      "defeatedTriggerNpc": {
+        "Name": "Defeated NPCs: when",
+        "Hint": "What shows that look: Foundry's defeated mark (the skull in its combat tracker), 0 hit points, or either. 0 hit points counts only as far as each viewer may know: hit points a player cannot see never show it.",
+        "Choices": {
+          "either": "Defeated mark or 0 hit points",
+          "flag": "Defeated mark only",
+          "hp": "0 hit points only"
+        }
+      },
+      "defeatedLookPc": {
+        "Name": "Defeated player characters look",
+        "Hint": "The same, for combatants a player owns: their characters, and the companions and summons they control. 0 hit points need not mean dead (death saves, for example): set this to nothing, or to the defeated mark only, to keep them in full colour.",
+        "Choices": {
+          "skullGrey": "Skull and black and white",
+          "skull": "Skull only",
+          "grey": "Black and white only",
+          "none": "Nothing: they look like anyone else"
+        }
+      },
+      "defeatedTriggerPc": {
+        "Name": "Defeated player characters: when",
+        "Hint": "What shows that look for player characters: Foundry's defeated mark, 0 hit points, or either.",
+        "Choices": {
+          "either": "Defeated mark or 0 hit points",
+          "flag": "Defeated mark only",
+          "hp": "0 hit points only"
         }
       },
       "npcNames": {

@@ -224,7 +224,7 @@ export default class WheelRenderer {
   /** Only rewrites the slice's content when what it shows actually changed. */
   #applyContent(slot, vm, round) {
     const signature = vm
-      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
+      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.identityHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
       : "";
     if (signature === slot.signature) return;
     slot.signature = signature;

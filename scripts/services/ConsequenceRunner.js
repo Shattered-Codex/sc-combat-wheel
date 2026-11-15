@@ -1,6 +1,7 @@
-import { I18N_ROOT } from "../constants/module-constants.js";
+import { I18N_ROOT, SETTINGS } from "../constants/module-constants.js";
+import { getSetting } from "../hooks/register-settings.js";
 import { consequencesToRun } from "../helpers/consequence-kinds.js";
-import { virtualFlagOf } from "../helpers/virtual-positions.js";
+import { normalizeTemplate, trustedInlineScript, virtualFlagOf } from "../helpers/virtual-positions.js";
 import ScreenBanner from "./ScreenBanner.js";
 import TurnAutomation from "./TurnAutomation.js";
 import TurnSideEffects from "./TurnSideEffects.js";
@@ -52,11 +53,13 @@ export default class ConsequenceRunner {
       });
     },
 
-    macro: async (params, { combat, combatant, config }) => {
+    macro: async (params, { combat, combatant, config, row }) => {
+      const scope = { combat, combatant, virtual: config };
+      if (params.source === "inline") return ConsequenceRunner.#runInline(config, row, scope);
       if (!params.macroUuid) return;
       const macro = await fromUuid(params.macroUuid);
       if (!macro) throw new Error(`No macro at ${params.macroUuid}`);
-      await macro.execute({ combat, combatant, virtual: config });
+      await macro.execute(scope);
     },
 
     rollTable: async (params) => {
@@ -88,6 +91,24 @@ export default class ConsequenceRunner {
       }
     },
   };
+
+  /**
+   * An inline script runs as a script macro that is never saved: the same
+   * `Macro#execute` (v13 and v14), so it gets the same variables as a world
+   * macro (`speaker`, `actor`, `token`, `character`, `scope`, plus `combat`,
+   * `combatant` and `virtual`). It runs on the active GM, who may run any
+   * script; only a GM can write it, in the world setting, and only the
+   * script saved there runs.
+   */
+  static async #runInline(config, row, scope) {
+    if (!row.params.script) return;
+    // Read back from the world setting, never from `row`: the row may come from a combatant's flags.
+    const templates = (getSetting(SETTINGS.virtualTemplates) ?? []).map(normalizeTemplate);
+    const command = trustedInlineScript(templates, config.id, row.id);
+    if (!command) throw new Error(`The inline script of "${config.name}" is not in a saved virtual-position template; it was not run.`);
+    const macro = new CONFIG.Macro.documentClass({ name: config.name || "SC Combat Wheel", type: "script", command, author: game.user.id });
+    await macro.execute(scope);
+  }
 
   static async #resourceTargets(params, combat) {
     if (params.target === "actor") {

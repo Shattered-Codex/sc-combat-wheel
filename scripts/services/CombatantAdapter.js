@@ -1,7 +1,8 @@
 import { DISPOSITION, DISPOSITION_KEYS, MODULE_ID } from "../constants/module-constants.js";
-import { hpView, initialsOf, isConcealed, isDeadForViewer, visibleName } from "../helpers/visibility-rules.js";
+import { hpView, initialsOf, isConcealed, isDeadForViewer, shouldSkipTurn, visibleName } from "../helpers/visibility-rules.js";
 import { virtualFlagOf } from "../helpers/virtual-positions.js";
 import { INITIATIVE_SHOWN_FLAG, isInitiativeHidden } from "../helpers/initiative-reveal.js";
+import { IDENTITY_REVEALED_FLAG, isIdentityHidden, unidentifiedViewModel } from "../helpers/identity-reveal.js";
 import { healthTone, readHealth } from "../helpers/health-source.js";
 
 const DEFAULT_HEALTH_SOURCE = { kind: "bar", bar: "bar1" };
@@ -19,10 +20,11 @@ export default class CombatantAdapter {
    * @param {object} context
    * @param {boolean} context.isGM
    * @param {number} context.round            current combat round, for effect durations
-   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative }
+   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity }
    * @param {string} context.unknownName      label for names the viewer may not read
    * @param {(src: string) => boolean} [context.isVideo]
    * @param {object} [context.healthSource]   from healthSourceFor(); token bar 1 by default
+   * @param {{ids: Set<string>, skipDead: string}} [context.acting]  who acts now (#14), and the dead-turn rule that passes over them
    */
   static toViewModel(combatant, context) {
     const { isGM, settings } = context;
@@ -58,8 +60,20 @@ export default class CombatantAdapter {
     const invisible = Boolean(combatant.actor?.statuses?.has?.("invisible"));
     const dead = isDeadForViewer({ defeated }, hp);
     const players = Array.from(combatant.players ?? []);
+    const hasPlayerOwner = Boolean(combatant.hasPlayerOwner);
+    // #14: an enemy is a placeholder until its first turn; the turn order stays Foundry's to show.
+    const identityHidden = isIdentityHidden(
+      {
+        revealed: Boolean(combatant.flags?.[MODULE_ID]?.[IDENTITY_REVEALED_FLAG]),
+        acting: CombatantAdapter.#isActing(combatant.id, { defeated, health, hasPlayerOwner, virtual }, context.acting),
+        disposition,
+        isOwner,
+        virtual,
+      },
+      { isGM, concealEnemyIdentity: settings.concealEnemyIdentity },
+    );
 
-    return {
+    const vm = {
       id: combatant.id,
       virtual,
       name,
@@ -83,7 +97,7 @@ export default class CombatantAdapter {
       dead,
       alive: !dead,
       isOwner,
-      hasPlayerOwner: Boolean(combatant.hasPlayerOwner),
+      hasPlayerOwner,
       players: players.map((user) => user.name),
       // RF-123: whose announcement card this combatant's turn shows — the player whose character it is, or its first owner.
       cardUserId: CombatantAdapter.#cardUserOf(players, combatant.actor?.id),
@@ -91,7 +105,20 @@ export default class CombatantAdapter {
       hpTotal: isGM ? health : null,
       healthTone: hp.mode === "none" || hp.mode === "hidden" ? null : healthTone(hp.pct),
       effects: CombatantAdapter.#readEffects(combatant.actor, context.round),
+      identityHidden: false,
     };
+    return identityHidden ? unidentifiedViewModel(vm, context.unknownName) : vm;
+  }
+
+  /**
+   * #14: whether the combatant's turn is up now, and is one it keeps. A dead
+   * combatant the GM's client skips at once only passes through, so it is
+   * judged by the same rule over the actual hit points (players only ever
+   * learn the answer: it shows less, never more).
+   */
+  static #isActing(id, { defeated, health, hasPlayerOwner, virtual }, acting) {
+    if (!acting?.ids?.has(id)) return false;
+    return !shouldSkipTurn({ defeated, hpTotal: health, hasPlayerOwner, virtual }, acting.skipDead);
   }
 
   /**

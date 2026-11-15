@@ -154,6 +154,15 @@
         "Name": "Hide enemy initiative until their turn",
         "Hint": "Players do not see the initiative of a combatant that is not friendly and that they do not own until its turn comes up for the first time: a \"?\" stands in for it on the wheel, in its details, in the overview and in Foundry's combat tracker, and a public initiative roll for it goes to the GM only. Once shown it stays shown, after a reload too, until that initiative is rolled again or changed. The GM always sees every number, and the turn order itself stays visible."
       },
+      "concealEnemyIdentity": {
+        "Name": "Conceal enemies until their first turn",
+        "Hint": "Players do not know who a combatant that is not friendly and that they do not own is until its first turn comes up. As an unknown card, an \"Unknown\" slot with a \"?\" keeps its place in the order on the wheel, in its details, in the overview, in the turn announcement and in Foundry's combat tracker, without its name, picture, effects or hit points, and clicking or hovering it does not find its token; its initiative follows the setting above. Left out, it does not appear at all, in the wheel or in Foundry's tracker, until its turn: players do not know how many there are or where they act. A public initiative roll for it goes to the GM only. Its turn reveals it for good, after a reload, a reroll or a reset of the initiatives too; a dead combatant skipped automatically stays unknown. Hidden combatants stay hidden. The GM always sees everyone, and tokens on the scene are not affected.",
+        "Choices": {
+          "off": "Show them",
+          "placeholder": "As an unknown \"?\" card",
+          "omit": "Leave them out until their turn"
+        }
+      },
       "nextUpNotice": {
         "Name": "Up-next notice",
         "Hint": "The player whose combatant acts next gets a notice and their slice pulses."
@@ -1472,6 +1481,7 @@
       "Add": "+ Add a consequence…",
       "Enabled": "On",
       "Missing": "needs",
+      "ScriptHint": "Runs on the active GM as a script macro. Besides speaker, actor, token and character, it gets combat, combatant (this position) and virtual (its template). await works.",
       "DropHere": "Drop a document or paste a UUID",
       "Kinds": {
         "screenMessage": "Message on screen",
@@ -1492,6 +1502,8 @@
         "src": "Sound file",
         "volume": "Volume (%)",
         "name": "Hook name",
+        "source": "Source",
+        "script": "Script",
         "macroUuid": "Macro",
         "tableUuid": "Roll table",
         "scareId": "Scare id",
@@ -1504,6 +1516,10 @@
         "amount": "Amount"
       },
       "Choices": {
+        "source": {
+          "macro": "A world macro",
+          "inline": "A script written here"
+        },
         "audience": {
           "all": "Everyone who sees the position",
           "gm": "GM only"

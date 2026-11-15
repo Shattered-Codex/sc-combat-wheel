@@ -2,7 +2,7 @@ import { I18N_ROOT, MODULE_ID, TEMPLATE_ROOT } from "../constants/module-constan
 import { SETTING_SECTIONS, SETTINGS_SCHEMA, coerceSetting, isSettingShown, settingDefault } from "../constants/settings-schema.js";
 import { getSetting, setSetting } from "../hooks/register-settings.js";
 import { normalizeTemplate } from "../helpers/virtual-positions.js";
-import { CONSEQUENCE_KINDS, newConsequence } from "../helpers/consequence-kinds.js";
+import { CONSEQUENCE_KINDS, isConsequenceFieldShown, newConsequence } from "../helpers/consequence-kinds.js";
 import CoreCombatSettings from "../services/CoreCombatSettings.js";
 import VirtualPositions from "../services/VirtualPositions.js";
 import CombatWheelAppearanceApp from "./CombatWheelAppearanceApp.js";
@@ -166,6 +166,9 @@ export default class CombatWheelSettingsApp extends HandlebarsApplicationMixin(A
           label: t(`Consequence.Fields.${field.name}`),
           name: `${base}.params.${field.name}`,
           value,
+          shown: isConsequenceFieldShown(field, row.params),
+          shownWhen: field.shownWhen ? { name: `${base}.params.${field.shownWhen.field}`, value: field.shownWhen.value } : null,
+          hint: field.type === "code" ? t("Consequence.ScriptHint") : null,
           [`is${field.type[0].toUpperCase()}${field.type.slice(1)}`]: true,
           min: field.min,
           max: field.max,
@@ -194,6 +197,7 @@ export default class CombatWheelSettingsApp extends HandlebarsApplicationMixin(A
           for (const field of root.querySelectorAll("[data-marker-field]")) field.disabled = !event.target.checked;
         }
         this.#refreshRows();
+        this.#refreshConsequenceFields();
         this.#refreshStatus();
       });
       root.addEventListener("keydown", (event) => this.#onRailKeydown(event));
@@ -233,6 +237,14 @@ export default class CombatWheelSettingsApp extends HandlebarsApplicationMixin(A
       if (!entry.visibleWhen) continue;
       const row = this.element.querySelector(`[data-setting-row="${entry.key}"]`);
       if (row) row.hidden = !isSettingShown(entry, this.#draft.values);
+    }
+  }
+
+  /** A consequence field that depends on another (a macro's source) comes and goes with it, keeping what was typed. */
+  #refreshConsequenceFields() {
+    for (const field of this.element.querySelectorAll("[data-shown-when]")) {
+      const control = this.element.querySelector(`[name="${field.dataset.shownWhen}"]`);
+      if (control) field.hidden = control.value !== field.dataset.shownValue;
     }
   }
 

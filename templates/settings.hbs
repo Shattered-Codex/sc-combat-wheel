@@ -116,10 +116,15 @@
                       </button>
                     </div>
                     {{#each fields}}
-                      <div class="scw-config-field">
+                      <div class="scw-config-field {{#if isCode}}scw-config-field--code{{/if}}"
+                           {{#if shownWhen}}data-shown-when="{{shownWhen.name}}" data-shown-value="{{shownWhen.value}}"{{/if}} {{#unless shown}}hidden{{/unless}}>
                         <label>{{label}}</label>
                         {{#if isText}}<input type="text" name="{{name}}" value="{{value}}">{{/if}}
                         {{#if isTextarea}}<textarea name="{{name}}" rows="2">{{value}}</textarea>{{/if}}
+                        {{#if isCode}}
+                          <textarea class="scw-config-code" name="{{name}}" rows="8" spellcheck="false" autocomplete="off" aria-label="{{label}}">{{value}}</textarea>
+                          <span class="scw-config-field__hint">{{hint}}</span>
+                        {{/if}}
                         {{#if isNumber}}<input type="number" name="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
                         {{#if isSelect}}
                           <select name="{{name}}">

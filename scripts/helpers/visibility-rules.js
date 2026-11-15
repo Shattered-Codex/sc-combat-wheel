@@ -1,9 +1,13 @@
 import { DISPOSITION, TOKEN_DISPLAY } from "../constants/module-constants.js";
 
-/** RF-40, RF-41, RF-45: whether a combatant belongs on this user's ring at all. */
-export function isOnRing({ concealed, dead }, { isGM, defeatedMode }) {
+/**
+ * RF-40, RF-41, RF-45: whether a combatant belongs on this user's ring at
+ * all. #14: an enemy still unknown is left out too when the world says so.
+ */
+export function isOnRing({ concealed, dead, identityHidden }, { isGM, defeatedMode, omitUnidentified = false }) {
   if (dead && defeatedMode === "remove") return false;
   if (concealed && !isGM) return false;
+  if (identityHidden && omitUnidentified) return false;
   return true;
 }
 

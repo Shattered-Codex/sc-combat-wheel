@@ -26,6 +26,7 @@ export const SETTINGS = Object.freeze({
   hideNativeTracker: "hideNativeTracker",
   keepSidebarTab: "keepSidebarTab",
   hideEnemyInitiative: "hideEnemyInitiative",
+  concealEnemyIdentity: "concealEnemyIdentity",
   layoutPreset: "layoutPreset",
   orientation: "orientation",
   anchor: "anchor",

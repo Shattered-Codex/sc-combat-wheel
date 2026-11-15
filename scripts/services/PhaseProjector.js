@@ -33,8 +33,10 @@ export default class PhaseProjector {
     const { isGM, settings } = context;
     const round = combat.round;
     const currentId = currentPhaseIdOf(combat, plan);
-    const vmContext = { ...context, round };
-    const onRing = (vm) => isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode });
+    // #14: everyone in the phase that acts shows who they are; Venaerys keeps the fallen from acting.
+    const actingIds = new Set((combat.turns ?? []).filter((c) => currentId && venaerysFlags(c).phase === currentId).map((c) => c.id));
+    const vmContext = { ...context, round, acting: { ids: actingIds, skipDead: "all" } };
+    const onRing = (vm) => isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode, omitUnidentified: settings.concealEnemyIdentity === "omit" });
 
     const membersByPhase = new Map(plan.map((phase) => [phase.id, []]));
     const everyone = [];

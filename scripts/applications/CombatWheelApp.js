@@ -160,7 +160,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** Everything an overview tile and its header draw: the order, the turn, and each portrait's content. */
   static #ringSignature(model) {
-    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.initiativeHidden, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
+    const tiles = model.ring.map((vm) => [vm.id, vm.initiative, vm.initiativeHidden, vm.identityHidden, vm.name, vm.initials, vm.img, vm.imgPosition, vm.dispositionKey, vm.concealed, vm.dead, vm.virtual].join(":"));
     return [CombatWheelApp.#turnKey(model), model.currentIndex, model.activeHidden, ...tiles].join("|");
   }
 
@@ -383,7 +383,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       onClick: (id, event) => this.#runSliceAction(SETTINGS.clickAction, id, event),
       onDoubleClick: (id, event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event),
       onContextMenu: (id, event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event),
-      onHoverIn: (id, event) => TokenInteractions.hoverIn(this.combat, id, event),
+      onHoverIn: (id, event) => this.#hoverIn(id, event),
       onHoverOut: (event) => TokenInteractions.hoverOut(event),
       onRollOne: (id) => CombatControls.rollOne(this.combat, id),
     });
@@ -398,6 +398,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   #runSliceAction(settingKey, combatantId, event) {
     // A click set to open the menu has already opened it twice: the double click starts clean.
     if (settingKey === SETTINGS.doubleClickAction) SliceMenu.close();
+    if (this.#isUnidentified(combatantId)) return;
     const action = getSetting(settingKey);
     if (action === "none") return;
     if (action !== "menu") {
@@ -433,7 +434,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
   #sliceMenuItems(combatantId) {
     const combat = this.combat;
     const combatant = combat?.combatants.get(combatantId);
-    if (!combatant) return [];
+    if (!combatant || this.#isUnidentified(combatantId)) return [];
     const label = (key) => game.i18n.localize(`SC_COMBAT_WHEEL.SliceMenu.${key}`);
     const token = TokenInteractions.placeableFor(combat, combatantId);
     const items = [];
@@ -451,9 +452,25 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
 
   /** The name this user reads for a combatant on the wheel or the phase strip (never one the tracker hides). */
   #visibleName(combatantId) {
+    return this.#viewModelOf(combatantId)?.name ?? "";
+  }
+
+  #viewModelOf(combatantId) {
     const model = this.#model;
-    const vm = model?.ring.find((entry) => entry.id === combatantId) ?? model?.phase?.acting.find((member) => member.id === combatantId);
-    return vm?.name ?? "";
+    return model?.ring.find((entry) => entry.id === combatantId) ?? model?.phase?.acting.find((member) => member.id === combatantId) ?? null;
+  }
+
+  /**
+   * #14: a placeholder neither finds nor opens its combatant — the camera,
+   * the token's highlight and its sheet would all say who it is.
+   */
+  #isUnidentified(combatantId) {
+    return Boolean(this.#viewModelOf(combatantId)?.identityHidden);
+  }
+
+  /** Mirrors the core tracker's hover on the token, except for a placeholder (#14). */
+  #hoverIn(combatantId, event) {
+    if (!this.#isUnidentified(combatantId)) TokenInteractions.hoverIn(this.combat, combatantId, event);
   }
 
   #placeWidget() {
@@ -511,7 +528,7 @@ export default class CombatWheelApp extends HandlebarsApplicationMixin(Applicati
       actor.addEventListener("click", (event) => this.#runSliceAction(SETTINGS.clickAction, id, event));
       actor.addEventListener("dblclick", (event) => this.#runSliceAction(SETTINGS.doubleClickAction, id, event));
       actor.addEventListener("contextmenu", (event) => this.#runSliceAction(SETTINGS.rightClickAction, id, event));
-      actor.addEventListener("pointerenter", (event) => TokenInteractions.hoverIn(this.combat, id, event));
+      actor.addEventListener("pointerenter", (event) => this.#hoverIn(id, event));
       actor.addEventListener("pointerleave", (event) => TokenInteractions.hoverOut(event));
     }
     if (ui.menu) this.element.querySelector(".scw-roll-menu button:not(:disabled)")?.focus();

@@ -154,6 +154,15 @@
         "Name": "Esconder a iniciativa dos inimigos até o turno deles",
         "Hint": "Os jogadores não veem a iniciativa de um combatente que não é amigável e que não é deles até o primeiro turno dele chegar: um \"?\" fica no lugar na roda, nos detalhes, na visão geral e no rastreador de combate do Foundry, e uma rolagem pública de iniciativa dele vai só para o Mestre. Depois de mostrada, continua visível, também após recarregar, até essa iniciativa ser rolada de novo ou alterada. O Mestre sempre vê todos os números, e a ordem dos turnos continua visível."
       },
+      "concealEnemyIdentity": {
+        "Name": "Ocultar os inimigos até o primeiro turno deles",
+        "Hint": "Os jogadores não sabem quem é um combatente que não é amigável e que não é deles até o primeiro turno dele chegar. Como carta desconhecida, uma vaga \"Desconhecido\" com um \"?\" guarda o lugar dele na ordem na roda, nos detalhes, na visão geral, no anúncio do turno e no rastreador de combate do Foundry, sem nome, imagem, efeitos ou pontos de vida, e clicar ou passar o mouse nela não aponta o token; a iniciativa dele segue a opção acima. Sem aparecer, ele não aparece de jeito nenhum, nem na roda nem no rastreador do Foundry, até o turno dele: os jogadores não sabem quantos são nem onde agem. Uma rolagem pública de iniciativa dele vai só para o Mestre. O turno dele o revela de vez, também após recarregar, rolar de novo ou zerar as iniciativas; um morto pulado automaticamente continua desconhecido. Combatentes ocultos continuam ocultos. O Mestre sempre vê todos, e os tokens na cena não mudam.",
+        "Choices": {
+          "off": "Mostrar",
+          "placeholder": "Como uma carta \"?\" desconhecida",
+          "omit": "Não mostrar até o turno deles"
+        }
+      },
       "nextUpNotice": {
         "Name": "Aviso \"a seguir\"",
         "Hint": "O jogador cujo combatente age em seguida recebe um aviso e a fatia dele pulsa."
@@ -1472,6 +1481,7 @@
       "Add": "+ Adicionar consequência…",
       "Enabled": "Ativa",
       "Missing": "precisa de",
+      "ScriptHint": "Roda no Mestre ativo como uma macro de script. Além de speaker, actor, token e character, recebe combat, combatant (esta posição) e virtual (o modelo dela). await funciona.",
       "DropHere": "Solte um documento ou cole um UUID",
       "Kinds": {
         "screenMessage": "Mensagem na tela",
@@ -1492,6 +1502,8 @@
         "src": "Arquivo de som",
         "volume": "Volume (%)",
         "name": "Nome do hook",
+        "source": "Origem",
+        "script": "Script",
         "macroUuid": "Macro",
         "tableUuid": "Tabela",
         "scareId": "Id do susto",
@@ -1504,6 +1516,10 @@
         "amount": "Quantidade"
       },
       "Choices": {
+        "source": {
+          "macro": "Uma macro do mundo",
+          "inline": "Um script escrito aqui"
+        },
         "audience": {
           "all": "Todos que veem a posição",
           "gm": "Só o Mestre"

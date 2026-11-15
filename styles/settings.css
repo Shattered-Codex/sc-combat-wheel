@@ -487,6 +487,30 @@
   margin: 6px 0;
 }
 
+.sc-combat-wheel-settings .scw-config-field[hidden] {
+  display: none;
+}
+
+/* An inline script takes the whole row: the label above, the code full width. */
+.sc-combat-wheel-settings .scw-config-field--code {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  align-items: stretch;
+}
+
+.sc-combat-wheel-settings .scw-config .scw-config-code {
+  min-height: 140px;
+  resize: vertical;
+  font: 12px/1.5 var(--font-monospace, monospace);
+  white-space: pre;
+  tab-size: 2;
+}
+
+.sc-combat-wheel-settings .scw-config-field__hint {
+  color: var(--scw-cfg-text-dim);
+  font-size: 11px;
+}
+
 .sc-combat-wheel-settings .scw-config-field > label {
   color: var(--scw-cfg-text-dim);
   font-size: 12px;

@@ -5,6 +5,7 @@ import { healthSourceFor } from "../helpers/health-source.js";
 import { normalizeStyles } from "../helpers/combat-styles.js";
 import { upgradeLook } from "../helpers/look-upgrades.js";
 import { isPortraitRatioOk, portraitRatio, presetFromSettings } from "../helpers/wheel-geometry.js";
+import { concealModeOf } from "../helpers/identity-reveal.js";
 
 const TYPES = { boolean: Boolean, number: Number, choice: String, multi: Array, color: String, file: String, text: String, array: Array, object: Object };
 
@@ -254,6 +255,8 @@ export function projectionSettings({ portraitImage } = {}) {
     hpForPlayers: getSetting(SETTINGS.hpForPlayers),
     npcNames: getSetting(SETTINGS.npcNames),
     hideEnemyInitiative: getSetting(SETTINGS.hideEnemyInitiative),
+    concealEnemyIdentity: concealModeOf(getSetting(SETTINGS.concealEnemyIdentity)),
+    skipDead: getSetting(SETTINGS.skipDead),
     defeatedMode: getSetting(SETTINGS.defeatedMode),
     concealment: getSetting(SETTINGS.concealment),
     secondsPerRound: getSetting(SETTINGS.secondsPerRound),

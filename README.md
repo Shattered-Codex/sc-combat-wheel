@@ -122,7 +122,7 @@ Select **Open settings** under **Configure Settings > Module Settings > SC - Com
 
 The GM chooses whether enemy health appears as exact values, a bar, descriptive states, or no health information. Owners and friendly combatants can show exact health. Health can also appear over the portraits as a visual overlay. If automatic detection does not match your system's data, choose token bar 1, token bar 2, or an actor attribute path; inverted values support systems that record damage taken.
 
-Hidden combatants are excluded from player displays. Additional options follow hidden tokens or the invisible status, and NPC name visibility can follow token name-display settings. Defeated participants can remain visible with a defeated appearance or be removed from the wheel. The GM can separately enable automatic skipping for defeated or zero-health NPCs, or for all such combatants.
+Hidden combatants are excluded from player displays. Additional options follow hidden tokens or the invisible status, and NPC name visibility can follow token name-display settings. The GM can also hide enemy initiative until each enemy's turn, and can conceal enemies themselves until their first turn, either as an **Unknown** placeholder that keeps the enemy's place in the order on the wheel and in Foundry's combat tracker, without its name, picture, effects or health, or by leaving it out of both entirely. Its turn reveals it for the rest of the combat. Defeated participants can remain visible with a defeated appearance or be removed from the wheel. The GM can separately enable automatic skipping for defeated or zero-health NPCs, or for all such combatants.
 
 ## Virtual Positions and Encounter Events
 
@@ -134,7 +134,7 @@ A template stores its name, image, fixed initiative, visibility, and consequence
 
 ![Virtual-position settings with initiative, artwork, automatic advancement, and a hook consequence](docs/images/virtual-position-settings.png)
 
-Consequences include an on-screen message, sound, named hook, chat message, macro, or RollTable draw. They run when combat advances into the position; going back does not replay them. Macros and other GM-side actions execute on the active GM's client.
+Consequences include an on-screen message, sound, named hook, chat message, macro, or RollTable draw. A macro consequence runs a world macro or a script written directly in the consequence, which receives `combat`, `combatant`, and `virtual`. They run when combat advances into the position; going back does not replay them. Macros and other GM-side actions execute on the active GM's client.
 
 ![Available virtual-position consequences, including messages, sounds, hooks, macros, RollTables, and SC integrations](docs/images/virtual-position-consequences.png)
 

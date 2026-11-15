@@ -216,6 +216,8 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.npcNames, scope: "world", type: "choice", choices: ["always", "token"], default: "always", section: "players", react: "data" },
   // #11: the same line as the exact hit points (RF-42): the GM, owners and friendly combatants always see it.
   { key: SETTINGS.hideEnemyInitiative, scope: "world", type: "boolean", default: false, section: "players", react: "data" },
+  // #14: the same line, for who the combatant is: a placeholder holds its slot, or it is left out, until its first turn.
+  { key: SETTINGS.concealEnemyIdentity, scope: "world", type: "choice", choices: ["off", "placeholder", "omit"], default: "off", section: "players", react: "data" },
   { key: SETTINGS.concealment, scope: "world", type: "choice", choices: ["hidden", "tokenHidden", "invisible"], default: "tokenHidden", section: "players", react: "data" },
 
   // Combat rules (world)

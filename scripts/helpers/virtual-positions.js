@@ -54,11 +54,39 @@ export function combatantDataFor(template) {
 /**
  * The live configuration of a virtual combatant: its template when the GM
  * still has it (so edits apply to combats already running), otherwise the
- * snapshot taken when it was added.
+ * snapshot taken when it was added. The snapshot lives in the combatant's
+ * flags, which the owner of a combatant's actor may write: unless
+ * `trustSnapshot` says only the GM could have (isGmOnlyCombatant), its
+ * consequences are dropped — they run as the GM.
  */
-export function configFor(flag, templates) {
+export function configFor(flag, templates, { trustSnapshot = true } = {}) {
   const template = templates.find((t) => t.id === flag.templateId);
-  return template ? normalizeTemplate(template) : normalizeTemplate({ ...flag, id: flag.templateId });
+  if (template) return normalizeTemplate(template);
+  const snapshot = normalizeTemplate({ ...flag, id: flag.templateId });
+  return trustSnapshot ? snapshot : { ...snapshot, consequences: [] };
+}
+
+/**
+ * Whether only a GM can write this combatant's flags: one with no actor
+ * (as every virtual position is created) takes its permission from the
+ * Combat, which players never own (v13 and v14). An actor's owner may edit
+ * the flags of its combatants.
+ */
+export function isGmOnlyCombatant(combatant) {
+  return !combatant?.actorId && !combatant?.actor;
+}
+
+/**
+ * The inline script (a macro consequence with `source: "inline"`) a saved
+ * template holds for one of its rows, or null. Only the world setting, which
+ * only a GM can write, is a trusted origin: a script copied into a
+ * combatant's flags is never run.
+ */
+export function trustedInlineScript(templates, templateId, rowId) {
+  const template = templates.find((t) => t.id === templateId);
+  const row = template?.consequences.find((c) => c.id === rowId);
+  if (!row || row.kind !== "macro" || !row.enabled || row.params.source !== "inline") return null;
+  return row.params.script || null;
 }
 
 /**

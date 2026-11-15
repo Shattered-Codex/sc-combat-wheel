@@ -6,6 +6,7 @@ import TurnAutomation from "./TurnAutomation.js";
 import {
   combatantDataFor,
   configFor,
+  isGmOnlyCombatant,
   normalizeTemplate,
   virtualFlagOf,
 } from "../helpers/virtual-positions.js";
@@ -107,7 +108,8 @@ export default class VirtualPositions {
     if (!flag) return;
 
     const entry = TurnAutomation.turnSerial(combat);
-    const config = configFor(flag, VirtualPositions.templates());
+    // A flag a player could have written never decides what runs as the GM.
+    const config = configFor(flag, VirtualPositions.templates(), { trustSnapshot: isGmOnlyCombatant(combatant) });
     const payload = { combat, combatant, config };
     const visible = !combatant.hidden || game.user.isGM;
     if (visible) Hooks.callAll(VIRTUAL_TURN_HOOK, payload);

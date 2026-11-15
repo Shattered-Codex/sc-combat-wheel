@@ -10,6 +10,7 @@ import WidgetPosition from "./WidgetPosition.js";
 import VirtualPositions from "./VirtualPositions.js";
 import TurnAutomation from "./TurnAutomation.js";
 import InitiativeReveal from "./InitiativeReveal.js";
+import IdentityReveal from "./IdentityReveal.js";
 
 /**
  * Owns the widget's lifecycle: opens it once the viewed combat has someone this
@@ -42,12 +43,13 @@ export default class CombatWatcher {
 
   /**
    * Default turn reaction: sounds, camera and notice for this user, then the
-   * enemy initiative its turn shows (#11), virtual positions and the dead-turn skip. Under SC Venaerys's Initiative a GM's
+   * enemy identity (#14, phases too) and initiative (#11) its turn shows, virtual positions and the dead-turn skip. Under SC Venaerys's Initiative a GM's
    * `nextTurn()` advances a whole phase, and the module already keeps the
    * pointer off the fallen, so neither automation runs there (RF-80).
    */
   static #reactToTurn(combat, previous) {
     if (combat === game.combat) TurnSideEffects.onTurnChanged(combat, projectCombat(combat), previous);
+    IdentityReveal.onTurnChanged(combat, previous);
     if (isPhasedCombat(combat)) return;
     InitiativeReveal.onTurnChanged(combat, previous);
     TurnAutomation.noteTurnChange(combat, previous);

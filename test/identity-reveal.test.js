@@ -65,7 +65,7 @@ describe("enemy identity concealed until its first turn (#14)", () => {
     assert.equal(placeholder.artImg, null);
     assert.deepEqual(placeholder.hp, { mode: "hidden" });
     assert.equal(placeholder.healthTone, null);
-    assert.equal(placeholder.dead, false, "no longer read from hit points the player does not see");
+    assert.equal(placeholder.dead, true, "decided by the adapter, which reads no hit points for a placeholder");
     assert.deepEqual(placeholder.players, []);
     assert.equal(placeholder.cardUserId, null);
     assert.deepEqual(placeholder.effects, []);

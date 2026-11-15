@@ -1,5 +1,5 @@
 import { DISPOSITION, DISPOSITION_KEYS, MODULE_ID } from "../constants/module-constants.js";
-import { hpView, initialsOf, isConcealed, isDeadForViewer, isDownForViewer, shouldSkipTurn, visibleName } from "../helpers/visibility-rules.js";
+import { hpView, initialsOf, isConcealed, isDownForViewer, shouldSkipTurn, visibleName } from "../helpers/visibility-rules.js";
 import { defeatedGroupOf, defeatedLook } from "../helpers/defeated-look.js";
 import { virtualFlagOf } from "../helpers/virtual-positions.js";
 import { INITIATIVE_SHOWN_FLAG, isInitiativeHidden } from "../helpers/initiative-reveal.js";
@@ -60,7 +60,6 @@ export default class CombatantAdapter {
     const hidden = Boolean(combatant.hidden);
     const tokenHidden = Boolean(token?.hidden);
     const invisible = Boolean(combatant.actor?.statuses?.has?.("invisible"));
-    const dead = isDeadForViewer({ defeated }, hp);
     const players = Array.from(combatant.players ?? []);
     const hasPlayerOwner = Boolean(combatant.hasPlayerOwner);
     // #14: an enemy is a placeholder until its first turn; the turn order stays Foundry's to show.
@@ -74,11 +73,14 @@ export default class CombatantAdapter {
       },
       { isGM, concealEnemyIdentity: settings.concealEnemyIdentity },
     );
-    // #15: the table's look for its side (NPC or player character); a placeholder's hit points say nothing.
+    // #15, #16: what counts as defeated on the wheel, for its side (NPC or player character), and how it looks.
+    // It decides the picture and who "Dead combatants" removes; skipping dead turns keeps its own rule (RF-46).
+    // As before (RF-41), 0 hit points is what this viewer may know: a placeholder's (#14) says nothing.
     const look = defeatedLook(
       { defeated, down: !identityHidden && isDownForViewer(hp) },
       settings.defeatedLook?.[defeatedGroupOf({ hasPlayerOwner })],
     );
+    const dead = look.shown;
 
     const vm = {
       id: combatant.id,
@@ -103,7 +105,6 @@ export default class CombatantAdapter {
       defeated,
       dead,
       alive: !dead,
-      defeatedShown: look.shown,
       defeatedSkull: look.skull,
       defeatedGrey: look.grey,
       isOwner,

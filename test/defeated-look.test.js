@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { DISPOSITION } from "../scripts/constants/module-constants.js";
-import { applyDefeatedLook, defeatedGroupOf, defeatedLook } from "../scripts/helpers/defeated-look.js";
+import { applyDefeatedLook, defeatedGroupOf, defeatedLook, removedWhenDefeated } from "../scripts/helpers/defeated-look.js";
 import CombatantAdapter from "../scripts/services/CombatantAdapter.js";
 import CombatProjector from "../scripts/services/CombatProjector.js";
+import PhaseProjector from "../scripts/services/PhaseProjector.js";
 
 describe("defeated look (#15)", () => {
   it("shows the skull and the grey together by default, as before", () => {
@@ -39,7 +40,7 @@ describe("defeated look (#15)", () => {
     const element = { classList: { toggle: (name, on) => (on ? classes.add(name) : classes.delete(name)) } };
     applyDefeatedLook(element, { defeatedSkull: true, defeatedGrey: false });
     assert.deepEqual([...classes].sort(), ["is-defeated", "is-defeated-skull"]);
-    applyDefeatedLook(element, { defeatedShown: true, defeatedSkull: false, defeatedGrey: false });
+    applyDefeatedLook(element, { dead: true, defeatedSkull: false, defeatedGrey: false });
     assert.deepEqual([...classes], [], "with no look it reads like anyone else");
   });
 });
@@ -75,7 +76,7 @@ describe("CombatantAdapter with the defeated look (#15)", () => {
     assert.equal(npc.defeatedSkull, true);
     assert.equal(npc.defeatedGrey, false);
     const pc = CombatantAdapter.toViewModel(combatant("hero", { owned: true, disposition: DISPOSITION.FRIENDLY }), context(true, policy));
-    assert.equal(pc.defeatedShown, false, "a character at 0 is not marked defeated");
+    assert.equal(pc.dead, false, "a character at 0 is not marked defeated");
     assert.equal(pc.defeatedSkull || pc.defeatedGrey, false);
   });
 
@@ -86,7 +87,7 @@ describe("CombatantAdapter with the defeated look (#15)", () => {
 
   it("never shows 0 hit points a player may not know", () => {
     const vm = CombatantAdapter.toViewModel(combatant("orc"), context(false, { npc: { look: "skullGrey", trigger: "hp" } }, { hpForPlayers: "hidden" }));
-    assert.equal(vm.defeatedShown, false);
+    assert.equal(vm.dead, false);
   });
 
   it("changes nothing that decides who stays on the wheel", () => {
@@ -96,5 +97,84 @@ describe("CombatantAdapter with the defeated look (#15)", () => {
     assert.equal(model.N, 0, "removing the dead still follows its own rule");
     const vm = CombatantAdapter.toViewModel(combatant("orc"), context(true, { npc: { look: "none" } }));
     assert.equal(vm.dead, true);
+  });
+});
+
+describe("removing the defeated, NPCs only or everyone (#16)", () => {
+  const ring = (turns, { defeatedMode, isGM = true, look, extra = {}, turn = 0 }) =>
+    CombatProjector.project({ id: "c1", round: 1, turn, started: true, turns }, context(isGM, look, { ...extra, defeatedMode }));
+  const ids = (model) => model.ring.map((vm) => vm.id);
+  const orc = () => combatant("orc");
+  const hero = () => combatant("hero", { owned: true, disposition: DISPOSITION.FRIENDLY });
+  const wolf = () => combatant("wolf", { owned: true, disposition: DISPOSITION.FRIENDLY }); // a player's companion
+  const goblin = () => combatant("goblin", { hp: 7 });
+
+  it("reads the stored modes as before, with NPCs only in between", () => {
+    assert.equal(removedWhenDefeated("fade", { hasPlayerOwner: false }), false);
+    assert.equal(removedWhenDefeated("remove", { hasPlayerOwner: true }), true);
+    assert.equal(removedWhenDefeated("removeNpcs", { hasPlayerOwner: false }), true);
+    assert.equal(removedWhenDefeated("removeNpcs", { hasPlayerOwner: true }), false);
+  });
+
+  it("removes defeated NPCs and keeps player characters, companions and summons included", () => {
+    assert.deepEqual(ids(ring([orc(), hero(), wolf(), goblin()], { defeatedMode: "removeNpcs" })), ["hero", "wolf", "goblin"]);
+    assert.deepEqual(ids(ring([orc(), hero(), wolf(), goblin()], { defeatedMode: "remove" })), ["goblin"]);
+    assert.deepEqual(ids(ring([orc(), hero(), goblin()], { defeatedMode: "fade" })), ["orc", "hero", "goblin"]);
+  });
+
+  it("follows each side's trigger: a character at 0 without the defeated mark stays", () => {
+    const look = { npc: { trigger: "either" }, pc: { trigger: "flag" } };
+    assert.deepEqual(ids(ring([orc(), hero(), goblin()], { defeatedMode: "remove", look })), ["hero", "goblin"]);
+    const marked = combatant("hero", { owned: true, defeated: true, disposition: DISPOSITION.FRIENDLY });
+    assert.deepEqual(ids(ring([marked, goblin()], { defeatedMode: "remove", look })), ["goblin"]);
+  });
+
+  it("brings a combatant back once it is no longer defeated", () => {
+    assert.deepEqual(ids(ring([combatant("orc", { hp: 3 }), goblin()], { defeatedMode: "removeNpcs" })), ["orc", "goblin"]);
+  });
+
+  it("never removes on hit points a player may not know", () => {
+    const model = ring([orc(), goblin()], { defeatedMode: "removeNpcs", isGM: false, extra: { hpForPlayers: "hidden" } });
+    assert.deepEqual(ids(model), ["orc", "goblin"]);
+  });
+
+  it("keeps Foundry's turn order when the acting combatant is removed: the wheel waits on the next one", () => {
+    const model = ring([goblin(), orc(), hero()], { defeatedMode: "removeNpcs", turn: 1 });
+    assert.deepEqual(ids(model), ["goblin", "hero"]);
+    assert.equal(model.turn, 1);
+    assert.equal(model.activeHidden, true);
+    assert.equal(model.current.id, "hero");
+  });
+});
+
+describe("SC Venaerys's phases keep Foundry's defeated mark (#16)", () => {
+  const V = "sc-venaerys-initiative";
+  const phase = (id) => ({ id, type: id, nameKey: `P.${id}`, name: null, icon: `fa-solid fa-${id}`, color: "#5b86c9" });
+  const plan = [phase("fast"), phase("enemies"), phase("slow")];
+  const member = (id, options) => ({ ...combatant(id, options), flags: { [V]: { phase: "fast" } } });
+  const project = (turns, look) =>
+    PhaseProjector.project(
+      { id: "c1", round: 1, turn: 0, turns, flags: { [V]: { enabled: true, plan } } },
+      { ...context(false, look), localize: (key) => key, waitingName: "Waiting" },
+    );
+
+  it("counts a member marked defeated as Venaerys does, whatever the display trigger says", () => {
+    const hero = member("hero", { owned: true, defeated: true, hp: 8, disposition: DISPOSITION.FRIENDLY });
+    const model = project([hero], { pc: { trigger: "hp" } });
+    const [vm] = model.phase.acting;
+    assert.equal(vm.status, "defeated");
+    assert.equal(vm.dead, false, "not shown as defeated: the table counts 0 hit points only");
+    assert.equal(model.current.finishedCount, 1);
+    assert.equal(model.canEndOwnTurn, false, "nothing left to finish");
+  });
+
+  it("leaves a member at 0 without the mark acting, as Venaerys does, while it may look defeated", () => {
+    const hero = member("hero", { owned: true, hp: 0, disposition: DISPOSITION.FRIENDLY });
+    const model = project([hero], { pc: { trigger: "either" } });
+    const [vm] = model.phase.acting;
+    assert.equal(vm.status, "acting");
+    assert.equal(vm.dead, true);
+    assert.equal(vm.defeatedSkull, true);
+    assert.equal(model.canEndOwnTurn, true, "its player can still end the phase");
   });
 });

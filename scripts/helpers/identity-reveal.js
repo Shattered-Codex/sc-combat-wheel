@@ -77,9 +77,6 @@ export function unidentifiedViewModel(vm, unknownName) {
     artImg: null,
     hp: { mode: "hidden" },
     healthTone: null,
-    // Only the GM's hit points feed the dead-turn skip; a "down" read from the bar the player no longer sees is gone too.
-    dead: vm.defeated,
-    alive: !vm.defeated,
     players: [],
     cardUserId: null,
     effects: [],

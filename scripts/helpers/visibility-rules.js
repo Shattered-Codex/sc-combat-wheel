@@ -1,11 +1,13 @@
 import { DISPOSITION, TOKEN_DISPLAY } from "../constants/module-constants.js";
+import { removedWhenDefeated } from "./defeated-look.js";
 
 /**
  * RF-40, RF-41, RF-45: whether a combatant belongs on this user's ring at
  * all. #14: an enemy still unknown is left out too when the world says so.
+ * #16: the defeated may go, all of them or NPCs only.
  */
-export function isOnRing({ concealed, dead, identityHidden }, { isGM, defeatedMode, omitUnidentified = false }) {
-  if (dead && defeatedMode === "remove") return false;
+export function isOnRing({ concealed, dead, identityHidden, hasPlayerOwner }, { isGM, defeatedMode, omitUnidentified = false }) {
+  if (dead && removedWhenDefeated(defeatedMode, { hasPlayerOwner })) return false;
   if (concealed && !isGM) return false;
   if (identityHidden && omitUnidentified) return false;
   return true;

@@ -226,12 +226,12 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.hpSource, scope: "world", type: "choice", choices: ["auto", "bar1", "bar2", "attribute"], default: "auto", section: "rules", react: "data" },
   { key: SETTINGS.hpPath, scope: "world", type: "text", default: "", section: "rules", react: "data", visibleWhen: { key: SETTINGS.hpSource, in: ["attribute"] } },
   { key: SETTINGS.hpInverted, scope: "world", type: "boolean", default: false, section: "rules", react: "data" },
-  { key: SETTINGS.defeatedMode, scope: "world", type: "choice", choices: ["fade", "remove"], default: "fade", section: "rules", react: "data" },
-  // #15: the defeated look, NPCs and player characters apart; the defaults are the look every table had before.
+  { key: SETTINGS.defeatedMode, scope: "world", type: "choice", choices: ["fade", "removeNpcs", "remove"], default: "fade", section: "rules", react: "data" },
+  // #15, #16: what counts as defeated and how it looks, NPCs and player characters apart; the defaults are what every table had before.
+  { key: SETTINGS.defeatedTriggerNpc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data" },
   { key: SETTINGS.defeatedLookNpc, scope: "world", type: "choice", choices: ["skullGrey", "skull", "grey", "none"], default: "skullGrey", section: "rules", react: "data" },
-  { key: SETTINGS.defeatedTriggerNpc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data", visibleWhen: { key: SETTINGS.defeatedLookNpc, notIn: ["none"] } },
+  { key: SETTINGS.defeatedTriggerPc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data" },
   { key: SETTINGS.defeatedLookPc, scope: "world", type: "choice", choices: ["skullGrey", "skull", "grey", "none"], default: "skullGrey", section: "rules", react: "data" },
-  { key: SETTINGS.defeatedTriggerPc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data", visibleWhen: { key: SETTINGS.defeatedLookPc, notIn: ["none"] } },
   { key: SETTINGS.skipDead, scope: "world", type: "choice", choices: ["never", "npcs", "all"], default: "never", section: "rules", react: null },
   { key: SETTINGS.secondsPerRound, scope: "world", type: "number", range: { min: 1, max: 600, step: 1 }, default: () => CONFIG.time?.roundTime ?? 6, section: "rules", react: "data" },
 

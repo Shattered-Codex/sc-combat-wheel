@@ -140,15 +140,16 @@
       },
       "defeatedMode": {
         "Name": "Combatentes mortos",
-        "Hint": "Derrotados, ou com 0 PV até onde cada um pode saber. A aparência dos que ficam é escolhida abaixo, para NPCs e para personagens dos jogadores.",
+        "Hint": "Se os combatentes derrotados ficam na roda, no Carrossel, no Slider e na visão geral, para todos, o Mestre incluído. O que conta como derrotado é escolhido abaixo, para NPCs e para personagens dos jogadores à parte. Tirar só os NPCs mantém todo combatente que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. Só muda a exibição: ninguém sai do combate, os tokens continuam na cena, o rastreador de combate do Foundry continua listando, a ordem dos turnos é a do Foundry, e pular turnos de mortos segue a sua própria opção. Quando chega a vez de um combatente tirado da roda, ela espera no próximo que aparece.",
         "Choices": {
           "fade": "Manter na roda",
-          "remove": "Tirar da roda"
+          "removeNpcs": "Tirar os NPCs, manter os personagens dos jogadores",
+          "remove": "Tirar todos da roda"
         }
       },
       "defeatedLookNpc": {
         "Name": "Aparência de NPCs derrotados",
-        "Hint": "Para todos, na roda, no Carrossel, no Slider e na visão geral: uma caveira sobre o retrato, o retrato em preto e branco, os dois, ou nada. NPCs são combatentes que nenhum jogador possui. Só a imagem muda: PV, a marca de derrotado do Foundry, a ordem dos turnos, pular turnos de mortos e tirar mortos da roda continuam como estão.",
+        "Hint": "Para todos, na roda, no Carrossel, no Slider e na visão geral: uma caveira sobre o retrato, o retrato em preto e branco, os dois, ou nada. NPCs são combatentes que nenhum jogador possui. Só a imagem muda: PV, a marca de derrotado do Foundry, a ordem dos turnos e pular turnos de mortos continuam como estão.",
         "Choices": {
           "skullGrey": "Caveira e preto e branco",
           "skull": "Só a caveira",
@@ -157,8 +158,8 @@
         }
       },
       "defeatedTriggerNpc": {
-        "Name": "NPCs derrotados: quando",
-        "Hint": "O que mostra essa aparência: a marca de derrotado do Foundry (a caveira do rastreador de combate), 0 PV, ou qualquer um dos dois. 0 PV só conta até onde cada um pode saber: PV que um jogador não vê nunca a mostram.",
+        "Name": "Quando um NPC conta como derrotado",
+        "Hint": "A marca de derrotado do Foundry (a caveira do rastreador de combate), 0 PV, ou qualquer um dos dois. Decide a aparência abaixo e, quando \"Combatentes mortos\" tira os NPCs, quais saem da roda. 0 PV só conta até onde cada um pode saber: PV que um jogador não vê nunca o mostram. Pular turnos de mortos segue a sua própria regra.",
         "Choices": {
           "either": "Marca de derrotado ou 0 PV",
           "flag": "Só a marca de derrotado",
@@ -167,7 +168,7 @@
       },
       "defeatedLookPc": {
         "Name": "Aparência de personagens derrotados",
-        "Hint": "O mesmo, para combatentes que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. 0 PV não quer dizer morto (testes contra a morte, por exemplo): escolha nada, ou só a marca de derrotado, para mantê-los coloridos.",
+        "Hint": "O mesmo, para combatentes que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. 0 PV não quer dizer morto (testes contra a morte, por exemplo): escolha nada, ou conte como derrotado só pela marca, para mantê-los coloridos.",
         "Choices": {
           "skullGrey": "Caveira e preto e branco",
           "skull": "Só a caveira",
@@ -176,8 +177,8 @@
         }
       },
       "defeatedTriggerPc": {
-        "Name": "Personagens derrotados: quando",
-        "Hint": "O que mostra essa aparência para personagens dos jogadores: a marca de derrotado do Foundry, 0 PV, ou qualquer um dos dois.",
+        "Name": "Quando um personagem de jogador conta como derrotado",
+        "Hint": "O mesmo, para combatentes que um jogador possui: a marca de derrotado do Foundry, 0 PV, ou qualquer um dos dois. Só a marca de derrotado mantém na roda, como está, um personagem com 0 PV fazendo testes contra a morte.",
         "Choices": {
           "either": "Marca de derrotado ou 0 PV",
           "flag": "Só a marca de derrotado",

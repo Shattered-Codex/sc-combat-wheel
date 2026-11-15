@@ -1,8 +1,9 @@
 /**
- * #15: how a defeated combatant looks, set by the table for NPCs and for
- * player characters apart. Only the picture: who is removed from the wheel
- * (defeatedMode), whose turn is skipped (skipDead), the hit points and
- * Foundry's defeated mark never change with it. Pure.
+ * #15, #16: what counts as defeated on the wheel and how it looks, set by
+ * the table for NPCs and for player characters apart. The trigger also
+ * decides whom "Dead combatants" removes (removedWhenDefeated). Whose turn is
+ * skipped (skipDead), the hit points and Foundry's defeated mark never change
+ * with it. Pure.
  */
 
 /** The skull over the portrait, the portrait turned grey, both, or neither. */
@@ -25,7 +26,7 @@ export function defeatedGroupOf({ hasPlayerOwner }) {
  * points this viewer may know say (secret hit points never show it), so
  * the look gives nothing away the health display does not.
  * @returns {{ shown: boolean, skull: boolean, grey: boolean }}
- *   `shown`: it counts as defeated for the picture and its label.
+ *   `shown`: it counts as defeated on the wheel (`dead`): its label, its look, its removal.
  */
 export function defeatedLook({ defeated, down }, { look = "skullGrey", trigger = "either" } = {}) {
   const shown = trigger === "flag" ? Boolean(defeated) : trigger === "hp" ? Boolean(down) : Boolean(defeated || down);
@@ -34,6 +35,16 @@ export function defeatedLook({ defeated, down }, { look = "skullGrey", trigger =
     skull: shown && (look === "skullGrey" || look === "skull"),
     grey: shown && (look === "skullGrey" || look === "grey"),
   };
+}
+
+/**
+ * #16: whether "Dead combatants" takes a defeated combatant off the wheel:
+ * never ("fade"), NPCs only ("removeNpcs": player characters, their
+ * companions and summons stay), or everyone ("remove").
+ */
+export function removedWhenDefeated(defeatedMode, { hasPlayerOwner }) {
+  if (defeatedMode === "remove") return true;
+  return defeatedMode === "removeNpcs" && defeatedGroupOf({ hasPlayerOwner }) === "npc";
 }
 
 /**

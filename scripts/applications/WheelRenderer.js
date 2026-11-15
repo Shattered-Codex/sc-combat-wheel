@@ -225,7 +225,7 @@ export default class WheelRenderer {
   /** Only rewrites the slice's content when what it shows actually changed. */
   #applyContent(slot, vm, round) {
     const signature = vm
-      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.identityHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.defeatedShown, vm.defeatedSkull, vm.defeatedGrey, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
+      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.identityHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.defeatedSkull, vm.defeatedGrey, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
       : "";
     if (signature === slot.signature) return;
     slot.signature = signature;
@@ -324,7 +324,7 @@ export default class WheelRenderer {
     if (vm.hp.mode === "number") parts.push(i18n("Tooltip.Hp", { value: vm.hp.text }));
     else if (vm.hp.stateKey) parts.push(game.i18n.localize(`${I18N_ROOT}.HealthState.${vm.hp.stateKey}`));
     parts.push(game.i18n.localize(vm.virtual ? `${I18N_ROOT}.Slice.Virtual` : `${I18N_ROOT}.Disposition.${vm.dispositionKey}`));
-    if (vm.defeatedShown) parts.push(game.i18n.localize(`${I18N_ROOT}.Slice.Defeated`));
+    if (vm.dead) parts.push(game.i18n.localize(`${I18N_ROOT}.Slice.Defeated`));
     if (vm.concealed) parts.push(game.i18n.localize(`${I18N_ROOT}.Slice.Hidden`));
     // data-tooltip is read as HTML, and names come from players.
     return foundry.utils.escapeHTML(parts.join(" · "));

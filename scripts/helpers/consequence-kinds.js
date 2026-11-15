@@ -5,8 +5,10 @@
  * "gm" runs once on the active GM (anything that writes or talks to other
  * modules). `requires` names a module that must be active.
  *
- * Field types: text, textarea, number, select (with `choices`), macro, file,
- * uuid (accepts a dropped document), resource target.
+ * Field types: text, textarea, code, number, select (with `choices`), macro,
+ * file, uuid (accepts a dropped document), resource target. `shownWhen`
+ * (`{ field, value }`) shows a field only while another field of the row
+ * holds that value; a hidden field keeps what was typed in it.
  */
 export const CONSEQUENCE_KINDS = Object.freeze({
   screenMessage: {
@@ -40,10 +42,15 @@ export const CONSEQUENCE_KINDS = Object.freeze({
     icon: "fa-code-branch",
     fields: [{ name: "name", type: "text", default: "" }],
   },
+  // A world macro, or a script written in the row itself (run as a temporary script macro, never saved as one).
   macro: {
     where: "gm",
     icon: "fa-terminal",
-    fields: [{ name: "macroUuid", type: "macro", default: "" }],
+    fields: [
+      { name: "source", type: "select", choices: ["macro", "inline"], default: "macro" },
+      { name: "macroUuid", type: "macro", default: "", shownWhen: { field: "source", value: "macro" } },
+      { name: "script", type: "code", default: "", shownWhen: { field: "source", value: "inline" } },
+    ],
   },
   rollTable: {
     where: "gm",
@@ -101,6 +108,12 @@ export function normalizeConsequence(raw = {}) {
     }
   }
   return { id: String(raw.id || randomId()), kind, enabled: raw.enabled !== false, params };
+}
+
+/** Whether a field of a consequence row is shown, given the row's params. */
+export function isConsequenceFieldShown(field, params = {}) {
+  if (!field.shownWhen) return true;
+  return params[field.shownWhen.field] === field.shownWhen.value;
 }
 
 /** A fresh row of `kind`, all defaults. */

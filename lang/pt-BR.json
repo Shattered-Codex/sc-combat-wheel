@@ -13,6 +13,10 @@
         "Name": "Esconder a aba nativa de combate",
         "Hint": "Esconde a aba do Combat Tracker na lateral enquanto a roda estiver aberta."
       },
+      "showSettingHints": {
+        "Name": "Mostrar as descrições das configurações",
+        "Hint": "Mostra a descrição embaixo de cada opção desta janela. Desligado, cada uma vira um (i) ao lado do nome da opção, com a descrição como tooltip."
+      },
       "keepSidebarTab": {
         "Name": "Manter a aba da barra lateral",
         "Hint": "Algo além do seu próprio clique pode trocar a barra lateral para a aba Combate, como um sistema ou um módulo quando um combate começa. Com isto ligado, a barra lateral fica na aba que você tinha aberta, como o Chat, e não se abre sozinha. A aba Combate continua abrindo quando você clica nela, e o botão direito continua destacando-a numa janela."
@@ -136,10 +140,49 @@
       },
       "defeatedMode": {
         "Name": "Combatentes mortos",
-        "Hint": "Derrotados, ou com 0 PV até onde cada um pode saber. O retrato fica sempre em preto e branco.",
+        "Hint": "Se os combatentes derrotados ficam na roda, no Carrossel, no Slider e na visão geral, para todos, o Mestre incluído. O que conta como derrotado é escolhido abaixo, para NPCs e para personagens dos jogadores à parte. Tirar só os NPCs mantém todo combatente que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. Só muda a exibição: ninguém sai do combate, os tokens continuam na cena, o rastreador de combate do Foundry continua listando, a ordem dos turnos é a do Foundry, e pular turnos de mortos segue a sua própria opção. Quando chega a vez de um combatente tirado da roda, ela espera no próximo que aparece.",
         "Choices": {
-          "fade": "Manter, em preto e branco",
-          "remove": "Tirar da roda"
+          "fade": "Manter na roda",
+          "removeNpcs": "Tirar os NPCs, manter os personagens dos jogadores",
+          "remove": "Tirar todos da roda"
+        }
+      },
+      "defeatedLookNpc": {
+        "Name": "Aparência de NPCs derrotados",
+        "Hint": "Para todos, na roda, no Carrossel, no Slider e na visão geral: uma caveira sobre o retrato, o retrato em preto e branco, os dois, ou nada. NPCs são combatentes que nenhum jogador possui. Só a imagem muda: PV, a marca de derrotado do Foundry, a ordem dos turnos e pular turnos de mortos continuam como estão.",
+        "Choices": {
+          "skullGrey": "Caveira e preto e branco",
+          "skull": "Só a caveira",
+          "grey": "Só preto e branco",
+          "none": "Nada: ficam como qualquer outro"
+        }
+      },
+      "defeatedTriggerNpc": {
+        "Name": "Quando um NPC conta como derrotado",
+        "Hint": "A marca de derrotado do Foundry (a caveira do rastreador de combate), 0 PV, ou qualquer um dos dois. Decide a aparência abaixo e, quando \"Combatentes mortos\" tira os NPCs, quais saem da roda. 0 PV só conta até onde cada um pode saber: PV que um jogador não vê nunca o mostram. Pular turnos de mortos segue a sua própria regra.",
+        "Choices": {
+          "either": "Marca de derrotado ou 0 PV",
+          "flag": "Só a marca de derrotado",
+          "hp": "Só 0 PV"
+        }
+      },
+      "defeatedLookPc": {
+        "Name": "Aparência de personagens derrotados",
+        "Hint": "O mesmo, para combatentes que um jogador possui: os personagens deles, e os companheiros e invocações que controlam. 0 PV não quer dizer morto (testes contra a morte, por exemplo): escolha nada, ou conte como derrotado só pela marca, para mantê-los coloridos.",
+        "Choices": {
+          "skullGrey": "Caveira e preto e branco",
+          "skull": "Só a caveira",
+          "grey": "Só preto e branco",
+          "none": "Nada: ficam como qualquer outro"
+        }
+      },
+      "defeatedTriggerPc": {
+        "Name": "Quando um personagem de jogador conta como derrotado",
+        "Hint": "O mesmo, para combatentes que um jogador possui: a marca de derrotado do Foundry, 0 PV, ou qualquer um dos dois. Só a marca de derrotado mantém na roda, como está, um personagem com 0 PV fazendo testes contra a morte.",
+        "Choices": {
+          "either": "Marca de derrotado ou 0 PV",
+          "flag": "Só a marca de derrotado",
+          "hp": "Só 0 PV"
         }
       },
       "npcNames": {
@@ -153,6 +196,15 @@
       "hideEnemyInitiative": {
         "Name": "Esconder a iniciativa dos inimigos até o turno deles",
         "Hint": "Os jogadores não veem a iniciativa de um combatente que não é amigável e que não é deles até o primeiro turno dele chegar: um \"?\" fica no lugar na roda, nos detalhes, na visão geral e no rastreador de combate do Foundry, e uma rolagem pública de iniciativa dele vai só para o Mestre. Depois de mostrada, continua visível, também após recarregar, até essa iniciativa ser rolada de novo ou alterada. O Mestre sempre vê todos os números, e a ordem dos turnos continua visível."
+      },
+      "concealEnemyIdentity": {
+        "Name": "Ocultar os inimigos até o primeiro turno deles",
+        "Hint": "Os jogadores não sabem quem é um combatente que não é amigável e que não é deles até o primeiro turno dele chegar. Como carta desconhecida, uma vaga \"Desconhecido\" com um \"?\" guarda o lugar dele na ordem na roda, nos detalhes, na visão geral, no anúncio do turno e no rastreador de combate do Foundry, sem nome, imagem, efeitos ou pontos de vida, e clicar ou passar o mouse nela não aponta o token; a iniciativa dele segue a opção acima. Sem aparecer, ele não aparece de jeito nenhum, nem na roda nem no rastreador do Foundry, até o turno dele: os jogadores não sabem quantos são nem onde agem. Uma rolagem pública de iniciativa dele vai só para o Mestre. O turno dele o revela de vez, também após recarregar, rolar de novo ou zerar as iniciativas; um morto pulado automaticamente continua desconhecido. Combatentes ocultos continuam ocultos. O Mestre sempre vê todos, e os tokens na cena não mudam.",
+        "Choices": {
+          "off": "Mostrar",
+          "placeholder": "Como uma carta \"?\" desconhecida",
+          "omit": "Não mostrar até o turno deles"
+        }
       },
       "nextUpNotice": {
         "Name": "Aviso \"a seguir\"",
@@ -1472,6 +1524,7 @@
       "Add": "+ Adicionar consequência…",
       "Enabled": "Ativa",
       "Missing": "precisa de",
+      "ScriptHint": "Roda no Mestre ativo como uma macro de script. Além de speaker, actor, token e character, recebe combat, combatant (esta posição) e virtual (o modelo dela). await funciona.",
       "DropHere": "Solte um documento ou cole um UUID",
       "Kinds": {
         "screenMessage": "Mensagem na tela",
@@ -1492,6 +1545,8 @@
         "src": "Arquivo de som",
         "volume": "Volume (%)",
         "name": "Nome do hook",
+        "source": "Origem",
+        "script": "Script",
         "macroUuid": "Macro",
         "tableUuid": "Tabela",
         "scareId": "Id do susto",
@@ -1504,6 +1559,10 @@
         "amount": "Quantidade"
       },
       "Choices": {
+        "source": {
+          "macro": "Uma macro do mundo",
+          "inline": "Um script escrito aqui"
+        },
         "audience": {
           "all": "Todos que veem a posição",
           "gm": "Só o Mestre"

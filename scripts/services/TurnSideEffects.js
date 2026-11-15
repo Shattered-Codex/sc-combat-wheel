@@ -33,7 +33,8 @@ export default class TurnSideEffects {
     const turnBack = getSetting(SETTINGS.soundTurnBack) !== "off";
     TurnSideEffects.#playSound(soundEventFor(previous, model, { isGM: game.user.isGM, turnBack }));
     if (!model?.current || model.activeHidden) return TurnAnnouncer.dismiss();
-    if (getSetting(SETTINGS.cameraFollows)) TokenInteractions.panToCombatant(combat, model.current.id);
+    // #14: the camera would point out an enemy still unknown (one the dead-turn skip only passes through).
+    if (getSetting(SETTINGS.cameraFollows) && !model.current.identityHidden) TokenInteractions.panToCombatant(combat, model.current.id);
     if (!TurnSideEffects.#announce(model)) TurnSideEffects.#notifyNextUp(model);
   }
 

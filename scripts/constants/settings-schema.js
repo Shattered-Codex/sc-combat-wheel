@@ -177,6 +177,8 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.openOnStart, scope: "client", type: "boolean", default: true, section: "behavior", react: null },
   { key: SETTINGS.hideNativeTracker, scope: "client", type: "boolean", default: false, section: "behavior", react: "data" },
   // #10: Foundry's core never switches by itself; a system or module may, as a combat starts (SidebarTabGuard).
+  // The descriptions under each option of the settings window, or an (i) with each as a tooltip.
+  { key: SETTINGS.showSettingHints, scope: "client", type: "boolean", default: true, section: "behavior", react: null },
   { key: SETTINGS.keepSidebarTab, scope: "client", type: "boolean", default: false, section: "behavior", react: null },
   { key: SETTINGS.clickAction, scope: "client", type: "choice", choices: ["menu", "pan", "select", "sheet", "none"], default: "pan", section: "behavior", react: null },
   // RF-31: like the core tracker, a double click opens the sheet unless told otherwise; the right click opens the slice's menu (RF-122), which any of them may open.
@@ -216,13 +218,20 @@ export const SETTINGS_SCHEMA = Object.freeze([
   { key: SETTINGS.npcNames, scope: "world", type: "choice", choices: ["always", "token"], default: "always", section: "players", react: "data" },
   // #11: the same line as the exact hit points (RF-42): the GM, owners and friendly combatants always see it.
   { key: SETTINGS.hideEnemyInitiative, scope: "world", type: "boolean", default: false, section: "players", react: "data" },
+  // #14: the same line, for who the combatant is: a placeholder holds its slot, or it is left out, until its first turn.
+  { key: SETTINGS.concealEnemyIdentity, scope: "world", type: "choice", choices: ["off", "placeholder", "omit"], default: "off", section: "players", react: "data" },
   { key: SETTINGS.concealment, scope: "world", type: "choice", choices: ["hidden", "tokenHidden", "invisible"], default: "tokenHidden", section: "players", react: "data" },
 
   // Combat rules (world)
   { key: SETTINGS.hpSource, scope: "world", type: "choice", choices: ["auto", "bar1", "bar2", "attribute"], default: "auto", section: "rules", react: "data" },
   { key: SETTINGS.hpPath, scope: "world", type: "text", default: "", section: "rules", react: "data", visibleWhen: { key: SETTINGS.hpSource, in: ["attribute"] } },
   { key: SETTINGS.hpInverted, scope: "world", type: "boolean", default: false, section: "rules", react: "data" },
-  { key: SETTINGS.defeatedMode, scope: "world", type: "choice", choices: ["fade", "remove"], default: "fade", section: "rules", react: "data" },
+  { key: SETTINGS.defeatedMode, scope: "world", type: "choice", choices: ["fade", "removeNpcs", "remove"], default: "fade", section: "rules", react: "data" },
+  // #15, #16: what counts as defeated and how it looks, NPCs and player characters apart; the defaults are what every table had before.
+  { key: SETTINGS.defeatedTriggerNpc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data" },
+  { key: SETTINGS.defeatedLookNpc, scope: "world", type: "choice", choices: ["skullGrey", "skull", "grey", "none"], default: "skullGrey", section: "rules", react: "data" },
+  { key: SETTINGS.defeatedTriggerPc, scope: "world", type: "choice", choices: ["either", "flag", "hp"], default: "either", section: "rules", react: "data" },
+  { key: SETTINGS.defeatedLookPc, scope: "world", type: "choice", choices: ["skullGrey", "skull", "grey", "none"], default: "skullGrey", section: "rules", react: "data" },
   { key: SETTINGS.skipDead, scope: "world", type: "choice", choices: ["never", "npcs", "all"], default: "never", section: "rules", react: null },
   { key: SETTINGS.secondsPerRound, scope: "world", type: "number", range: { min: 1, max: 600, step: 1 }, default: () => CONFIG.time?.roundTime ?? 6, section: "rules", react: "data" },
 

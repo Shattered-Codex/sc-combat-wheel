@@ -1,4 +1,7 @@
-<div class="scw-config">
+{{!-- An option's description as a tooltip (showSettingHints off): its own button, never inside a <label>, so a click does not
+     reach the option and the keyboard can reach it. Hidden, and out of the tab order, while the descriptions show. --}}
+{{#*inline "hintInfo"}}<button type="button" class="scw-config-info" data-tooltip="{{text}}" aria-label="{{text}}"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>{{/inline}}
+<div class="scw-config {{#unless showHints}}is-hints-tooltip{{/unless}}">
   <div class="scw-config__body">
     <nav class="scw-config__rail" role="tablist" aria-orientation="vertical" aria-label="{{localize "SC_COMBAT_WHEEL.SettingsMenu.Name"}}">
       {{#each groups}}
@@ -29,7 +32,7 @@
                  data-section-panel="{{id}}" {{#unless active}}hidden{{/unless}}>
           <header class="scw-config__panel-head">
             <div class="scw-config__panel-titles">
-              <h2 class="scw-config__panel-title">{{title}}</h2>
+              <h2 class="scw-config__panel-title">{{title}}{{> hintInfo text=hint}}</h2>
               <span class="scw-config-badge scw-config-badge--{{scope}}"><i class="{{scopeIcon}}" aria-hidden="true"></i>{{scopeLabel}}</span>
             </div>
             <p class="scw-config__panel-hint">{{hint}}</p>
@@ -38,7 +41,7 @@
           {{#if isEditor}}
             <div class="scw-config-row scw-config-row--action">
               <span class="scw-config-row__copy">
-                <span class="scw-config-row__name">{{editor.name}}</span>
+                <span class="scw-config-row__title"><span class="scw-config-row__name">{{editor.name}}</span>{{> hintInfo text=editor.hint}}</span>
                 <span class="scw-config-row__hint">{{editor.hint}}</span>
               </span>
               <span class="scw-config-row__control">
@@ -94,7 +97,7 @@
                   </label>
                 </div>
 
-                <h4 class="scw-config__section-title">{{localize "SC_COMBAT_WHEEL.Consequence.Title"}}</h4>
+                <h4 class="scw-config__section-title">{{localize "SC_COMBAT_WHEEL.Consequence.Title"}}{{> hintInfo text=(localize "SC_COMBAT_WHEEL.Consequence.Hint")}}</h4>
                 <p class="scw-config__section-hint">{{localize "SC_COMBAT_WHEEL.Consequence.Hint"}}</p>
                 {{#each consequences}}
                   <div class="scw-config-conseq {{#unless enabled}}is-off{{/unless}}">
@@ -116,10 +119,15 @@
                       </button>
                     </div>
                     {{#each fields}}
-                      <div class="scw-config-field">
-                        <label>{{label}}</label>
+                      <div class="scw-config-field {{#if isCode}}scw-config-field--code{{/if}}"
+                           {{#if shownWhen}}data-shown-when="{{shownWhen.name}}" data-shown-value="{{shownWhen.value}}"{{/if}} {{#unless shown}}hidden{{/unless}}>
+                        <span class="scw-config-field__name"><label>{{label}}</label>{{#if hint}}{{> hintInfo text=hint}}{{/if}}</span>
                         {{#if isText}}<input type="text" name="{{name}}" value="{{value}}">{{/if}}
                         {{#if isTextarea}}<textarea name="{{name}}" rows="2">{{value}}</textarea>{{/if}}
+                        {{#if isCode}}
+                          <textarea class="scw-config-code" name="{{name}}" rows="8" spellcheck="false" autocomplete="off" aria-label="{{label}}">{{value}}</textarea>
+                          <span class="scw-config-field__hint">{{hint}}</span>
+                        {{/if}}
                         {{#if isNumber}}<input type="number" name="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
                         {{#if isSelect}}
                           <select name="{{name}}">
@@ -156,7 +164,7 @@
               <div class="scw-config__rows">
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-resource">{{localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-resource">{{localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.Resource.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -172,7 +180,7 @@
                 </div>
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-skip">{{localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-skip">{{localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.SkipDefeated.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -186,7 +194,7 @@
                   <h3 class="scw-config__section-title">{{localize "SC_COMBAT_WHEEL.CoreCombat.Markers"}}</h3>
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-marker">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-marker">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerEnabled.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -198,7 +206,7 @@
                 </div>
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-animation">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-animation">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerAnimation.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -209,7 +217,7 @@
                 </div>
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-src">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-src">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerSrc.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -218,7 +226,7 @@
                 </div>
                 <div class="scw-config-row">
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="scw-core-disposition">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Name"}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="scw-core-disposition">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Name"}}</label>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.CoreCombat.MarkerDisposition.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -236,7 +244,7 @@
               {{#if offersResetPosition}}
                 <div class="scw-config-row scw-config-row--action">
                   <span class="scw-config-row__copy">
-                    <span class="scw-config-row__name">{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Name"}}</span>
+                    <span class="scw-config-row__title"><span class="scw-config-row__name">{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Name"}}</span>{{> hintInfo text=(localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Hint")}}</span>
                     <span class="scw-config-row__hint">{{localize "SC_COMBAT_WHEEL.SettingsMenu.ResetPosition.Hint"}}</span>
                   </span>
                   <span class="scw-config-row__control">
@@ -249,7 +257,7 @@
               {{#each fields}}
                 <div class="scw-config-row" data-setting-row="{{key}}" {{#unless shown}}hidden{{/unless}}>
                   <span class="scw-config-row__copy">
-                    <label class="scw-config-row__name" for="{{id}}">{{name}}</label>
+                    <span class="scw-config-row__title"><label class="scw-config-row__name" for="{{id}}">{{name}}</label>{{> hintInfo text=hint}}</span>
                     <span class="scw-config-row__hint">{{hint}}</span>
                   </span>
                   <span class="scw-config-row__control">

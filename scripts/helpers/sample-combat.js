@@ -48,6 +48,9 @@ function sampleViewModel(entry, name) {
     defeated: dead,
     dead,
     alive: !dead,
+    // The look every table starts with (#15).
+    defeatedSkull: dead,
+    defeatedGrey: dead,
     isOwner: Boolean(entry.owner),
     hasPlayerOwner: Boolean(entry.owner),
     players: [],

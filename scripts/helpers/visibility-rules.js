@@ -1,9 +1,15 @@
 import { DISPOSITION, TOKEN_DISPLAY } from "../constants/module-constants.js";
+import { removedWhenDefeated } from "./defeated-look.js";
 
-/** RF-40, RF-41, RF-45: whether a combatant belongs on this user's ring at all. */
-export function isOnRing({ concealed, dead }, { isGM, defeatedMode }) {
-  if (dead && defeatedMode === "remove") return false;
+/**
+ * RF-40, RF-41, RF-45: whether a combatant belongs on this user's ring at
+ * all. #14: an enemy still unknown is left out too when the world says so.
+ * #16: the defeated may go, all of them or NPCs only.
+ */
+export function isOnRing({ concealed, dead, identityHidden, hasPlayerOwner }, { isGM, defeatedMode, omitUnidentified = false }) {
+  if (dead && removedWhenDefeated(defeatedMode, { hasPlayerOwner })) return false;
   if (concealed && !isGM) return false;
+  if (identityHidden && omitUnidentified) return false;
   return true;
 }
 
@@ -25,7 +31,11 @@ export function isConcealed({ hidden, tokenHidden, invisible }, concealment) {
  * points they are allowed to see. Secret hit points never give it away.
  */
 export function isDeadForViewer({ defeated }, hp) {
-  if (defeated) return true;
+  return Boolean(defeated) || isDownForViewer(hp);
+}
+
+/** Whether the hit points this viewer may know say 0 (#15 reads it apart from Foundry's defeated mark). */
+export function isDownForViewer(hp) {
   if (hp.stateKey) return hp.stateKey === "down";
   return hp.mode === "bar" && hp.pct === 0;
 }

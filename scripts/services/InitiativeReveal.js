@@ -14,6 +14,7 @@ import {
   shouldKeepRollFromPlayers,
   shouldRecordShown,
 } from "../helpers/initiative-reveal.js";
+import { IDENTITY_REVEALED_FLAG, concealModeOf } from "../helpers/identity-reveal.js";
 import { shouldSkipTurn } from "../helpers/visibility-rules.js";
 import { virtualFlagOf } from "../helpers/virtual-positions.js";
 import { projectCombatant } from "./project-combat.js";
@@ -118,7 +119,7 @@ export default class InitiativeReveal {
 
   /**
    * An initiative roll message, on the roller's client. A public roll for an
-   * enemy would print the number in the chat for everyone: it goes to the GM
+   * enemy would print the number (and its name, #14) in the chat for everyone: it goes to the GM
    * only (the roller still sees their own message); while its combat is not
    * known, every encounter the token is in counts — players are shown less,
    * never more. A reroll that came out the same number changed nothing
@@ -150,10 +151,12 @@ export default class InitiativeReveal {
     }
     const keep = shouldKeepRollFromPlayers({
       hideEnemyInitiative: getSetting(SETTINGS.hideEnemyInitiative),
+      concealEnemyIdentity: concealModeOf(getSetting(SETTINGS.concealEnemyIdentity)) !== "off",
       whisper: message.whisper,
       rolled: rolled.map((combatant) => ({
         disposition: combatant.token?.disposition ?? DISPOSITION.NEUTRAL,
         virtual: virtualFlagOf(combatant) !== null,
+        revealed: Boolean(combatant.getFlag(MODULE_ID, IDENTITY_REVEALED_FLAG)),
       })),
     });
     if (keep) InitiativeReveal.#toGameMasters(message);

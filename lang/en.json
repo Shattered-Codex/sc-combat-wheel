@@ -13,6 +13,10 @@
         "Name": "Hide the native combat tab",
         "Hint": "Hides the Combat Tracker tab in the sidebar while the wheel is open."
       },
+      "showSettingHints": {
+        "Name": "Show setting descriptions",
+        "Hint": "Shows the description under each option of this window. Turned off, each one becomes an (i) by the option's name, with the description as its tooltip."
+      },
       "keepSidebarTab": {
         "Name": "Stay on your sidebar tab",
         "Hint": "Something other than your own click may switch the sidebar to the Combat tab, a system or a module as a combat starts, for example. With this on, the sidebar stays on the tab you had open, such as Chat, and does not open by itself. The Combat tab still opens when you click it, and right-clicking it still pops it out."
@@ -136,10 +140,49 @@
       },
       "defeatedMode": {
         "Name": "Dead combatants",
-        "Hint": "Defeated, or at 0 hit points as far as each viewer may know. Their portrait always turns black and white.",
+        "Hint": "Whether defeated combatants stay on the wheel, the Carousel, the Slider and the overview, for everyone, the GM included. What counts as defeated is set below, for NPCs and for player characters apart. Removing only NPCs keeps every combatant a player owns: their characters, and the companions and summons they control. It only changes the display: nobody is removed from the combat, tokens stay on the scene, Foundry's combat tracker still lists them, the turn order is Foundry's, and skipping dead turns keeps its own option. When a removed combatant's turn comes, the wheel waits on the next one shown.",
         "Choices": {
-          "fade": "Keep them, in black and white",
-          "remove": "Remove them from the wheel"
+          "fade": "Keep them on the wheel",
+          "removeNpcs": "Remove NPCs, keep player characters",
+          "remove": "Remove them all from the wheel"
+        }
+      },
+      "defeatedLookNpc": {
+        "Name": "Defeated NPCs look",
+        "Hint": "For everyone, on the wheel, the Carousel, the Slider and the overview: a skull over the portrait, the portrait in black and white, both, or neither. NPCs are combatants no player owns. Only the picture changes: hit points, Foundry's defeated mark, the turn order and skipping dead turns stay as they are.",
+        "Choices": {
+          "skullGrey": "Skull and black and white",
+          "skull": "Skull only",
+          "grey": "Black and white only",
+          "none": "Nothing: they look like anyone else"
+        }
+      },
+      "defeatedTriggerNpc": {
+        "Name": "When an NPC counts as defeated",
+        "Hint": "Foundry's defeated mark (the skull in its combat tracker), 0 hit points, or either. It decides the look below and, when \"Dead combatants\" removes NPCs, which ones leave the wheel. 0 hit points counts only as far as each viewer may know: hit points a player cannot see never show it. Skipping dead turns keeps its own rule.",
+        "Choices": {
+          "either": "Defeated mark or 0 hit points",
+          "flag": "Defeated mark only",
+          "hp": "0 hit points only"
+        }
+      },
+      "defeatedLookPc": {
+        "Name": "Defeated player characters look",
+        "Hint": "The same, for combatants a player owns: their characters, and the companions and summons they control. 0 hit points need not mean dead (death saves, for example): set this to nothing, or count them defeated by the defeated mark only, to keep them in full colour.",
+        "Choices": {
+          "skullGrey": "Skull and black and white",
+          "skull": "Skull only",
+          "grey": "Black and white only",
+          "none": "Nothing: they look like anyone else"
+        }
+      },
+      "defeatedTriggerPc": {
+        "Name": "When a player character counts as defeated",
+        "Hint": "The same, for combatants a player owns: Foundry's defeated mark, 0 hit points, or either. The defeated mark only keeps a character making death saves at 0 on the wheel, as they are.",
+        "Choices": {
+          "either": "Defeated mark or 0 hit points",
+          "flag": "Defeated mark only",
+          "hp": "0 hit points only"
         }
       },
       "npcNames": {
@@ -153,6 +196,15 @@
       "hideEnemyInitiative": {
         "Name": "Hide enemy initiative until their turn",
         "Hint": "Players do not see the initiative of a combatant that is not friendly and that they do not own until its turn comes up for the first time: a \"?\" stands in for it on the wheel, in its details, in the overview and in Foundry's combat tracker, and a public initiative roll for it goes to the GM only. Once shown it stays shown, after a reload too, until that initiative is rolled again or changed. The GM always sees every number, and the turn order itself stays visible."
+      },
+      "concealEnemyIdentity": {
+        "Name": "Conceal enemies until their first turn",
+        "Hint": "Players do not know who a combatant that is not friendly and that they do not own is until its first turn comes up. As an unknown card, an \"Unknown\" slot with a \"?\" keeps its place in the order on the wheel, in its details, in the overview, in the turn announcement and in Foundry's combat tracker, without its name, picture, effects or hit points, and clicking or hovering it does not find its token; its initiative follows the setting above. Left out, it does not appear at all, in the wheel or in Foundry's tracker, until its turn: players do not know how many there are or where they act. A public initiative roll for it goes to the GM only. Its turn reveals it for good, after a reload, a reroll or a reset of the initiatives too; a dead combatant skipped automatically stays unknown. Hidden combatants stay hidden. The GM always sees everyone, and tokens on the scene are not affected.",
+        "Choices": {
+          "off": "Show them",
+          "placeholder": "As an unknown \"?\" card",
+          "omit": "Leave them out until their turn"
+        }
       },
       "nextUpNotice": {
         "Name": "Up-next notice",
@@ -1472,6 +1524,7 @@
       "Add": "+ Add a consequence…",
       "Enabled": "On",
       "Missing": "needs",
+      "ScriptHint": "Runs on the active GM as a script macro. Besides speaker, actor, token and character, it gets combat, combatant (this position) and virtual (its template). await works.",
       "DropHere": "Drop a document or paste a UUID",
       "Kinds": {
         "screenMessage": "Message on screen",
@@ -1492,6 +1545,8 @@
         "src": "Sound file",
         "volume": "Volume (%)",
         "name": "Hook name",
+        "source": "Source",
+        "script": "Script",
         "macroUuid": "Macro",
         "tableUuid": "Roll table",
         "scareId": "Scare id",
@@ -1504,6 +1559,10 @@
         "amount": "Amount"
       },
       "Choices": {
+        "source": {
+          "macro": "A world macro",
+          "inline": "A script written here"
+        },
         "audience": {
           "all": "Everyone who sees the position",
           "gm": "GM only"

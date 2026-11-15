@@ -313,7 +313,7 @@
       <ul class="scw-strip-list">
         {{#each bar.strip.members}}
           <li class="scw-strip-member">
-            <button type="button" class="scw-strip-actor is-{{status}} is-{{dispositionKey}} {{#if isOwner}}is-own{{/if}}"
+            <button type="button" class="scw-strip-actor is-{{status}} is-{{dispositionKey}} {{#if isOwner}}is-own{{/if}} {{#if isDefeatedGrey}}is-defeated-grey{{/if}}"
                     data-strip-combatant="{{id}}" data-tooltip="{{tooltip}}" aria-label="{{tooltip}}">
               <span class="scw-strip-portrait">
                 {{#if img}}<img src="{{img}}" alt="" draggable="false">{{else}}<span class="scw-strip-initials">{{initials}}</span>{{/if}}

@@ -220,7 +220,9 @@ export default class WheelViewData {
       dispositionKey: member.dispositionKey,
       status: member.status,
       isDone: member.status === "done",
-      isDefeated: member.status === "defeated",
+      // #15: the table's defeated look, apart from the "defeated" status, which is what Venaerys counts.
+      isDefeated: Boolean(member.defeatedSkull),
+      isDefeatedGrey: Boolean(member.defeatedGrey),
       isOwner: member.isOwner,
       tooltip: `${member.name} · ${status}`,
     };

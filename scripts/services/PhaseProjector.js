@@ -33,8 +33,10 @@ export default class PhaseProjector {
     const { isGM, settings } = context;
     const round = combat.round;
     const currentId = currentPhaseIdOf(combat, plan);
-    const vmContext = { ...context, round };
-    const onRing = (vm) => isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode });
+    // #14: everyone in the phase that acts shows who they are; Venaerys keeps the fallen from acting.
+    const actingIds = new Set((combat.turns ?? []).filter((c) => currentId && venaerysFlags(c).phase === currentId).map((c) => c.id));
+    const vmContext = { ...context, round, acting: { ids: actingIds, skipDead: "all" } };
+    const onRing = (vm) => isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode, omitUnidentified: settings.concealEnemyIdentity === "omit" });
 
     const membersByPhase = new Map(plan.map((phase) => [phase.id, []]));
     const everyone = [];
@@ -59,7 +61,7 @@ export default class PhaseProjector {
     const currentIndex = Math.max(found, 0);
     const current = N ? ring[currentIndex] : null;
     const acting = current && !current.waiting ? current.members : [];
-    const own = acting.filter((member) => member.isOwner && !member.dead && !(isGM && member.hasPlayerOwner));
+    const own = acting.filter((member) => member.isOwner && !member.defeated && !(isGM && member.hasPlayerOwner));
     return {
       combatId: combat.id,
       phased: true,
@@ -91,7 +93,9 @@ export default class PhaseProjector {
 
   static #member(vm, combatant, { round, half, isCurrent }) {
     let status = "waiting";
-    if (vm.dead) status = "defeated";
+    // Venaerys's own state, Foundry's defeated mark (its `isDefeated`): progress, who holds the phase and the
+    // "done" buttons follow it, never the wheel's display trigger (`dead`, #15/#16), which hit points may set.
+    if (vm.defeated) status = "defeated";
     else if (isCurrent) status = memberProgress(combatant, { round, half });
     else if (memberProgress(combatant, { round, half: null }) === "done") status = "done";
     return { ...vm, status };
@@ -109,7 +113,7 @@ export default class PhaseProjector {
       memberCount: members.length,
       finishedCount: finished,
       // "Own turn" and "next up" (sounds, notice) mean the phase of one of the user's combatants.
-      isOwner: members.some((member) => member.isOwner && !member.dead),
+      isOwner: members.some((member) => member.isOwner && !member.defeated),
       hasPlayerOwner: members.some((member) => member.hasPlayerOwner),
     };
   }

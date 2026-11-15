@@ -9,7 +9,7 @@ export default class CombatProjector {
   /**
    * @param {Combat|null} combat
    * @param {object} context  { isGM, settings, unknownName, isVideo }
-   *   settings: { portraitSource, hpForPlayers, npcNames, defeatedMode, concealment, secondsPerRound }
+   *   settings: { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedMode, concealment, skipDead, secondsPerRound }
    * @returns {object|null} WheelModel
    */
   static project(combat, context) {
@@ -19,13 +19,15 @@ export default class CombatProjector {
     const round = Number.isInteger(combat.round) ? combat.round : 0;
     const turn = Number.isInteger(combat.turn) ? combat.turn : 0;
     const started = Boolean(combat.started ?? round > 0);
-    const vmContext = { ...context, round };
+    // #14: whoever's turn it is shows who they are on every client at once, before the GM's flag comes back.
+    const actingId = started ? turns[turn]?.id : null;
+    const vmContext = { ...context, round, acting: { ids: new Set(actingId ? [actingId] : []), skipDead: settings.skipDead } };
 
     const ring = [];
     const ringIndexByTurn = new Map();
     turns.forEach((combatant, turnIndex) => {
       const vm = CombatantAdapter.toViewModel(combatant, vmContext);
-      if (!isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode })) return;
+      if (!isOnRing(vm, { isGM, defeatedMode: settings.defeatedMode, omitUnidentified: settings.concealEnemyIdentity === "omit" })) return;
       ringIndexByTurn.set(turnIndex, ring.length);
       ring.push(vm);
     });

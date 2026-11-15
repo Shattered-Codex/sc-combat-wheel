@@ -5,6 +5,7 @@ import { initiativeLabel } from "../helpers/initiative-reveal.js";
 import { OVERVIEW_GRID, gridClip, gridLayout, shortestOffset } from "../helpers/wheel-geometry.js";
 import { wheelRotation } from "../helpers/orientation.js";
 import { cardClip, trackPose } from "../helpers/track-geometry.js";
+import { applyDefeatedLook } from "../helpers/defeated-look.js";
 
 const EASE = "cubic-bezier(.3,.1,.15,1)";
 const MOVE_MS = 650;
@@ -264,7 +265,7 @@ export default class OverviewLayer {
     element.className = `scw-grid-tile is-${vm.dispositionKey}`;
     element.classList.toggle("is-turn", j === OverviewLayer.#turnIndex(model));
     element.classList.toggle("is-hidden", Boolean(vm.concealed));
-    element.classList.toggle("is-defeated", Boolean(vm.dead));
+    applyDefeatedLook(element, vm);
     element.classList.toggle("is-virtual", Boolean(vm.virtual));
     element.tabIndex = 0;
     element.setAttribute("role", "button");

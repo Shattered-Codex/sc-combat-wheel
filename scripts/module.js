@@ -8,6 +8,7 @@ import CommunityLinks from "./applications/CommunityLinks.js";
 import AnnouncementCards from "./services/AnnouncementCards.js";
 import CombatWatcher from "./services/CombatWatcher.js";
 import InitiativeReveal from "./services/InitiativeReveal.js";
+import IdentityReveal from "./services/IdentityReveal.js";
 import SidebarTabGuard from "./services/SidebarTabGuard.js";
 import StylePicker from "./services/StylePicker.js";
 import StyleLoader from "./services/StyleLoader.js";
@@ -29,6 +30,7 @@ Hooks.once("init", () => {
   registerTrackerMenu(watcher);
   SidebarTabGuard.install();
   InitiativeReveal.install();
+  IdentityReveal.install();
   Hooks.on("renderSettingsConfig", (application, html) => CommunityLinks.inject(html));
 });
 
@@ -51,6 +53,7 @@ Hooks.once("ready", () => {
   watcher.start();
   SidebarTabGuard.start();
   InitiativeReveal.start();
+  IdentityReveal.start();
   void AnnouncementCards.sync();
   migrateBrowserAppearance().catch((error) => console.error(`${MODULE_ID} | appearance migration failed`, error));
 });

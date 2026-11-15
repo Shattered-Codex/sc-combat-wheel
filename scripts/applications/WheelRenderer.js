@@ -2,6 +2,7 @@ import { HIDDEN_OPACITY, I18N_ROOT, PAST_OPACITY } from "../constants/module-con
 import { trackPose } from "../helpers/track-geometry.js";
 import { portraitHpLabel } from "../helpers/visibility-rules.js";
 import { initiativeLabel } from "../helpers/initiative-reveal.js";
+import { applyDefeatedLook } from "../helpers/defeated-look.js";
 import { windowSlots } from "../helpers/wheel-geometry.js";
 
 /**
@@ -224,7 +225,7 @@ export default class WheelRenderer {
   /** Only rewrites the slice's content when what it shows actually changed. */
   #applyContent(slot, vm, round) {
     const signature = vm
-      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
+      ? [vm.id, vm.name, vm.img, vm.imgPosition, vm.initiative, vm.initiativeHidden, vm.identityHidden, vm.dispositionKey, vm.concealed, vm.dead, vm.defeatedSkull, vm.defeatedGrey, vm.isOwner, vm.virtual, round, vm.hp.text ?? vm.hp.stateKey ?? "", vm.healthTone, vm.hp.pct, vm.icon, vm.color, vm.finishedCount, vm.memberCount].join("|")
       : "";
     if (signature === slot.signature) return;
     slot.signature = signature;
@@ -234,7 +235,7 @@ export default class WheelRenderer {
       element.classList.toggle(`is-${key}`, vm?.dispositionKey === key);
     }
     element.classList.toggle("is-hidden", Boolean(vm?.concealed));
-    element.classList.toggle("is-defeated", Boolean(vm?.dead));
+    applyDefeatedLook(element, vm);
     element.classList.toggle("is-unrolled", Boolean(vm && !vm.hasInitiative && !vm.virtual));
     element.classList.toggle("is-virtual", Boolean(vm?.virtual));
     this.#applyPhase(slot, vm);

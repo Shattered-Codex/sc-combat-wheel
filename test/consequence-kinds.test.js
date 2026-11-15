@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { CONSEQUENCE_KINDS, consequencesToRun, newConsequence, normalizeConsequence } from "../scripts/helpers/consequence-kinds.js";
+import { CONSEQUENCE_KINDS, consequencesToRun, isConsequenceFieldShown, newConsequence, normalizeConsequence } from "../scripts/helpers/consequence-kinds.js";
 
 describe("normalizeConsequence (RF-68)", () => {
   it("defaults every field of the kind and drops unknown ones", () => {
@@ -12,6 +12,23 @@ describe("normalizeConsequence (RF-68)", () => {
   it("falls back to a screen message for unknown kinds and keeps choices honest", () => {
     assert.equal(normalizeConsequence({ kind: "explode" }).kind, "screenMessage");
     assert.equal(normalizeConsequence({ kind: "resource", params: { operation: "steal" } }).params.operation, "add");
+  });
+
+  it("reads a macro row saved before inline scripts as a world macro, and keeps an inline script", () => {
+    const saved = normalizeConsequence({ kind: "macro", params: { macroUuid: "Macro.abc" } });
+    assert.deepEqual(saved.params, { source: "macro", macroUuid: "Macro.abc", script: "" });
+    const inline = normalizeConsequence({ kind: "macro", params: { source: "inline", script: "const a = 1;\n  await game.togglePause();\n" } });
+    assert.equal(inline.params.source, "inline");
+    assert.equal(inline.params.script, "const a = 1;\n  await game.togglePause();");
+  });
+
+  it("shows the macro picker or the script box by the row's source", () => {
+    const [source, picker, script] = CONSEQUENCE_KINDS.macro.fields;
+    assert.equal(isConsequenceFieldShown(source, { source: "inline" }), true, "a field that depends on nothing");
+    assert.equal(isConsequenceFieldShown(picker, { source: "macro" }), true);
+    assert.equal(isConsequenceFieldShown(script, { source: "macro" }), false);
+    assert.equal(isConsequenceFieldShown(picker, { source: "inline" }), false);
+    assert.equal(isConsequenceFieldShown(script, { source: "inline" }), true);
   });
 
   it("builds fresh rows for every kind", () => {

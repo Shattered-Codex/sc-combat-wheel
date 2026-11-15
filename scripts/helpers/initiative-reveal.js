@@ -117,14 +117,18 @@ export function combatantsOfSpeaker(speaker, combatants) {
 }
 
 /**
- * Whether an initiative roll must go to the GM only: the world hides enemies'
- * initiative, the message would be public (a whisper, a blind or a self roll
- * is left as it is), and it rolls for someone whose number players may not
- * see — not friendly, no virtual position.
+ * Whether an initiative roll must go to the GM only: the message would be
+ * public (a whisper, a blind or a self roll is left as it is), and it rolls
+ * for someone players may not know about yet — not friendly, no virtual
+ * position — while the world hides enemies' initiative (#11), or conceals
+ * enemies (#14) and that one has not been revealed: the message names its
+ * speaker.
  */
-export function shouldKeepRollFromPlayers({ hideEnemyInitiative, whisper, rolled }) {
-  if (!hideEnemyInitiative || (whisper?.length ?? 0) > 0) return false;
-  return rolled.some((c) => !c.virtual && c.disposition !== DISPOSITION.FRIENDLY);
+export function shouldKeepRollFromPlayers({ hideEnemyInitiative, concealEnemyIdentity = false, whisper, rolled }) {
+  if ((!hideEnemyInitiative && !concealEnemyIdentity) || (whisper?.length ?? 0) > 0) return false;
+  const enemies = rolled.filter((c) => !c.virtual && c.disposition !== DISPOSITION.FRIENDLY);
+  if (hideEnemyInitiative) return enemies.length > 0;
+  return enemies.some((c) => !c.revealed);
 }
 
 /**

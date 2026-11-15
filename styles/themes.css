@@ -1844,7 +1844,7 @@ body.theme-dark .sc-combat-wheel[data-scw-theme="coc7"] {
   color: #f3f7f7;
   font: 600 9px var(--scw-font-body);
 }
-.sc-combat-wheel[data-scw-theme="tide"] .scw-slot.is-defeated .scw-flag-defeated { font-size: 2rem; opacity: 0.8; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); }
+.sc-combat-wheel[data-scw-theme="tide"] .scw-slot.is-defeated-skull .scw-flag-defeated { font-size: 2rem; opacity: 0.8; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); }
 
 @media (prefers-reduced-motion: reduce) {
   .sc-combat-wheel[data-scw-theme="obsidian"].scw-view-track .scw-slot.is-active .scw-rim { animation: none; }

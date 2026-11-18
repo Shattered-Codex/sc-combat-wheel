@@ -65,6 +65,17 @@ describe("settings schema (RF-70)", () => {
       assert.ok(entry.choices.includes(entry.default), entry.key);
     }
   });
+
+  it("keeps HP disposition policies GM-controlled and preserves existing worlds", () => {
+    const row = (key) => SETTINGS_SCHEMA.find((entry) => entry.key === key);
+    assert.equal(row("hpForPlayers").default, "state");
+    for (const key of ["hpForFriendly", "hpForNeutral", "hpForHostile", "hpForSecret"]) {
+      const entry = row(key);
+      assert.deepEqual([entry.scope, entry.section, entry.react], ["world", "players", "data"]);
+      assert.deepEqual(entry.choices, ["default", "number", "bar", "state", "hidden"]);
+      assert.equal(entry.default, key === "hpForFriendly" ? "number" : "default");
+    }
+  });
 });
 
 describe("appearance editor (RF-73)", () => {

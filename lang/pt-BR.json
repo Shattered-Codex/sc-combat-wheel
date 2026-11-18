@@ -129,9 +129,53 @@
         }
       },
       "hpForPlayers": {
-        "Name": "PV dos inimigos para jogadores",
-        "Hint": "O que os jogadores veem de combatentes que não são amigáveis nem deles.",
+        "Name": "Visibilidade padrão dos PV",
+        "Hint": "O que os jogadores veem de combatentes que não possuem quando a disposição usa este padrão. Vale para todas as visualizações, retratos, tooltips e painéis de detalhes. O Mestre e os donos sempre veem PV exatos. A visibilidade das barras do token é configurada separadamente.",
         "Choices": {
+          "number": "Número exato",
+          "bar": "Só a barra",
+          "state": "Estado descritivo",
+          "hidden": "Nada"
+        }
+      },
+      "hpForFriendly": {
+        "Name": "PV dos amigáveis",
+        "Hint": "O que os jogadores veem de combatentes amigáveis que não possuem. Escolha Nada ou Estado descritivo para manter os valores de PV dos aliados privados também. O Mestre e os donos sempre veem PV exatos.",
+        "Choices": {
+          "default": "Usar visibilidade padrão",
+          "number": "Número exato",
+          "bar": "Só a barra",
+          "state": "Estado descritivo",
+          "hidden": "Nada"
+        }
+      },
+      "hpForNeutral": {
+        "Name": "PV dos neutros",
+        "Hint": "O que os jogadores veem de combatentes neutros que não possuem. O Mestre e os donos sempre veem PV exatos.",
+        "Choices": {
+          "default": "Usar visibilidade padrão",
+          "number": "Número exato",
+          "bar": "Só a barra",
+          "state": "Estado descritivo",
+          "hidden": "Nada"
+        }
+      },
+      "hpForHostile": {
+        "Name": "PV dos hostis",
+        "Hint": "O que os jogadores veem de combatentes hostis que não possuem. O Mestre e os donos sempre veem PV exatos.",
+        "Choices": {
+          "default": "Usar visibilidade padrão",
+          "number": "Número exato",
+          "bar": "Só a barra",
+          "state": "Estado descritivo",
+          "hidden": "Nada"
+        }
+      },
+      "hpForSecret": {
+        "Name": "PV da disposição secreta",
+        "Hint": "O que os jogadores veem de combatentes com a disposição de token Secreta que não possuem. Combatentes ocultos continuam ocultos. O Mestre e os donos sempre veem PV exatos.",
+        "Choices": {
+          "default": "Usar visibilidade padrão",
           "number": "Número exato",
           "bar": "Só a barra",
           "state": "Estado descritivo",
@@ -409,7 +453,7 @@
       },
       "hpLabel": {
         "Name": "Números de PV",
-        "Hint": "Escreve os PV em cada retrato. Só aparece para quem pode ver o valor exato: o Mestre, os donos e os combatentes amigáveis, ou todos quando os PV dos inimigos aparecem como número.",
+        "Hint": "Escreve os PV em cada retrato. Só aparece para o Mestre, os donos e os jogadores autorizados a ver números exatos pelas configurações de visibilidade dos PV. Só a barra, Estado descritivo e Nada nunca mostram números nem porcentagens.",
         "Choices": {
           "off": "Desligado",
           "fraction": "Atual / máximo (25/40)",
@@ -1331,7 +1375,7 @@
         },
         "players": {
           "Title": "O que os jogadores veem",
-          "Hint": "Quanto dos inimigos a roda dos jogadores revela. O Mestre sempre vê tudo. Vale para o mundo inteiro."
+          "Hint": "O que os jogadores podem ver dos combatentes, incluindo os PV por disposição do token. O Mestre sempre vê tudo. Vale para o mundo inteiro."
         },
         "rules": {
           "Title": "Regras de combate",

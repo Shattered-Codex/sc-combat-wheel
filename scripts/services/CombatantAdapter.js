@@ -21,7 +21,7 @@ export default class CombatantAdapter {
    * @param {object} context
    * @param {boolean} context.isGM
    * @param {number} context.round            current combat round, for effect durations
-   * @param {object} context.settings         { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedLook }
+   * @param {object} context.settings         { portraitSource, hpForPlayers, hpByDisposition, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedLook }
    *   defeatedLook: { npc: { look, trigger }, pc: { look, trigger } } (#15)
    * @param {string} context.unknownName      label for names the viewer may not read
    * @param {(src: string) => boolean} [context.isVideo]
@@ -55,6 +55,7 @@ export default class CombatantAdapter {
       isOwner,
       disposition,
       hpForPlayers: settings.hpForPlayers,
+      hpByDisposition: settings.hpByDisposition,
     });
     const defeated = Boolean(combatant.isDefeated ?? combatant.defeated);
     const hidden = Boolean(combatant.hidden);

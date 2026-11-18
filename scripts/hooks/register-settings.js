@@ -253,6 +253,12 @@ export function projectionSettings({ portraitImage } = {}) {
   return {
     portraitSource: portraitSource(portraitImage),
     hpForPlayers: getSetting(SETTINGS.hpForPlayers),
+    hpByDisposition: {
+      friendly: getSetting(SETTINGS.hpForFriendly),
+      neutral: getSetting(SETTINGS.hpForNeutral),
+      hostile: getSetting(SETTINGS.hpForHostile),
+      secret: getSetting(SETTINGS.hpForSecret),
+    },
     npcNames: getSetting(SETTINGS.npcNames),
     hideEnemyInitiative: getSetting(SETTINGS.hideEnemyInitiative),
     concealEnemyIdentity: concealModeOf(getSetting(SETTINGS.concealEnemyIdentity)),

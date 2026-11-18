@@ -129,9 +129,53 @@
         }
       },
       "hpForPlayers": {
-        "Name": "Enemy hit points for players",
-        "Hint": "What players see of combatants that are not friendly and not their own.",
+        "Name": "Default hit point visibility",
+        "Hint": "What players see of combatants they do not own when their disposition uses this default. Applies to every view, portrait, tooltip and details panel. The GM and owners always see exact hit points. Token bar visibility is configured separately.",
         "Choices": {
+          "number": "Exact number",
+          "bar": "Bar only",
+          "state": "Descriptive state",
+          "hidden": "Nothing"
+        }
+      },
+      "hpForFriendly": {
+        "Name": "Friendly hit points",
+        "Hint": "What players see of friendly combatants they do not own. Choose Nothing or Descriptive state to keep allied hit point values private too. The GM and owners always see exact hit points.",
+        "Choices": {
+          "default": "Use default visibility",
+          "number": "Exact number",
+          "bar": "Bar only",
+          "state": "Descriptive state",
+          "hidden": "Nothing"
+        }
+      },
+      "hpForNeutral": {
+        "Name": "Neutral hit points",
+        "Hint": "What players see of neutral combatants they do not own. The GM and owners always see exact hit points.",
+        "Choices": {
+          "default": "Use default visibility",
+          "number": "Exact number",
+          "bar": "Bar only",
+          "state": "Descriptive state",
+          "hidden": "Nothing"
+        }
+      },
+      "hpForHostile": {
+        "Name": "Hostile hit points",
+        "Hint": "What players see of hostile combatants they do not own. The GM and owners always see exact hit points.",
+        "Choices": {
+          "default": "Use default visibility",
+          "number": "Exact number",
+          "bar": "Bar only",
+          "state": "Descriptive state",
+          "hidden": "Nothing"
+        }
+      },
+      "hpForSecret": {
+        "Name": "Secret-disposition hit points",
+        "Hint": "What players see of combatants with the Secret token disposition that they do not own. Hidden combatants stay hidden. The GM and owners always see exact hit points.",
+        "Choices": {
+          "default": "Use default visibility",
           "number": "Exact number",
           "bar": "Bar only",
           "state": "Descriptive state",
@@ -409,7 +453,7 @@
       },
       "hpLabel": {
         "Name": "Hit points numbers",
-        "Hint": "Prints the hit points on each portrait. Only shown to whoever may read the exact value: the GM, owners and friendly combatants, or everyone when enemy hit points are shown as numbers.",
+        "Hint": "Prints the hit points on each portrait. Only shown to the GM, owners and players allowed to see exact numbers by the hit point visibility settings. Bar only, Descriptive state and Nothing never show numbers or percentages.",
         "Choices": {
           "off": "Off",
           "fraction": "Current / max (25/40)",
@@ -1331,7 +1375,7 @@
         },
         "players": {
           "Title": "What players see",
-          "Hint": "How much of the enemies the players' wheels reveal. The GM always sees everything. Applies to the whole world."
+          "Hint": "What players can see of combatants, including hit points by token disposition. The GM always sees everything. Applies to the whole world."
         },
         "rules": {
           "Title": "Combat rules",

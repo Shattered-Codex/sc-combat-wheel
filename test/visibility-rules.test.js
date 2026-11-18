@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { DISPOSITION } from "../scripts/constants/module-constants.js";
+import { DISPOSITION, DISPOSITION_KEYS } from "../scripts/constants/module-constants.js";
 import {
   healthState,
   hpView,
@@ -86,6 +86,50 @@ describe("healthState", () => {
 
 describe("hpView", () => {
   const foe = { isGM: false, isOwner: false, disposition: DISPOSITION.HOSTILE };
+
+  it("applies every visibility mode independently to all four dispositions", () => {
+    const hp = { value: 3, max: 10 };
+    const dispositions = { friendly: DISPOSITION.FRIENDLY, neutral: DISPOSITION.NEUTRAL, hostile: DISPOSITION.HOSTILE, secret: DISPOSITION.SECRET };
+    for (const [key, disposition] of Object.entries(dispositions)) {
+      for (const mode of ["number", "bar", "state", "hidden"]) {
+        const hpByDisposition = { friendly: "hidden", neutral: "hidden", hostile: "hidden", secret: "hidden", [key]: mode };
+        const view = hpView(hp, { ...foe, disposition, hpForPlayers: "number", hpByDisposition });
+        assert.equal(view.mode, mode, `${key}: ${mode}`);
+        if (mode === "number") assert.equal(view.text, "3/10");
+        else {
+          for (const field of ["value", "max", "text"]) assert.equal(view[field], undefined, `${key}: ${mode}.${field}`);
+          assert.equal(portraitHpLabel(view), null, `${key}: no portrait numbers or percentages`);
+        }
+        if (mode === "bar") assert.equal(view.pct, 0.3);
+        if (mode === "state") {
+          assert.equal(view.stateKey, "bloodied");
+          assert.equal(view.pct, 0.5, "only the band, never the exact ratio");
+        }
+        if (mode === "hidden") assert.deepEqual(view, { mode: "hidden" });
+        for (const role of [{ isGM: true }, { isOwner: true }]) {
+          assert.equal(hpView(hp, { ...foe, disposition, hpForPlayers: "hidden", hpByDisposition, ...role }).text, "3/10");
+        }
+      }
+    }
+  });
+
+  it("preserves old defaults and lets each disposition inherit any stored player mode", () => {
+    const hp = { value: 3, max: 10 };
+    for (const hpForPlayers of ["number", "bar", "state", "hidden"]) {
+      for (const disposition of Object.values(DISPOSITION)) {
+        const key = DISPOSITION_KEYS[disposition];
+        const options = { ...foe, disposition, hpForPlayers };
+        assert.equal(hpView(hp, options).mode, disposition === DISPOSITION.FRIENDLY ? "number" : hpForPlayers);
+        assert.equal(hpView(hp, { ...options, hpByDisposition: { [key]: "default" } }).mode, hpForPlayers);
+      }
+    }
+  });
+
+  it("uses the default for unknown dispositions and hides invalid explicit policies", () => {
+    const hp = { value: 3, max: 10 };
+    assert.deepEqual(hpView(hp, { ...foe, disposition: 99, hpForPlayers: "hidden", hpByDisposition: { friendly: "number" } }), { mode: "hidden" });
+    assert.deepEqual(hpView(hp, { ...foe, disposition: DISPOSITION.FRIENDLY, hpForPlayers: "number", hpByDisposition: { friendly: "invalid" } }), { mode: "hidden" });
+  });
 
   it("honours every player mode for non-friendly combatants", () => {
     const hp = { value: 3, max: 10 };

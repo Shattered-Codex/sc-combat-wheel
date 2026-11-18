@@ -215,8 +215,13 @@ export const SETTINGS_SCHEMA = Object.freeze([
 
   // What players see (world)
   { key: SETTINGS.hpForPlayers, scope: "world", type: "choice", choices: ["number", "bar", "state", "hidden"], default: "state", section: "players", react: "data" },
+  // Disposition overrides preserve existing worlds: friendlies were exact; the rest used hpForPlayers.
+  { key: SETTINGS.hpForFriendly, scope: "world", type: "choice", choices: ["default", "number", "bar", "state", "hidden"], default: "number", section: "players", react: "data" },
+  { key: SETTINGS.hpForNeutral, scope: "world", type: "choice", choices: ["default", "number", "bar", "state", "hidden"], default: "default", section: "players", react: "data" },
+  { key: SETTINGS.hpForHostile, scope: "world", type: "choice", choices: ["default", "number", "bar", "state", "hidden"], default: "default", section: "players", react: "data" },
+  { key: SETTINGS.hpForSecret, scope: "world", type: "choice", choices: ["default", "number", "bar", "state", "hidden"], default: "default", section: "players", react: "data" },
   { key: SETTINGS.npcNames, scope: "world", type: "choice", choices: ["always", "token"], default: "always", section: "players", react: "data" },
-  // #11: the same line as the exact hit points (RF-42): the GM, owners and friendly combatants always see it.
+  // #11: initiative keeps its own rule: the GM, owners and viewers of friendly combatants always see it.
   { key: SETTINGS.hideEnemyInitiative, scope: "world", type: "boolean", default: false, section: "players", react: "data" },
   // #14: the same line, for who the combatant is: a placeholder holds its slot, or it is left out, until its first turn.
   { key: SETTINGS.concealEnemyIdentity, scope: "world", type: "choice", choices: ["off", "placeholder", "omit"], default: "off", section: "players", react: "data" },

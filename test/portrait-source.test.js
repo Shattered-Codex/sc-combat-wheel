@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { installFoundryStubs } from "./helpers/foundry-stub.js";
 
 installFoundryStubs();
-const { portraitSource } = await import("../scripts/hooks/register-settings.js");
+const { portraitSource, projectionSettings } = await import("../scripts/hooks/register-settings.js");
 
 function useSettings(values) {
   game.settings.get = (module, key) => values[key];
@@ -36,5 +36,14 @@ describe("portrait image (RF-117)", () => {
     } finally {
       game.user.isGM = true;
     }
+  });
+});
+
+describe("hit point visibility settings (RF-42)", () => {
+  it("hands every disposition's policy to the projection", () => {
+    useSettings({ portraitSource: "token", hpForPlayers: "state", hpForFriendly: "hidden", hpForNeutral: "default", hpForHostile: "bar", hpForSecret: "number" });
+    const settings = projectionSettings();
+    assert.equal(settings.hpForPlayers, "state");
+    assert.deepEqual(settings.hpByDisposition, { friendly: "hidden", neutral: "default", hostile: "bar", secret: "number" });
   });
 });

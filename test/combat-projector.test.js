@@ -197,6 +197,25 @@ describe("CombatantAdapter", () => {
     assert.equal(CombatantAdapter.toViewModel(ally, { ...player, round: 1 }).hp.text, "4/10");
   });
 
+  it("projects disposition policies without exposing hidden HP through health or defeated visuals", () => {
+    const turns = [
+      combatant("ally", { disposition: DISPOSITION.FRIENDLY, hp: { value: 0, max: 10 } }),
+      combatant("neutral", { disposition: DISPOSITION.NEUTRAL, hp: { value: 4, max: 10 } }),
+      combatant("hostile", { disposition: DISPOSITION.HOSTILE, hp: { value: 4, max: 10 } }),
+      combatant("secret", { disposition: DISPOSITION.SECRET, hp: { value: 4, max: 10 } }),
+      combatant("concealed", { hidden: true, disposition: DISPOSITION.FRIENDLY }),
+    ];
+    const policy = { ...settings, hpForPlayers: "number", hpByDisposition: { friendly: "hidden", neutral: "state", hostile: "bar", secret: "hidden" } };
+    const model = CombatProjector.project(combat(turns), { ...player, settings: policy });
+    assert.deepEqual(model.ring.map((vm) => vm.hp.mode), ["hidden", "state", "bar", "hidden"]);
+    assert.equal(model.ring[0].dead, false, "hidden HP cannot expose an unmarked defeat");
+    assert.equal(model.ring[0].healthTone, null);
+    assert.equal(model.ring[3].healthTone, null);
+    assert.ok(model.ring.every((vm) => vm.hpTotal === null && vm.hp.text === undefined));
+    assert.ok(CombatProjector.project(combat(turns), { ...gm, settings: policy }).ring.every((vm) => vm.hp.mode === "number"));
+    assert.equal(CombatantAdapter.toViewModel(combatant("owned", { isOwner: true, disposition: DISPOSITION.FRIENDLY }), { ...player, round: 1, settings: policy }).hp.mode, "number");
+  });
+
   it("hides names the token does not display, only in token mode", () => {
     const hidden = combatant("a", { displayName: TOKEN_DISPLAY.OWNER });
     const tokenMode = { ...player, round: 1, settings: { ...settings, npcNames: "token" } };

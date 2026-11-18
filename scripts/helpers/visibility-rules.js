@@ -1,4 +1,4 @@
-import { DISPOSITION, TOKEN_DISPLAY } from "../constants/module-constants.js";
+import { DISPOSITION, DISPOSITION_KEYS, TOKEN_DISPLAY } from "../constants/module-constants.js";
 import { removedWhenDefeated } from "./defeated-look.js";
 
 /**
@@ -68,17 +68,19 @@ const CRITICAL_RATIO = 0.3;
 
 /**
  * RF-42: what this viewer may see of a combatant's hit points.
- * Owners, the GM and viewers of friendly combatants see the exact value;
- * everyone else gets the world's `hpForPlayers` mode.
+ * Owners and the GM see the exact value. Other players use the disposition's
+ * policy, or hpForPlayers when it inherits the default. Missing overrides
+ * preserve the old rule: friendly combatants exact, everyone else the default.
  */
-export function hpView(hp, { isGM, isOwner, disposition, hpForPlayers }) {
+export function hpView(hp, { isGM, isOwner, disposition, hpForPlayers, hpByDisposition = {} }) {
   if (!hp || !Number.isFinite(hp.value) || !Number.isFinite(hp.max) || hp.max <= 0) {
     return { mode: "none" };
   }
   const ratio = Math.min(Math.max(hp.value / hp.max, 0), 1);
   const stateKey = healthState(hp.value, hp.max);
-  const exact = isGM || isOwner || disposition === DISPOSITION.FRIENDLY;
-  const mode = exact ? "number" : hpForPlayers;
+  const policy = hpByDisposition[DISPOSITION_KEYS[disposition]]
+    ?? (disposition === DISPOSITION.FRIENDLY ? "number" : "default");
+  const mode = isGM || isOwner ? "number" : policy === "default" ? hpForPlayers : policy;
 
   if (mode === "number") {
     return { mode, text: `${hp.value}/${hp.max}`, value: hp.value, max: hp.max, pct: ratio, critical: ratio <= CRITICAL_RATIO, stateKey };

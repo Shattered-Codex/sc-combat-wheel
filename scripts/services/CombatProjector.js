@@ -9,7 +9,7 @@ export default class CombatProjector {
   /**
    * @param {Combat|null} combat
    * @param {object} context  { isGM, settings, unknownName, isVideo }
-   *   settings: { portraitSource, hpForPlayers, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedMode, concealment, skipDead, secondsPerRound }
+   *   settings: { portraitSource, hpForPlayers, hpByDisposition, npcNames, hideEnemyInitiative, concealEnemyIdentity, defeatedMode, concealment, skipDead, secondsPerRound }
    * @returns {object|null} WheelModel
    */
   static project(combat, context) {
